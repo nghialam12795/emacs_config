@@ -1,0 +1,36 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("/Users/" . "nghialam/")
+ ("/Users/nghialam/" . ".emacs.d/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "/Users/nghialam/.emacs.d/"
+ "/Users/nghialam/.emacs.d_BK/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ ".gitignore"
+ "README.md"
+ "init.el"
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("/Users/nghialam/.emacs.d/" (24083 24564 215072 750000) ".git/" "elpa/" ".gitignore" "README.md" "init.el" "auto-save-list/" "LICENSE" ".DS_Store" "lisp/" "ido.last" "../" "./")
+
+ ("/Users/nghialam/" (24083 24345 333669 45000) ".leptonrc" ".emacs.d_BK/" ".bash_history" ".gitconfig" ".cache/" "Downloads/" ".vscode/" ".mono/" "Documents/" ".gitflow_export" "IdeaProjects/" ".Trash/" "Applications/" "Movies/" ".ssh/" "Public/" ".bash_sessions/" ".gitignore_global" ".android/" ".emacs.d/" ".oracle_jre_usage/" "Library/" "Desktop/" ".p2/" "Pictures/" "Projects/" ".local/" ".hgignore_global" ".CFUserTextEncoding" ".thumbnails/" ".DS_Store" ".haxelib" "Music/" ".config/" ".eclipse/" "../" "./")
+
+ ("/Users/Shared/" (23907 10037 0 0) "Previously Relocated Items/" "CleanMyMac X/" "CleanMyMac X Menu/" ".localized" ".DS_Store" "SC Info/" "adi/" "../" "./")
+
+ ("/Users/" (23953 4748 0 0) "nghialam/" "Shared/" ".localized" "../" "./")
+
+ ("/Users/nghialam/.emacs.d_BK/" (24083 23417 117799 396000) "#init.el#" ".travis.yml" ".cache/" ".circleci/" "logo-classic.png" "elpa/" "recentf" "early-init.el" "init-mini.el" "site-lisp/" "history" "_config.yml" "logo.png" ".gitignore" ".elfeed/" "README.md" "init.el" "url/" "auto-save-list/" "banner.txt" ".persistent-scratch" "var/" "amx-items" "custom.el" "persp-confs/" "transient/" "projectile-bookmarks.eld" "places" "Dockerfile/" "LICENSE" ".DS_Store" ".mc-lists.el" "custom-example.el" "lisp/" "snippets/" "../" "./")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t
