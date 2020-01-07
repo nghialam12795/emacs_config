@@ -1,6 +1,3 @@
-
-;; This is my Emacs Configuration
-;;
 ;;
 ;;███╗░░██╗░██████╗░██╗░░██╗██╗░█████╗░  ██╗░░░░░░█████╗░███╗░░░███╗██╗░██████╗
 ;;████╗░██║██╔════╝░██║░░██║██║██╔══██╗  ██║░░░░░██╔══██╗████╗░████║╚█║██╔════╝
@@ -32,6 +29,7 @@
 (defun update-load-path (&rest _)
   "Update `load-path'."
   (push (expand-file-name "lisp" user-emacs-directory) load-path)
+  (push (expand-file-name "site_lisp" user-emacs-directory) load-path)
 )
 (update-load-path)
 
@@ -46,15 +44,15 @@
 ;; Coding Setup
 ;; -------------------------------------------------------- 
 
-;; ###### Emacs Nav ###### ;;
-(ido-mode t)
-(ido-everywhere t)
-(setq ido-use-virtual-buffers t)
-(setq ido-use-filename-at-point 'guess)
-(setq ido-create-new-buffer 'always)
-(setq ido-enable-flex-matching t)
+;; ###### Emacs Util ##### ;;
+(require 'setup_ido)
+(require 'setup_projectile)
 
 ;; ######### C++ ######### ;;
+
+;; Package for C++
+;;(require 'setup_rtags)
+(require 'setup_flycheck)
 
 ;; Style guide
 (require 'google-c-style)

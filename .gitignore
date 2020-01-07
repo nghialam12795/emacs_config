@@ -1,8 +1,16 @@
 # Prerequisites
 .DS_Store
 
-# Emacs auto generate folder
+# -------------------------------------
+# Emacs ignore
+# -------------------------------------
+
 /auto-save-list
 /elpa
 /_backup
+
 ido.last
+projectile.cache
+projectile-bookmarks.eld
+
+user.el # User personal settings

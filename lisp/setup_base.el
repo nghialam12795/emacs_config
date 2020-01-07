@@ -31,4 +31,20 @@
 )
 (setq make-backup-file-name-function 'my_backup_file_name)
 
+;; Personal settings will be written to user.el
+(setq custom-file (expand-file-name "user.el" user-emacs-directory))
+
+(let ((user-template-file
+       (expand-file-name "user_template.el" user-emacs-directory)))
+  (if (and (file-exists-p user-template-file)
+           (not (file-exists-p custom-file))
+      )
+      (copy-file user-template-file custom-file)
+  )
+)
+
+(if (file-exists-p custom-file)
+    (load custom-file)
+)
+
 (provide 'setup_base)
