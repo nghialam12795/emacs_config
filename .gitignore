@@ -5,6 +5,7 @@
 # Emacs ignore
 # -------------------------------------
 
+/url
 /auto-save-list
 /elpa
 /_backup

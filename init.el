@@ -51,7 +51,7 @@
 ;; ######### C++ ######### ;;
 
 ;; Package for C++
-;;(require 'setup_rtags)
+(require 'setup_rtags)
 (require 'setup_flycheck)
 
 ;; Style guide
