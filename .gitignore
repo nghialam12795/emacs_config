@@ -3,3 +3,5 @@
 
 # Emacs auto generate folder
 /auto-save-list
+/elpa
+ido.last
