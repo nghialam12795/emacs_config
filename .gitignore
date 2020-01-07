@@ -13,4 +13,5 @@ ido.last
 projectile.cache
 projectile-bookmarks.eld
 
-user.el # User personal settings
+# User personal settings
+user.el 
