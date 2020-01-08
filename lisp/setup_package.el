@@ -21,7 +21,14 @@
 
 (eval-when-compile
   (require 'use-package)
+  )
+
+;; Built-in packages
+(use-package "startup"
+  :ensure nil
+  :config (setq inhibit-startup-screen t)
 )
+
 
 
 (provide 'setup_package)

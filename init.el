@@ -46,15 +46,25 @@
 
 ;; ###### Emacs Util ##### ;;
 (require 'setup_ido)
+(require 'setup_ivy)
 (require 'setup_projectile)
 
 ;; ######### C++ ######### ;;
 
 ;; Package for C++
-(require 'setup_rtags)
 (require 'setup_flycheck)
+(when (or sys/macos sys/linux)
+  (require 'setup_rtags) ;; not support on windows
+  (require 'setup_flyrtags)
+)
+(when sys/win32
+
+)
 
 ;; Style guide
+(require 'setup_clangformat)
 (require 'google-c-style)
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
+
+;; END C++ --------

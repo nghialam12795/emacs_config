@@ -31,6 +31,7 @@
 )
 (setq make-backup-file-name-function 'my_backup_file_name)
 
+
 ;; Personal settings will be written to user.el
 (setq custom-file (expand-file-name "user.el" user-emacs-directory))
 

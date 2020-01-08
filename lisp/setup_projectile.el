@@ -20,12 +20,11 @@
   
   ;; Helm support
   (projectile-global-mode)
-  (use-package helm-projectile)
+  (use-package helm-projectile
+    :ensure t
+  )
   (setq projectile-completion-system 'helm)
   (helm-projectile-on)
-
-  ;; Ignore these directories
-  (add-to-list 'projectile-globally-ignored-directories '("_backup", ".git"))
   
   ;; Use the faster searcher to handle project files: ripgrep `rg'.
   (when (and (not (executable-find "fd"))
