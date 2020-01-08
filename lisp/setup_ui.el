@@ -31,6 +31,7 @@
                                     :font font
                                     :height (cond (sys/macos 110)
                                                   (sys/win32 100)
+  						  (sys/linux 90)
 						  (t 100)
 					    )
 		)
@@ -49,7 +50,9 @@
   :ensure t
   :init (global-set-key [f8] 'neotree-toggle)
 )
+
 (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons 
 
+  
 (provide 'setup_ui)
