@@ -45,6 +45,7 @@
 ;; -------------------------------------------------------- 
 
 ;; ###### Emacs Util ##### ;;
+(require 'setup_org)
 (require 'setup_keyboard)
 (require 'setup_ivy)
 (require 'setup_projectile)

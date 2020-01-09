@@ -55,10 +55,14 @@
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons 
 
 ;; Setup Dashboard
+(defcustom e_logo (expand-file-name "res/emacs_logo.png" user-emacs-directory)
+  "Set up custom logo for the dashboard."
+  :type 'string
+)
 (use-package dashboard
   :ensure t
   :config
-  (setq dashboard-startup-banner 'logo
+  (setq dashboard-startup-banner (or e_logo 'official)
         dashboard-banner-logo-title "Nghia Lam's Emacs"
         dashboard-items '((recents  . 5)
 			  (projects . 5)
@@ -66,8 +70,10 @@
 			 )
         dashboard-set-footer nil
 	dashboard-set-heading-icons t
-	dashboard-set-file-icons t)
+	dashboard-set-file-icons t
+	show-week-agenda-p t)
 )
+
 (dashboard-setup-startup-hook)
 
 
