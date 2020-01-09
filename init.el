@@ -38,14 +38,14 @@
 (require 'setup_base)
 (require 'setup_package)
 (require 'setup_ui)
-
+(require 'setup_ido)
 
 ;; -------------------------------------------------------- 
 ;; Coding Setup
 ;; -------------------------------------------------------- 
 
 ;; ###### Emacs Util ##### ;;
-(require 'setup_ido)
+(require 'setup_keyboard)
 (require 'setup_ivy)
 (require 'setup_projectile)
 
@@ -54,8 +54,8 @@
 ;; Package for C++
 (require 'setup_flycheck)
 (when (or sys/macos sys/linux)
-  (require 'setup_rtags) ;; not support on windows
-  (require 'setup_flyrtags)
+  ;; (require 'setup_rtags) ;; not support on windows
+  ;; (require 'setup_flyrtags)
 )
 (when sys/win32
 
@@ -68,3 +68,9 @@
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 ;; END C++ --------
+
+
+;; ####### Markdown ####### ;;
+(require 'setup_markdown)
+
+;; END Markdown --------
