@@ -21,7 +21,7 @@
 
 (eval-when-compile
   (require 'use-package)
-  )
+)
 
 ;; Built-in packages
 (use-package "startup"

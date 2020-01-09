@@ -5,6 +5,16 @@
 ;; -----------------------------------------------------------
 
 
+;; Setup Key Helper
+(use-package which-key
+  :diminish
+  :config
+  (setq which-key-idle-delay 0.4
+        which-key-idle-secondary-delay 0.4)
+)
+(which-key-mode 1)
+
+
 ;; Setup `window_cursor_move'
 (defun ignore-error-wrapper (fn)
   "Funtion return new function that ignore errors.
@@ -46,5 +56,14 @@
   (yank) ;; Can be duplicated more with `C-y'
 )
 (global-set-key (kbd "C-c C-d") 'quick-dup-line)
+
+
+;; Setup `ace-jump'
+(require 'ace-jump-mode)
+(eval-after-load "ace-jump-mode" '(ace-jump-mode-enable-mark-sync))
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+(define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+
+
 
 (provide 'setup_keyboard)

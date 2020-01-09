@@ -54,5 +54,21 @@
 (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons 
 
-  
+;; Setup Dashboard
+(use-package dashboard
+  :ensure t
+  :config
+  (setq dashboard-startup-banner 'logo
+        dashboard-banner-logo-title "Nghia Lam's Emacs"
+        dashboard-items '((recents  . 5)
+			  (projects . 5)
+			  (agenda   . 5)
+			 )
+        dashboard-set-footer nil
+	dashboard-set-heading-icons t
+	dashboard-set-file-icons t)
+)
+(dashboard-setup-startup-hook)
+
+
 (provide 'setup_ui)

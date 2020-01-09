@@ -15,4 +15,5 @@ projectile.cache
 projectile-bookmarks.eld
 
 # User personal settings
-user.el 
+user.el
+recentf

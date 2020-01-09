@@ -54,8 +54,8 @@
 ;; Package for C++
 (require 'setup_flycheck)
 (when (or sys/macos sys/linux)
-  ;; (require 'setup_rtags) ;; not support on windows
-  ;; (require 'setup_flyrtags)
+  (require 'setup_rtags) ;; not support on windows
+  (require 'setup_flyrtags)
 )
 (when sys/win32
 
