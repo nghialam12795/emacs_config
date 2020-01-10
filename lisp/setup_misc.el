@@ -7,17 +7,22 @@
 
 (defconst sys/win32
   (eq system-type 'windows-nt)
-  "Are we running on a WinTel system?"
+  "Are we using a Window OS?"
 )
 
 (defconst sys/linux
   (eq system-type 'gnu/linux)
-  "Are we running on a GNU/Linux system?"
+  "Are we using a GNU/Linux OS?"
 )
 
 (defconst sys/macos
   (eq system-type 'darwin)
-  "Are we running on a Mac system?"
+  "Are we using a Mac OS?"
+)
+
+(defconst emacs/>=26p
+  (>= emacs-major-version 26)
+  "Emacs is 26 or above."
 )
 
 (provide 'setup_misc)

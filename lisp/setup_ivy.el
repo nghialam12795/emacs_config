@@ -5,6 +5,9 @@
 ;; -----------------------------------------------------------
 
 
+;; Prerequisite
+(use-package flx)
+
 ;; Setup `Ivy'
 (use-package ivy
   :diminish
@@ -40,5 +43,21 @@
   (setq swiper-action-recenter t)
   (setq swiper-goto-start-of-match t)
 )
+(use-package counsel
+  :diminish
+  :hook (ivy-mode . counsel-mode)
+  :bind (("C-s" . swiper-isearch)
+         ("C-r" . swiper-isearch-backward)
+         ("s-f" . swiper)
+         ("C-S-s" . swiper-all)
+	)
+  :custom
+  (counsel-rg-base-command "rg --vimgrep %s")
+  :config
+  (global-set-key (kbd "s-P") #'counsel-M-x)
+  (global-set-key (kbd "s-f") #'counsel-grep-or-swiper)
+)
+(use-package counsel-projectile)
+(counsel-projectile-mode 1)
 
 (provide 'setup_ivy)

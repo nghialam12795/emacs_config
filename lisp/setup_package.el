@@ -28,7 +28,13 @@
   :ensure nil
   :config (setq inhibit-startup-screen t)
 )
+(setq browse-url-browser-function 'eww-browse-url)
 
+;; Utilities packages
+(require 'devdocs-lookup)
+(devdocs-setup)
+(global-set-key (kbd "C-h C-p") #'devdocs-lookup-python)
+(global-set-key (kbd "C-h C-c") #'devdocs-lookup-cpp)
 
 
 (provide 'setup_package)

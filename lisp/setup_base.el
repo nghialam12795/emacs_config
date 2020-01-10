@@ -8,6 +8,10 @@
 ;; UTF-8 support
 (prefer-coding-system 'utf-8)
 
+;; Set up cursor
+;; (setq-default cursor-type 'bar)
+(setq-default cursor-in-non-selected-windows 'hollow)
+
 ;; Turn off unnecessary 
 (custom-set-variables
  '(menu-bar-mode nil)

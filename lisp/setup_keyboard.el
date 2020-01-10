@@ -64,6 +64,9 @@
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 
+;; Custom setup
+(define-key global-map (kbd "C-G") 'ff-find-other-file)
 
 
 (provide 'setup_keyboard)
+;;; setup_keyboard.el ends here

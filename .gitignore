@@ -15,5 +15,7 @@ projectile.cache
 projectile-bookmarks.eld
 
 # User personal settings
+/.cache
 user.el
 recentf
+/irony

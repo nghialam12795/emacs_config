@@ -59,8 +59,9 @@
   (require 'setup_flyrtags)
 )
 (when sys/win32
-
+  (require 'setup_irony)
 )
+(require 'setup_cmake)
 
 ;; Style guide
 (require 'setup_clangformat)

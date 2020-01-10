@@ -1,7 +1,13 @@
 * Tasks
-** TODO [Emacs]C++ Configure (For cross-platform)
+** TODO [emacs_config] C++ Configure (For cross-platform)
    SCHEDULED: <2020-01-11 Sat>
 ** DONE Markdown Support
    CLOSED: [2020-01-09 Thu 16:12]
-** TODO Writing a proper README
+** TODO [emacs_config] Writing a proper README
    SCHEDULED: <2020-01-10 Fri>
+** TODO [emacs_config] Investigate config dashboard more mordern
+-------------------------------------------------------------
+** TODO [Asteroid] Investigate shrink_to_fit for optimization
+** TODO [Asteroid] Add Menus
+
+   
