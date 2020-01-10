@@ -6,7 +6,8 @@
 
 
 ;; Setup `CMake-ide'
-(use-package cmake-ide)
-(cmake-ide-setup)
+(use-package cmake-ide
+  :config (cmake-ide-setup)
+)
 
 (provide 'setup_cmake)

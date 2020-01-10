@@ -44,7 +44,10 @@
 
 (use-package company
   :ensure t
-  :init (global-company-mode)
+  :init
+  (setq company-idle-delay nil
+        company-tooltip-align-annotations t)
+  :hook (after-init . global-company-mode)
   :bind (("<backtab>" . company-complete-common-or-cycle))
   ;; :config
   ;; (delete 'company-backends 'company-clang)
