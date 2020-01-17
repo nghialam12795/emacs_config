@@ -1,8 +1,16 @@
-;; setup_ui.el
+;;; setup_ui.el --- Setting the ui, themes for Emacs
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up the UI, themes for Emacs
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;; Setting the ui, themes for Emacs
 ;; -----------------------------------------------------------
+
+;;; Code:
 
 ;; Setup Themes
 (use-package doom-themes
@@ -16,6 +24,10 @@
                       :background (face-foreground 'error)
                       :inverse-video 'unspecified)
   (doom-themes-org-config)
+)
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-mode)
 )
 
 ;; Setup Fonts
@@ -45,18 +57,7 @@
   :hook (after-init . all-the-icons-ivy-setup)
 )
 
-;; Setup Tree Directory (Comment/Uncomment for neotree or treemacs)
-
-;; ;; `Neotree' - more lightweight/less functions
-;; (use-package neotree
-;;   :ensure t
-;;   :init
-;;   (global-set-key [f8] 'neotree-toggle)
-;;   (global-set-key [f5] 'neotree-refresh)
-;; )
-;; (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-;; ;; End `Neotree'
-
+;; Setup Tree Directory
 ;; `Treemacs'
 (use-package treemacs
   :ensure t
@@ -82,7 +83,7 @@
           treemacs-indentation-string            " "
           treemacs-is-never-other-window         nil
           treemacs-max-git-entries               500
-          treemacs-missing-project-action        'ask         
+          treemacs-missing-project-action        'ask
           treemacs-no-delete-other-windows       t
           treemacs-project-follow-cleanup        nil
           treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
@@ -138,7 +139,7 @@
 (doom-themes-treemacs-config)
 ;; End `Treemacs'
 
-(setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons 
+(setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
 
 
 ;; Setup Dashboard
@@ -164,3 +165,4 @@
 
 
 (provide 'setup_ui)
+;;; setup_ui.el ends here

@@ -1,9 +1,16 @@
-;; setup_projectile.el
+;;; setup_projectile.el --- Setting up the Projectile packages
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up the Projectile packages
+;;
+;; This file is created based on the author's coding habit.
+;; This may not be suitable for some people.
+
+;;; Commentary:
+;;
+;; Setting up the Projectile packages
 ;; -----------------------------------------------------------
 
+;;; Code:
 
 ;; Setup `projectile' - For Project Management
 (use-package projectile
@@ -19,7 +26,7 @@
   :config
   
   ;; Helm support
-  (projectile-global-mode)
+  (projectile-mode)
   (use-package helm-projectile
     :ensure t
   )
@@ -52,3 +59,4 @@
 
 
 (provide 'setup_projectile)
+;;; setup_projectile.el ends here

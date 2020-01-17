@@ -12,9 +12,9 @@
 
 ;;; Code:
 
-(defconst nlemacs/version
+(defconst pemacs/version
   "0.0.1"
-  "Nghia Lam Emacs version."
+  "Penguin Emacs version."
 )
 
 (defconst sys/win32

@@ -1,3 +1,4 @@
+;;; init.el --- init file for emacs
 ;;
 ;;███╗░░██╗░██████╗░██╗░░██╗██╗░█████╗░  ██╗░░░░░░█████╗░███╗░░░███╗██╗░██████╗
 ;;████╗░██║██╔════╝░██║░░██║██║██╔══██╗  ██║░░░░░██╔══██╗████╗░████║╚█║██╔════╝
@@ -13,10 +14,20 @@
 ;;███████╗██║░╚═╝░██║██║░░██║╚█████╔╝██████╔╝
 ;;╚══════╝╚═╝░░░░░╚═╝╚═╝░░╚═╝░╚════╝░╚═════╝░
 
+;; Author: Nghia Lam
+;;
+;; This file is developed based on the author coding habit.
+;; This may not be suitable for some people.
 
-;; -------------------------------------------------------- 
+;;; Commentary:
+;;
+;; Init file for Emacs settings
+;;
+
+;;; Code:
+;; --------------------------------------------------------
 ;; General Setting
-;; -------------------------------------------------------- 
+;; --------------------------------------------------------
 
 ;; Package archives
 (package-initialize)
@@ -40,14 +51,15 @@
 (require 'setup_ui)
 (require 'setup_ido)
 
-;; -------------------------------------------------------- 
+;; --------------------------------------------------------
 ;; Coding Setup
-;; -------------------------------------------------------- 
+;; --------------------------------------------------------
 
 ;; ###### Emacs Util ##### ;;
 (require 'setup_org)
 (require 'setup_keyboard)
 (require 'setup_ivy)
+(require 'setup_helm)
 (require 'setup_projectile)
 
 ;; ######### C++ ######### ;;
@@ -58,9 +70,7 @@
   (require 'setup_rtags) ;; not support on windows
   (require 'setup_flyrtags)
 )
-(when sys/win32
-  (require 'setup_irony)
-)
+(require 'setup_irony)
 (require 'setup_cmake)
 
 ;; Style guide
@@ -76,3 +86,7 @@
 (require 'setup_markdown)
 
 ;; END Markdown --------
+
+
+
+;;; init.el ends here
