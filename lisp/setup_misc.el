@@ -1,9 +1,21 @@
-;; setup_misc.el
+;;; setup_misc.el --- Setting up the constants, ultilities function for further setup
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up the constants, ultilities function for further setup
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;; Setting up the constants, ultilities function for further setup
 ;; -----------------------------------------------------------
 
+;;; Code:
+
+(defconst nlemacs/version
+  "0.0.1"
+  "Nghia Lam Emacs version."
+)
 
 (defconst sys/win32
   (eq system-type 'windows-nt)
@@ -26,3 +38,4 @@
 )
 
 (provide 'setup_misc)
+;;; setup_misc.el ends here
