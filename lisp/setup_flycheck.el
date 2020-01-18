@@ -1,13 +1,26 @@
-;; setup_flycheck.el
+;;; setup_flycheck.el --- Setting up Flycheck package for linter
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up flycheck packages
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;;  Setting up Flycheck package for linter
 ;; -----------------------------------------------------------
+
+;;; Code:
+
 
 ;; Setup `flycheck' - For syntax highlight
 (use-package flycheck
   :diminish
-  :hook (after-init . global-flycheck-mode)
+  :hook ((css-mode . flycheck-mode)
+	 (emacs-lisp-mode . flycheck-mode)
+	 (python-mode . flycheck-mode)
+	 (after-init . global-flycheck-mode)
+	)
   :config
   (setq flycheck-emacs-lisp-load-path 'inherit)
 
@@ -46,3 +59,4 @@
 (add-hook 'c-mode-hook 'flycheck-mode)
 
 (provide 'setup_flycheck)
+;;; setup_flycheck.el ends here

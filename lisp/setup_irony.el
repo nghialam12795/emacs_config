@@ -50,17 +50,6 @@
   )
 )
 
-(use-package company
-  :ensure t
-  :init
-  (setq company-idle-delay nil
-        company-tooltip-align-annotations t)
-  :hook (after-init . global-company-mode)
-  :bind (("<backtab>" . company-complete-common-or-cycle))
-  ;; :config
-  ;; (delete 'company-backends 'company-clang)
-)
-
 ;; Intergrate with flycheck
 (use-package flycheck-irony)
 (eval-after-load 'flycheck

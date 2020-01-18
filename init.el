@@ -59,13 +59,13 @@
 (require 'setup_org)
 (require 'setup_keyboard)
 (require 'setup_ivy)
-(require 'setup_helm)
 (require 'setup_projectile)
+(require 'setup_git)
+(require 'setup_company)
 
 ;; ######### C++ ######### ;;
 
 (require 'setup_flycheck)
-
 (require 'setup_irony)
 (require 'setup_cmake)
 
