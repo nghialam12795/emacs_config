@@ -16,7 +16,6 @@
 (use-package doom-themes
   :defines doom-themes-treemacs-theme
   :config
-
   (doom-themes-visual-bell-config)
   (set-face-attribute 'doom-visual-bell nil
                       :inherit 'mode-line
@@ -24,6 +23,7 @@
                       :inverse-video 'unspecified)
   (doom-themes-org-config)
 )
+
 ;; (use-package doom-modeline
 ;;   :ensure t
 ;;   :hook (after-init . doom-modeline-mode)
@@ -165,11 +165,25 @@
 
 
 ;; Setup my modeline
-(use-package smart-mode-line)
-(use-package smart-mode-line-powerline-theme)
-(setq sml/theme 'powerline)
-(sml/setup)
-
+(use-package spaceline
+  :ensure t
+  :init
+  (require 'spaceline-config)
+  (setq spaceline-highlight-face-func 'spaceline-highlight-face-evil-state)
+  :config
+  (progn
+    (spaceline-define-segment buffer-id
+      (if (buffer-file-name)
+          (let ((project-root (projectile-project-p)))
+            (if project-root
+                (file-relative-name (buffer-file-name) project-root)
+              (abbreviate-file-name (buffer-file-name))))
+        (powerline-buffer-id)))
+    (setq powerline-default-separator 'contour)
+    (spaceline-helm-mode)
+    (spaceline-spacemacs-theme)
+    (spaceline-toggle-minor-modes-off))
+)
 
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
