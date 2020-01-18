@@ -1,8 +1,16 @@
-;; setup_ivy.el
+;;; setup_ivy.el --- Setting up the Ivy package for a smoother navigation
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up Ivy package for a smoother navigation
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;; Setting up Ivy package for a smoother navigation
 ;; -----------------------------------------------------------
+
+;;; Code:
 
 
 ;; Prerequisite
@@ -61,3 +69,4 @@
 (counsel-projectile-mode 1)
 
 (provide 'setup_ivy)
+;;; setup_ivy.el ends here

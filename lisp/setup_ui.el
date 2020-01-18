@@ -15,7 +15,6 @@
 ;; Setup Themes
 (use-package doom-themes
   :defines doom-themes-treemacs-theme
-  :functions doom-themes-hide-modeline
   :config
 
   (doom-themes-visual-bell-config)
@@ -25,10 +24,11 @@
                       :inverse-video 'unspecified)
   (doom-themes-org-config)
 )
-(use-package doom-modeline
-  :ensure t
-  :hook (after-init . doom-modeline-mode)
-)
+;; (use-package doom-modeline
+;;   :ensure t
+;;   :hook (after-init . doom-modeline-mode)
+;; )
+
 
 ;; Setup Fonts
 (defun is_font (font-name)
@@ -143,7 +143,7 @@
 
 
 ;; Setup Dashboard
-(defcustom e_logo (expand-file-name "res/emacs_logo.png" user-emacs-directory)
+(defcustom e_logo (expand-file-name "res/penmacs_logo.png" user-emacs-directory)
   "Set up custom logo for the dashboard."
   :type 'string
 )
@@ -151,7 +151,7 @@
   :ensure t
   :config
   (setq dashboard-startup-banner (or e_logo 'official)
-        dashboard-banner-logo-title "Nghia Lam's Emacs"
+        dashboard-banner-logo-title "Penguin Emacs"
         dashboard-items '((recents  . 5)
 			  (projects . 5)
 			  (agenda   . 5)
@@ -162,6 +162,13 @@
 	show-week-agenda-p t)
 )
 (dashboard-setup-startup-hook)
+
+
+;; Setup my modeline
+(use-package smart-mode-line)
+(use-package smart-mode-line-powerline-theme)
+(setq sml/theme 'powerline)
+(sml/setup)
 
 
 (provide 'setup_ui)

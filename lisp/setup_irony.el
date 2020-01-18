@@ -1,8 +1,16 @@
-;; setup_irony.el
+;;; setup_irony.el --- Setting up Irony package for C++
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up Irony package for C++
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;; Setting the ui, themes for Emacs
 ;; -----------------------------------------------------------
+
+;;; Code:
 
 
 ;; Setup `Irony'
@@ -60,3 +68,4 @@
 )
 
 (provide 'setup_irony)
+;;; setup_irony.el ends here
