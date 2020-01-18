@@ -1,8 +1,16 @@
-;; setup_keyboard.el
+;;; setup_keyboard.el --- Setting default keyboard for my usage
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up Default Keyboard for my usage
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;; Setting default keyboard for my usage
 ;; -----------------------------------------------------------
+
+;;; Code:
 
 
 ;; Setup Key Helper
@@ -66,6 +74,8 @@
 
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
 
 
 (provide 'setup_keyboard)

@@ -49,6 +49,25 @@
 		)
 )
 
+;; Setup cursor highlight
+(global-hl-line-mode t)
+
+;; Setup title bar
+(setq frame-title-format '("" "%b - Penguin Emacs 🐧"))
+
+;; Setup time, date and battery life
+(setq display-time-day-and-date t)
+(display-time)
+
+(use-package fancy-battery
+  :diminish
+  :config
+    (setq fancy-battery-show-percentage t)
+    (setq battery-update-interval 15)
+    (fancy-battery-mode)
+    (display-battery-mode)
+)
+
 ;; Setup Icons
 (use-package all-the-icons
   :config (setq all-the-icons-scale-factor 1.0)

@@ -1,10 +1,16 @@
-;; setup_package.el
+;;; setup_package.el --- Setting up Use Package for manage packages and configure some minimal packages
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up the package requirement for my workflow
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;; Setting up Use Package for manage packages and configure some minimal packages
 ;; -----------------------------------------------------------
 
-
+;;; Code:
 
 ;; Setup `use-package'
 (unless (package-installed-p 'use-package)
@@ -38,3 +44,4 @@
 
 
 (provide 'setup_package)
+;;; setup_package.el ends here
