@@ -5,7 +5,7 @@
 ;; -----------------------------------------------------------
 
 ;; Customize some value here
-(setq org-agenda-files (list "~/.emacs.d/org/TODO.org")
+(setq org-agenda-files (list "~/.emacs.d/org/TODO.org"))
 
 ;; Personal Settings
 (custom-set-variables
