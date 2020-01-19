@@ -26,12 +26,6 @@
   (doom-themes-org-config)
 )
 
-;; (use-package doom-modeline
-;;   :ensure t
-;;   :hook (after-init . doom-modeline-mode)
-;; )
-
-
 ;; Setup Fonts
 (defun is_font (font-name)
   "Check if font with FONT-NAME is available."

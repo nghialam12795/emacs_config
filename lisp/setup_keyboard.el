@@ -26,7 +26,7 @@
 ;; Setup `window_cursor_move'
 (defun ignore-error-wrapper (fn)
   "Funtion return new function that ignore errors.
-   The function wraps a function with `ignore-errors' macro."
+The function wraps a function with `ignore-errors' macro."
   (lexical-let ((fn fn))
     (lambda ()
       (interactive)
@@ -51,6 +51,7 @@
 
 ;; Setup `quick_dup_line'
 (defun quick-dup-line ()
+  "Quickly duplicate the current line down."
   (interactive)
   (let ((beg (line-beginning-position 1))
         (end (line-beginning-position 2))
@@ -71,6 +72,19 @@
 (eval-after-load "ace-jump-mode" '(ace-jump-mode-enable-mark-sync))
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+
+;; Smarter `C-a'
+(global-set-key [remap move-beginning-of-line] #'penguin/beginning-of-line-dwim)
+(defun penguin/beginning-of-line-dwim ()
+  "Move point to first non-whitespace character, or beginning of line."
+  (interactive "^")
+  (let ((origin (point)))
+    (beginning-of-line)
+    (and (= origin (point))
+         (back-to-indentation)
+    )
+  )
+)
 
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)

@@ -45,8 +45,49 @@
   (setq ivy-posframe-width 70)
 )
 (ivy-posframe-mode 1)
+(use-package ivy-rich
+  :init
+  (setq ivy-rich-display-transformers-list ; max column width sum = (ivy-poframe-width - 1)
+        '(ivy-switch-buffer
+          (:columns
+           ((ivy-rich-candidate (:width 35))
+            (ivy-rich-switch-buffer-project (:width 15 :face success))
+            (ivy-rich-switch-buffer-major-mode (:width 13 :face warning)))
+           :predicate
+           #'(lambda (cand) (get-buffer cand)))
+          counsel-M-x
+          (:columns
+           ((counsel-M-x-transformer (:width 35))
+            (ivy-rich-counsel-function-docstring (:width 34 :face font-lock-doc-face))))
+          counsel-describe-function
+          (:columns
+           ((counsel-describe-function-transformer (:width 35))
+            (ivy-rich-counsel-function-docstring (:width 34 :face font-lock-doc-face))))
+          counsel-describe-variable
+          (:columns
+           ((counsel-describe-variable-transformer (:width 35))
+            (ivy-rich-counsel-variable-docstring (:width 34 :face font-lock-doc-face))))
+          package-install
+          (:columns
+           ((ivy-rich-candidate (:width 25))
+            (ivy-rich-package-version (:width 12 :face font-lock-comment-face))
+            (ivy-rich-package-archive-summary (:width 7 :face font-lock-builtin-face))
+            (ivy-rich-package-install-summary (:width 23 :face font-lock-doc-face))))))
+  :hook (after-init . ivy-rich-mode)
+  :config
+  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+)
+
 (use-package swiper
   :after ivy
+  :preface
+  (defun penguin/swiper ()
+    "`swiper' with string returned by `ivy-thing-at-point' as initial input."
+    (interactive)
+    (swiper (ivy-thing-at-point))
+  )
+  :bind
+  :bind ("C-s" . penguin/swiper)
   :config
   (setq swiper-action-recenter t)
   (setq swiper-goto-start-of-match t)
@@ -65,7 +106,11 @@
   (global-set-key (kbd "s-P") #'counsel-M-x)
   (global-set-key (kbd "s-f") #'counsel-grep-or-swiper)
 )
-(use-package counsel-projectile)
+(use-package counsel-projectile
+  :after ivy
+  :config
+  (setq-default ivy-initial-inputs-alist nil)
+)
 (counsel-projectile-mode 1)
 
 (provide 'setup_ivy)

@@ -63,6 +63,11 @@
 (require 'setup_git)
 (require 'setup_company)
 
+;; ##### Emacs Lisp ###### ;;
+(require 'setup_lisp)
+
+;; END Lisp --------
+
 ;; ######### C++ ######### ;;
 
 (require 'setup_flycheck)
