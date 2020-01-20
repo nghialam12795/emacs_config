@@ -265,16 +265,8 @@
 ;; )
 
 ;; `smart-modeline'
-(use-package smart-mode-line-powerline-theme
-  :ensure t)
-
-(use-package smart-mode-line
-  :ensure t
-  :config
-  (setq sml/theme 'powerline)
-  (add-hook 'after-init-hook 'sml/setup)
-)
-
+(require 'powerline)
+(setq powerline-arrow-shape 'curve)
  
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
