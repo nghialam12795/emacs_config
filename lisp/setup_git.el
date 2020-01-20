@@ -24,9 +24,11 @@
 )
 (use-package magit
   :bind
+  ("C-x g" . magit-status)
   (:map magit-hunk-section-map
         ("RET" . magit-diff-visit-file-other-window)
-        ([return] . magit-diff-visit-file-other-window))
+        ([return] . magit-diff-visit-file-other-window)
+  )
   :custom
   (magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
   (magit-diff-highlight-hunk-body nil)

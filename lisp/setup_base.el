@@ -51,7 +51,7 @@
 (put 'downcase-region 'disabled nil)               ; Enable downcase-region
 (put 'upcase-region 'disabled nil)                 ; Enable upcase-region
 (set-default-coding-systems 'utf-8)                ; Default to utf-8 encoding
-
+(toggle-frame-maximized)                           ; Toggle maximized
 
 ;; Set up cursor
 ;; (setq-default cursor-type 'bar)
@@ -81,7 +81,7 @@
 (setq make-backup-file-name-function 'my_backup_file_name)
 
 
-;; Personal settings will be written to user.el
+;; personal settings will be written to user.el
 (setq custom-file (expand-file-name "user.el" user-emacs-directory))
 
 (let ((user-template-file

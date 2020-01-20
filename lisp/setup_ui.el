@@ -14,7 +14,9 @@
 
 (require 'setup_misc)
 
+;; ###########################
 ;; Setup Themes
+;; ###########################
 (use-package doom-themes
   :defines doom-themes-treemacs-theme
   :config
@@ -26,6 +28,16 @@
   (doom-themes-org-config)
 )
 (load-theme 'doom-gruvbox t)
+;; Display dividers between windows
+(setq window-divider-default-places t
+      window-divider-default-bottom-width 1
+      window-divider-default-right-width 1)
+(add-hook 'window-setup-hook #'window-divider-mode)
+;; Narrow/Widen
+(use-package fancy-narrow
+  :diminish
+  :hook (after-init . fancy-narrow-mode)
+)
 
 ;; Setup Fonts
 (defun is_font (font-name)
@@ -46,16 +58,13 @@
 		)
 )
 
-;; Setup cursor highlight
-(global-hl-line-mode t)
-
 ;; Setup title bar
 (setq frame-title-format '("" "%b - Penguin Emacs 🐧"))
-
+;; Setup line number
+(display-line-numbers-mode)
 ;; Setup time, date and battery life
 (setq display-time-day-and-date t)
 (display-time)
-
 (use-package fancy-battery
   :diminish
   :config
@@ -73,7 +82,10 @@
   :hook (after-init . all-the-icons-ivy-setup)
 )
 
+;; ############################
 ;; Setup Tree Directory
+;; ############################
+
 ;; `Treemacs'
 (use-package treemacs
   :ensure t
@@ -188,6 +200,7 @@
 (use-package doom-modeline
   :demand t
   :custom
+  (doom-modeline-override-battery-modeline t)
   (doom-modeline-buffer-file-name-style 'relative-to-project)
   (doom-modeline-enable-word-count t)
   (doom-modeline-icon t)
@@ -202,16 +215,20 @@
               (propertize (abbreviate-file-name default-directory) 'face face)
               (doom-modeline-spc)))
   )
+  (doom-modeline-def-segment penguin/buffer-name
+    "The buffer name."
+    (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc))
+  )
+  (doom-modeline-def-segment penguin/battery-life
+    "The buffer name."
+    (concat (doom-modeline-spc) (fancy-battery-default-mode-line) (doom-modeline-spc))
+  )
   (doom-modeline-def-segment penguin/time
     "Time"
     (when (doom-modeline--active)
       (propertize
        (format-time-string " %b %d, %Y - %H:%M ")
        'face (when (doom-modeline--active) `(:foreground "#1b335f" :background "#fab95b"))))
-  )
-  (doom-modeline-def-segment penguin/buffer-name
-    "The buffer name."
-    (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc))
   )
   (doom-modeline-def-segment penguin/buffer-name-simple
     "The buffer name but stimpler."
@@ -247,22 +264,84 @@
   (doom-modeline-mode 1)
   (doom-modeline-def-modeline 'info
     '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info )
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/time))
+    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'main
     '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info )
-    '(irc-buffers matches process penguin/vsc penguin/major-mode workspace-name penguin/time))
+    '(irc-buffers matches process penguin/vsc penguin/major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'message
     '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info )
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/time))
+    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'project
     '(bar buffer-default-directory)
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/time))
+    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'special
     '(bar penguin/buffer-name penguin/buffer-pos selection-info )
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/time))
+    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'vcs
     '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/time))
+    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
+)
+;; A minor-mode menu for mode-line
+(use-package minions
+  :hook (doom-modeline-mode . minions-mode)
+)
+
+
+;; ##########################
+;; `Highlight'
+;; ##########################
+
+;; Setup cursor highlight
+(global-hl-line-mode t)
+;; Highlight matching parens
+(use-package paren
+  :ensure nil
+  :hook (after-init . show-paren-mode)
+  :init (setq show-paren-when-point-inside-paren t
+              show-paren-when-point-in-periphery t)
+  :config
+  (with-no-warnings
+    (defun display-line-overlay (pos str &optional face)
+      "Display line at POS as STR with FACE.
+FACE defaults to inheriting from default and highlight."
+      (let ((ol (save-excursion
+                  (goto-char pos)
+                  (make-overlay (line-beginning-position)
+                                (line-end-position)))))
+        (overlay-put ol 'display str)
+        (overlay-put ol 'face
+                     (or face '(:inherit highlight)))
+        ol))
+
+    (defvar-local show-paren--off-screen-overlay nil)
+    (defun show-paren-off-screen (&rest _args)
+      "Display matching line for off-screen paren."
+      (when (overlayp show-paren--off-screen-overlay)
+        (delete-overlay show-paren--off-screen-overlay))
+      ;; check if it's appropriate to show match info,
+      (when (and (overlay-buffer show-paren--overlay)
+                 (not (or cursor-in-echo-area
+                          executing-kbd-macro
+                          noninteractive
+                          (minibufferp)
+                          this-command))
+                 (and (not (bobp))
+                      (memq (char-syntax (char-before)) '(?\) ?\$)))
+                 (= 1 (logand 1 (- (point)
+                                   (save-excursion
+                                     (forward-char -1)
+                                     (skip-syntax-backward "/\\")
+                                     (point))))))
+        ;; rebind `minibuffer-message' called by
+        ;; `blink-matching-open' to handle the overlay display
+        (cl-letf (((symbol-function #'minibuffer-message)
+                   (lambda (msg &rest args)
+                     (let ((msg (apply #'format-message msg args)))
+                       (setq show-paren--off-screen-overlay
+                             (display-line-overlay
+                              (window-start) msg ))))))
+          (blink-matching-open))))
+    (advice-add #'show-paren-function :after #'show-paren-off-screen))
 )
 
 

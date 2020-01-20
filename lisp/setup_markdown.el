@@ -1,8 +1,16 @@
-;; setup_markdown.el
+;;; setup_markdown.el --- Setting up package for Markdown language
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up Markdown Mode for support Markdown editing
+;;
+;; This file is created based on the author's coding habit.
+;; This may not be suitable for some people.
+
+;;; Commentary:
+;;
+;; Setting up package for Markdown language
 ;; -----------------------------------------------------------
+
+;;; Code:
 
 
 ;; Setup `markdown-mode'
@@ -17,3 +25,4 @@
 
 
 (provide 'setup_markdown)
+;;; setup_markdown.el ends here
