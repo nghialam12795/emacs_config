@@ -180,6 +180,8 @@
 
 
 ;; Setup my modeline
+
+;; `doom-modeline'
 (use-package doom-modeline
   :demand t
   :custom
@@ -196,26 +198,26 @@
       (concat (doom-modeline-spc)
               (propertize (abbreviate-file-name default-directory) 'face face)
               (doom-modeline-spc))))
-  (doom-modeline-def-segment me/buffer-name
+  (doom-modeline-def-segment penguin/buffer-name
     "The buffer name."
     (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc)))
-  (doom-modeline-def-segment me/buffer-name-simple
+  (doom-modeline-def-segment penguin/buffer-name-simple
     "The buffer name but stimpler."
     (let* ((active (doom-modeline--active))
            (face (cond ((and buffer-file-name (buffer-modified-p)) 'doom-modeline-buffer-modified)
                        (active 'doom-modeline-buffer-file)
                        (t 'mode-line-inactive))))
       (concat (doom-modeline-spc) (propertize "%b" 'face face) (doom-modeline-spc))))
-  (doom-modeline-def-segment me/buffer-position
+  (doom-modeline-def-segment penguin/buffer-pos
     "The buffer position."
     (let* ((active (doom-modeline--active))
            (face (if active 'mode-line 'mode-line-inactive)))
       (propertize (concat (doom-modeline-spc) (format-mode-line "%l:%c") (doom-modeline-spc))
                   'face face)))
-  (doom-modeline-def-segment me/major-mode
+  (doom-modeline-def-segment penguin/major-mode
     "The current major mode, including environment information."
     (let* ((active (doom-modeline--active))
-           (face (if active 'doom-modeline-buffer-major-mode 'mode-line-inactive)))
+           (face (if active 'doom-modeline-buffxser-major-mode 'mode-line-inactive)))
       (propertize (concat (doom-modeline-spc) mode-name (doom-modeline-spc))
                   'face face)))
   (doom-modeline-def-segment me/vcs
@@ -228,25 +230,24 @@
                 (doom-modeline-spc)))))
   (doom-modeline-mode 1)
   (doom-modeline-def-modeline 'info
-    '(bar me/buffer-name info-nodes me/buffer-position selection-info)
-    '(irc-buffers matches process me/major-mode workspace-name))
+    '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info)
+    '(irc-buffers matches process penguin/major-mode workspace-name))
   (doom-modeline-def-modeline 'main
-    '(bar me/buffer-name remote-host me/buffer-position checker selection-info)
-    '(irc-buffers matches process me/vcs me/major-mode workspace-name))
+    '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info)
+    '(irc-buffers matches process me/vcs penguin/major-mode workspace-name))
   (doom-modeline-def-modeline 'message
-    '(bar me/buffer-name-simple me/buffer-position selection-info)
-    '(irc-buffers matches process me/major-mode workspace-name))
+    '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info)
+    '(irc-buffers matches process penguin/major-mode workspace-name))
   (doom-modeline-def-modeline 'project
     '(bar buffer-default-directory)
-    '(irc-buffers matches process me/major-mode workspace-name))
+    '(irc-buffers matches process penguin/major-mode workspace-name))
   (doom-modeline-def-modeline 'special
-    '(bar me/buffer-name me/buffer-position selection-info)
-    '(irc-buffers matches process me/major-mode workspace-name))
+    '(bar penguin/buffer-name penguin/buffer-pos selection-info)
+    '(irc-buffers matches process penguin/major-mode workspace-name))
   (doom-modeline-def-modeline 'vcs
-    '(bar me/buffer-name remote-host me/buffer-position selection-info)
-    '(irc-buffers matches process me/major-mode workspace-name))
+    '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
+    '(irc-buffers matches process penguin/major-mode workspace-name))
 )
-
 
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
