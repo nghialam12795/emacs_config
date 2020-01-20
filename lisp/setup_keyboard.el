@@ -90,7 +90,7 @@ The function wraps a function with `ignore-errors' macro."
 (define-key global-map (kbd "C-G") 'ff-find-other-file)
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
-
+(global-unset-key (kbd "C-z")) ;; Remove annoying keymap
 
 (provide 'setup_keyboard)
 ;;; setup_keyboard.el ends here

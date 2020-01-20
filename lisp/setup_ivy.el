@@ -92,6 +92,11 @@
   (setq swiper-action-recenter t)
   (setq swiper-goto-start-of-match t)
 )
+(use-package anzu
+  :config
+  (global-anzu-mode t)
+)
+
 (use-package counsel
   :diminish
   :hook (ivy-mode . counsel-mode)

@@ -57,6 +57,7 @@
   (advice-add 'dired-readin :after #'penguin/dired-directories-first)
 )
 
+
 ;; Utilities packages
 (require 'devdocs-lookup)
 (devdocs-setup)

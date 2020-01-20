@@ -19,3 +19,5 @@ projectile-bookmarks.eld
 user.el
 recentf
 /irony
+.mc-lists.el
+/transient

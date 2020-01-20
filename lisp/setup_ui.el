@@ -25,6 +25,7 @@
                       :inverse-video 'unspecified)
   (doom-themes-org-config)
 )
+(load-theme 'doom-gruvbox t)
 
 ;; Setup Fonts
 (defun is_font (font-name)
@@ -142,11 +143,10 @@
   :after treemacs projectile
   :ensure t
 )
-;; (use-package treemacs-icons-dired
-;;   :after treemacs dired
-;;   :ensure t
-;;   :config (treemacs-icons-dired-mode)
-;; )
+(use-package treemacs-icons-dired
+  :after treemacs dired
+  :ensure t
+)
 ;; (use-package treemacs-magit
 ;;   :after treemacs magit
 ;;   :ensure t
@@ -155,6 +155,15 @@
 ;; End `Treemacs'
 
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
+
+;; Highlight indentation
+(use-package highlight-indent-guides
+  :config
+  (setq highlight-indent-guides-method 'column
+        highlight-indent-guides-auto-odd-face-perc 5
+        highlight-indent-guides-auto-even-face-perc 5)
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+)
 
 
 ;; Setup Dashboard
@@ -181,73 +190,91 @@
 
 ;; Setup my modeline
 
-;; `doom-modeline'
-(use-package doom-modeline
-  :demand t
-  :custom
-  (doom-modeline-buffer-file-name-style 'relative-to-project)
-  (doom-modeline-enable-word-count t)
-  (doom-modeline-icon t)
-  (doom-modeline-percent-position nil)
-  (doom-modeline-vcs-max-length 28)
+;; ;; `doom-modeline'
+;; (use-package doom-modeline
+;;   :demand t
+;;   :custom
+;;   (doom-modeline-buffer-file-name-style 'relative-to-project)
+;;   (doom-modeline-enable-word-count t)
+;;   (doom-modeline-icon t)
+;;   (doom-modeline-percent-position nil)
+;;   (doom-modeline-vcs-max-length 28)
+;;   :config
+;;   (doom-modeline-def-segment buffer-default-directory
+;;     "The buffer directory."
+;;     (let* ((active (doom-modeline--active))
+;;            (face (if active 'doom-modeline-buffer-path 'mode-line-inactive)))
+;;       (concat (doom-modeline-spc)
+;;               (propertize (abbreviate-file-name default-directory) 'face face)
+;;               (doom-modeline-spc)))
+;;   )
+;;   (doom-modeline-def-segment penguin/buffer-name
+;;     "The buffer name."
+;;     (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc))
+;;   )
+;;   (doom-modeline-def-segment penguin/buffer-name-simple
+;;     "The buffer name but stimpler."
+;;     (let* ((active (doom-modeline--active))
+;;            (face (cond ((and buffer-file-name (buffer-modified-p)) 'doom-modeline-buffer-modified)
+;;                        (active 'doom-modeline-buffer-file)
+;;                        (t 'mode-line-inactive))))
+;;       (concat (doom-modeline-spc) (propertize "%b" 'face face) (doom-modeline-spc)))
+;;   )
+;;   (doom-modeline-def-segment penguin/buffer-pos
+;;     "The buffer position."
+;;     (let* ((active (doom-modeline--active))
+;;            (face (if active 'mode-line 'mode-line-inactive)))
+;;       (propertize (concat (doom-modeline-spc) (format-mode-line "%l:%c") (doom-modeline-spc))
+;;                   'face face))
+;;   )
+;;   (doom-modeline-def-segment penguin/major-mode
+;;     "The current major mode, including environment information."
+;;     (let* ((active (doom-modeline--active))
+;;            (face (if active 'doom-modeline-buffxser-major-mode 'mode-line-inactive)))
+;;       (propertize (concat (doom-modeline-spc) mode-name (doom-modeline-spc))
+;;                   'face face))
+;;   )
+;;   (doom-modeline-def-segment penguin/vsc
+;;     "The version control system information."
+;;     (when-let ((branch doom-modeline--vcs-text))
+;;       (let ((active (doom-modeline--active))
+;;             (text (concat ":" branch)))
+;;         (concat (doom-modeline-spc)
+;;                 (if active text (propertize text 'face 'mode-line-inactive))
+;;                 (doom-modeline-spc))))
+;;   )
+;;   (doom-modeline-mode 1)
+;;   (doom-modeline-def-modeline 'info
+;;     '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info)
+;;     '(irc-buffers matches process penguin/major-mode workspace-name))
+;;   (doom-modeline-def-modeline 'main
+;;     '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info)
+;;     '(irc-buffers matches process penguin/vsc penguin/major-mode workspace-name))
+;;   (doom-modeline-def-modeline 'message
+;;     '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info)
+;;     '(irc-buffers matches process penguin/major-mode workspace-name))
+;;   (doom-modeline-def-modeline 'project
+;;     '(bar buffer-default-directory)
+;;     '(irc-buffers matches process penguin/major-mode workspace-name))
+;;   (doom-modeline-def-modeline 'special
+;;     '(bar penguin/buffer-name penguin/buffer-pos selection-info)
+;;     '(irc-buffers matches process penguin/major-mode workspace-name))
+;;   (doom-modeline-def-modeline 'vcs
+;;     '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
+;;     '(irc-buffers matches process penguin/major-mode workspace-name))
+;; )
+
+;; `smart-modeline'
+(use-package smart-mode-line-powerline-theme
+  :ensure t)
+
+(use-package smart-mode-line
+  :ensure t
   :config
-  (doom-modeline-def-segment buffer-default-directory
-    "The buffer directory."
-    (let* ((active (doom-modeline--active))
-           (face (if active 'doom-modeline-buffer-path 'mode-line-inactive)))
-      (concat (doom-modeline-spc)
-              (propertize (abbreviate-file-name default-directory) 'face face)
-              (doom-modeline-spc))))
-  (doom-modeline-def-segment penguin/buffer-name
-    "The buffer name."
-    (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc)))
-  (doom-modeline-def-segment penguin/buffer-name-simple
-    "The buffer name but stimpler."
-    (let* ((active (doom-modeline--active))
-           (face (cond ((and buffer-file-name (buffer-modified-p)) 'doom-modeline-buffer-modified)
-                       (active 'doom-modeline-buffer-file)
-                       (t 'mode-line-inactive))))
-      (concat (doom-modeline-spc) (propertize "%b" 'face face) (doom-modeline-spc))))
-  (doom-modeline-def-segment penguin/buffer-pos
-    "The buffer position."
-    (let* ((active (doom-modeline--active))
-           (face (if active 'mode-line 'mode-line-inactive)))
-      (propertize (concat (doom-modeline-spc) (format-mode-line "%l:%c") (doom-modeline-spc))
-                  'face face)))
-  (doom-modeline-def-segment penguin/major-mode
-    "The current major mode, including environment information."
-    (let* ((active (doom-modeline--active))
-           (face (if active 'doom-modeline-buffxser-major-mode 'mode-line-inactive)))
-      (propertize (concat (doom-modeline-spc) mode-name (doom-modeline-spc))
-                  'face face)))
-  (doom-modeline-def-segment me/vcs
-    "The version control system information."
-    (when-let ((branch doom-modeline--vcs-text))
-      (let ((active (doom-modeline--active))
-            (text (concat ":" branch)))
-        (concat (doom-modeline-spc)
-                (if active text (propertize text 'face 'mode-line-inactive))
-                (doom-modeline-spc)))))
-  (doom-modeline-mode 1)
-  (doom-modeline-def-modeline 'info
-    '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info)
-    '(irc-buffers matches process penguin/major-mode workspace-name))
-  (doom-modeline-def-modeline 'main
-    '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info)
-    '(irc-buffers matches process me/vcs penguin/major-mode workspace-name))
-  (doom-modeline-def-modeline 'message
-    '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info)
-    '(irc-buffers matches process penguin/major-mode workspace-name))
-  (doom-modeline-def-modeline 'project
-    '(bar buffer-default-directory)
-    '(irc-buffers matches process penguin/major-mode workspace-name))
-  (doom-modeline-def-modeline 'special
-    '(bar penguin/buffer-name penguin/buffer-pos selection-info)
-    '(irc-buffers matches process penguin/major-mode workspace-name))
-  (doom-modeline-def-modeline 'vcs
-    '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
-    '(irc-buffers matches process penguin/major-mode workspace-name))
+  (setq sml/theme 'powerline)
+  (add-hook 'after-init-hook 'sml/setup)
 )
 
+ 
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
