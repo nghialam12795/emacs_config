@@ -69,7 +69,7 @@
 ;; END Lisp --------
 
 ;; ######### C++ ######### ;;
-
+(require 'setup_lspmode)
 (require 'setup_flycheck)
 (require 'setup_irony)
 (require 'setup_cmake)

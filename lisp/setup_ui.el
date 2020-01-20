@@ -156,13 +156,9 @@
 
 ;; Highlight indentation
 (use-package highlight-indent-guides
-  :config
-  (setq highlight-indent-guides-method 'column
-        highlight-indent-guides-auto-odd-face-perc 5
-        highlight-indent-guides-auto-even-face-perc 5)
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  :init (setq highlight-indent-guides-responsive 'stack)
+  :hook '(prog-mode-hook text-mode-hook org-mode-hook)
 )
-
 
 ;; Setup Dashboard
 (defcustom e_logo (expand-file-name "res/penmacs_logo.png" user-emacs-directory)
@@ -269,11 +265,6 @@
     '(irc-buffers matches process penguin/major-mode workspace-name penguin/time))
 )
 
-;; Setup highlight indentation
-(use-package highlight-indent-guides
-  :init (gsetq highlight-indent-guides-responsive 'stack)
-  :ghook '(prog-mode-hook text-mode-hook org-mode-hook)
-)
 
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
