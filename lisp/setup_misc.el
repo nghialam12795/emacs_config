@@ -42,5 +42,11 @@
   "Emacs is 26 or above."
 )
 
+;; ----------------------------------
+(defconst qutebrowser/win
+  "c:/Program Files/qutebrowser/qutebrowser.exe"
+  "The installation path of qutebrowser on Window."
+)
+
 (provide 'setup_misc)
 ;;; setup_misc.el ends here

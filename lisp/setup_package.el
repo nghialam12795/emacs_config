@@ -11,6 +11,7 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
+(require 'setup_misc)
 
 ;; Setup `use-package'
 (unless (package-installed-p 'use-package)
@@ -168,7 +169,11 @@
   :ensure nil
   :custom
   (browse-url-browser-function 'browse-url-generic)
-  (browse-url-generic-program "qutebrowser")
+  :config
+  (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win))
+        (sys/macos (setq browse-url-generic-program "qutebrowser"))
+        (sys/linux (setq browse-url-generic-program "qutebrowser"))
+  )
 )
 (use-package engine-mode
   :defer 3

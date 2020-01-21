@@ -11,6 +11,9 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
+(setq-default user-full-name "Nghia Lam"
+              user-mail-address "nghialam12795@gmail.com"
+)
 
 ;; Default
 (setq-default
@@ -62,6 +65,7 @@
  '(menu-bar-mode nil)
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil)
+ '(blink-cursor-mode nil)
 )
 
 ;; Turn off annoying sound

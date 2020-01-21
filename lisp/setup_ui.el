@@ -70,6 +70,8 @@
 (use-package all-the-icons-ivy
   :hook (after-init . all-the-icons-ivy-setup)
 )
+(use-package all-the-icons-dired)
+(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
 ;; ############################
 ;; Setup Tree Directory
@@ -118,8 +120,8 @@
           treemacs-space-between-root-nodes      t
           treemacs-tag-follow-cleanup            t
           treemacs-tag-follow-delay              1.5
-          treemacs-width                         30
-	  treemacs-resize-icons                  5)
+          treemacs-no-png-images                 nil
+          treemacs-width                         30)
 
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -142,10 +144,6 @@
 )
 (use-package treemacs-projectile
   :after treemacs projectile
-)
-(use-package treemacs-icons-dired
-  :after treemacs dired
-  :config (treemacs-icons-dired-mode)
 )
 (use-package treemacs-magit
   :after treemacs magit
@@ -182,7 +180,7 @@
            (,(if (display-graphic-p)
                  (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
                "?")
-            "" "Help (?/h)"
+            "Help" "Help (?/h)"
             (lambda (&rest _) ())
             font-lock-string-face
            )
@@ -237,7 +235,7 @@
     (when (doom-modeline--active)
       (propertize
        (format-time-string " %b %d, %Y - %H:%M ")
-       'face (when (doom-modeline--active) `(:foreground "#1b335f" :background "#fab95b"))))
+       'face (when (doom-modeline--active) `(:foreground "#1b335f" :background "#db5f00"))))
   )
   (doom-modeline-def-segment penguin/buffer-name-simple
     "The buffer name but stimpler."
@@ -254,13 +252,6 @@
       (propertize (concat (doom-modeline-spc) (format-mode-line "%l:%c") (doom-modeline-spc))
                   'face face))
   )
-  (doom-modeline-def-segment penguin/major-mode
-    "The current major mode, including environment information."
-    (let* ((active (doom-modeline--active))
-           (face (if active 'doom-modeline-buffxser-major-mode 'mode-line-inactive)))
-      (propertize (concat (doom-modeline-spc) mode-name (doom-modeline-spc))
-                  'face face))
-  )
   (doom-modeline-def-segment penguin/vsc
     "The version control system information."
     (when-let ((branch doom-modeline--vcs-text))
@@ -273,22 +264,22 @@
   (doom-modeline-mode 1)
   (doom-modeline-def-modeline 'info
     '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info )
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
+    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'main
     '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info )
-    '(irc-buffers matches process penguin/vsc penguin/major-mode workspace-name penguin/battery-life penguin/time))
+    '(irc-buffers matches process penguin/vsc major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'message
     '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info )
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
+    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'project
     '(bar buffer-default-directory)
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
+    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'special
     '(bar penguin/buffer-name penguin/buffer-pos selection-info )
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
+    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
   (doom-modeline-def-modeline 'vcs
     '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
-    '(irc-buffers matches process penguin/major-mode workspace-name penguin/battery-life penguin/time))
+    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
 )
 ;; A minor-mode menu for mode-line
 (use-package minions
