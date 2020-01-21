@@ -9,6 +9,7 @@
 /auto-save-list
 /elpa
 /_backup
+/server
 
 ido.last
 projectile.cache
