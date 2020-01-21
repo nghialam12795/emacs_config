@@ -164,25 +164,11 @@
 )
 
 ;; `Browser'
-(use-package eww
-  :commands eww eww-follow-link
-  :init
-  (setq browse-url-browser-function 'eww-browse-url)
-  (setq eww-search-prefix "http://www.google.com/search?q=")
-
-  (defun eww-wiki (text)
-    "Function used to search wikipedia for the given text."
-    (interactive (list (read-string "Wiki for: ")))
-    (eww (format "https://en.m.wikipedia.org/wiki/Special:Search?search=%s"
-                 (url-encode-url text))))
-
-  :config       ;; clean up the rendered display:
-  (add-hook 'eww-after-render-hook 'ha/eww-rerender-pages)
-  (add-hook 'eww-mode 'ace-link-mode)
-
-  :bind (("C-c w w" . eww)
-         ("C-c w i" . eww-wiki)
-         ("C-c w l" . eww-follow-link))
+(use-package browse-url
+  :ensure nil
+  :custom
+  (browse-url-browser-function 'browse-url-generic)
+  (browse-url-generic-program "qutebrowser")
 )
 (use-package engine-mode
   :defer 3
@@ -222,7 +208,6 @@
     :docstring "Searchin' the wikis.")
   (engine-mode t)
 )
-(setq browse-url-browser-function 'eww-browse-url)
 
 (provide 'setup_package)
 ;;; setup_package.el ends here

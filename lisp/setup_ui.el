@@ -60,7 +60,8 @@
 ;; Setup title bar
 (setq frame-title-format '("" "%b - Penguin Emacs 🐧"))
 ;; Setup line number
-(setq display-line-numbers-mode t)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'prog-mode-hook 'page-break-lines-mode)
 
 ;; Setup Icons
 (use-package all-the-icons
@@ -291,7 +292,8 @@
 )
 ;; A minor-mode menu for mode-line
 (use-package minions
-  :hook (doom-modeline-mode . minions-mode)
+  :hook (after-init . minions-mode)
+  :init (setq minions-mode-line-lighter "✬")
 )
 (use-package fancy-battery
   :after doom-modeline
@@ -307,7 +309,6 @@
 ;; ##########################
 ;; `Highlight'
 ;; ##########################
-
 (use-package rainbow-mode
   :delight
   :hook (prog-mode)
