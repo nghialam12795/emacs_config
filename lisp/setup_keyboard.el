@@ -2,7 +2,7 @@
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
 ;;
-;; Please be aware that this file is created based on the author coding perspective,
+;; Please be aware that this file is created based o the author coding perspective,
 ;; this may not be suitable for some people.
 
 ;;; Commentary:
@@ -86,10 +86,18 @@ The function wraps a function with `ignore-errors' macro."
   )
 )
 
+;; `Move text'
+(use-package move-text
+  :bind (("M-p" . move-text-up)
+         ("M-n" . move-text-down))
+  :config (move-text-default-bindings)
+)
+
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key [remap kill-buffer] #'kill-this-buffer)
 (global-unset-key (kbd "C-z")) ;; Remove annoying keymap
 
 (provide 'setup_keyboard)

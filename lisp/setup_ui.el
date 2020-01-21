@@ -11,7 +11,6 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
-
 (require 'setup_misc)
 
 ;; ###########################
@@ -61,18 +60,7 @@
 ;; Setup title bar
 (setq frame-title-format '("" "%b - Penguin Emacs 🐧"))
 ;; Setup line number
-(display-line-numbers-mode)
-;; Setup time, date and battery life
-(setq display-time-day-and-date t)
-(display-time)
-(use-package fancy-battery
-  :diminish
-  :config
-    (setq fancy-battery-show-percentage t)
-    (setq battery-update-interval 15)
-    (fancy-battery-mode)
-    (display-battery-mode)
-)
+(setq display-line-numbers-mode t)
 
 ;; Setup Icons
 (use-package all-the-icons
@@ -166,12 +154,6 @@
 
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
 
-;; Highlight indentation
-(use-package highlight-indent-guides
-  :init (setq highlight-indent-guides-responsive 'stack)
-  :hook '(prog-mode-hook text-mode-hook org-mode-hook)
-)
-
 ;; Setup Dashboard
 (defcustom e_logo (expand-file-name "res/penmacs_logo.png" user-emacs-directory)
   "Set up custom logo for the dashboard."
@@ -182,14 +164,40 @@
   :config
   (setq dashboard-startup-banner (or e_logo 'official)
         dashboard-banner-logo-title "Penguin Emacs"
+        dashboard-set-navigator t
+        dashboard-navigator-buttons
+        `(
+          (
+           (,(when (display-graphic-p)
+                (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
+            "GithubPage" "Browse Github homepage"
+            (lambda (&rest _) (browse-url my-homepage))
+           )
+           (,(when (display-graphic-p)
+               (all-the-icons-material "update" :height 1.35 :v-adjust -0.24))
+            "Update" "Update Penguin Emacs"
+            (lambda (&rest _) (package-refresh-contents))
+           )
+           (,(if (display-graphic-p)
+                 (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
+               "?")
+            "" "Help (?/h)"
+            (lambda (&rest _) ())
+            font-lock-string-face
+           )
+          )
+         )
+        dashboard-center-content t
         dashboard-items '((recents  . 5)
-			  (projects . 5)
-			  (agenda   . 5)
-			 )
+                          (projects . 5)
+                          (agenda   . 5)
+                         )
         dashboard-set-footer nil
-	dashboard-set-heading-icons t
-	dashboard-set-file-icons t
-	show-week-agenda-p t)
+        dashboard-set-heading-icons t
+        dashboard-set-file-icons t
+        show-week-agenda-p t
+  )
+  (add-to-list 'dashboard-item-generators '(packages . dashboard-load-packages))
 )
 (dashboard-setup-startup-hook)
 
@@ -285,12 +293,25 @@
 (use-package minions
   :hook (doom-modeline-mode . minions-mode)
 )
-
+(use-package fancy-battery
+  :after doom-modeline
+  :diminish
+  :hook (after-init . fancy-battery-mode)
+  :config
+    (setq fancy-battery-show-percentage t)
+    (setq battery-update-interval 15)
+    (fancy-battery-mode)
+    (display-battery-mode)
+)
 
 ;; ##########################
 ;; `Highlight'
 ;; ##########################
 
+(use-package rainbow-mode
+  :delight
+  :hook (prog-mode)
+)
 ;; Setup cursor highlight
 (global-hl-line-mode t)
 ;; Highlight matching parens

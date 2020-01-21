@@ -56,6 +56,11 @@
   :config
   (advice-add 'dired-readin :after #'penguin/dired-directories-first)
 )
+(use-package dired-subtree
+  :bind (:map dired-mode-map
+              ("<backtab>" . dired-subtree-cycle)
+              ("<tab>" . dired-subtree-toggle))
+)
 (use-package ibuffer
   :ensure nil
   :functions (all-the-icons-icon-for-file
@@ -158,6 +163,66 @@
   )
 )
 
+;; `Browser'
+(use-package eww
+  :commands eww eww-follow-link
+  :init
+  (setq browse-url-browser-function 'eww-browse-url)
+  (setq eww-search-prefix "http://www.google.com/search?q=")
+
+  (defun eww-wiki (text)
+    "Function used to search wikipedia for the given text."
+    (interactive (list (read-string "Wiki for: ")))
+    (eww (format "https://en.m.wikipedia.org/wiki/Special:Search?search=%s"
+                 (url-encode-url text))))
+
+  :config       ;; clean up the rendered display:
+  (add-hook 'eww-after-render-hook 'ha/eww-rerender-pages)
+  (add-hook 'eww-mode 'ace-link-mode)
+
+  :bind (("C-c w w" . eww)
+         ("C-c w i" . eww-wiki)
+         ("C-c w l" . eww-follow-link))
+)
+(use-package engine-mode
+  :defer 3
+  :config
+  (defengine amazon
+    "http://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=%s"
+    :keybinding "a")
+
+  (defengine duckduckgo
+    "https://duckduckgo.com/?q=%s"
+    :keybinding "d")
+
+  (defengine github
+    "https://github.com/search?ref=simplesearch&q=%s"
+    :keybinding "g")
+
+  (defengine google-images
+    "http://www.google.com/images?hl=en&source=hp&biw=1440&bih=795&gbv=2&aq=f&aqi=&aql=&oq=&q=%s"
+    :keybinding "i")
+
+  (defengine google-maps
+    "http://maps.google.com/maps?q=%s"
+    :keybinding "m"
+    :docstring "Mappin' it up.")
+
+  (defengine stack-overflow
+    "https://stackoverflow.com/search?q=%s"
+    :keybinding "s")
+
+  (defengine youtube
+    "http://www.youtube.com/results?aq=f&oq=&search_query=%s"
+    :keybinding "y")
+
+  (defengine wikipedia
+    "http://www.wikipedia.org/search-redirect.php?language=en&go=Go&search=%s"
+    :keybinding "w"
+    :docstring "Searchin' the wikis.")
+  (engine-mode t)
+)
+(setq browse-url-browser-function 'eww-browse-url)
 
 (provide 'setup_package)
 ;;; setup_package.el ends here

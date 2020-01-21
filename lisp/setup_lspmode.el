@@ -42,7 +42,12 @@
   ;; type completion for xref-aprops
   :commands helm-lsp-workspace-symbol
 )
-(use-package dap-mode)
+(use-package dap-mode
+  :after lsp-mode
+  :config
+  (dap-mode t)
+  (dap-ui-mode t)
+)
 
 
 (provide 'setup_lspmode)

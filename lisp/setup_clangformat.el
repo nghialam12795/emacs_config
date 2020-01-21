@@ -1,13 +1,22 @@
-;; setup_clangformat.el
+;;; setup_clangformat.el --- Setting up clangformat style for C++
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: Setting up the clang format style for C++
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;;  Setting up clangformat style for C++
 ;; -----------------------------------------------------------
+
+;;; Code:
 
 
 ;; Addon - Clang format on Save
 (use-package clang-format)
 (defun clang-format-on-save ()
+  "Format selected region to clangformat."
   (add-hook 'before-save-hook #'clang-format-buffer nil 'local)
 )
 (add-hook 'c++-mode-hook 'clang-format-on-save)
@@ -26,3 +35,4 @@
 (define-key c-mode-base-map (kbd "C-<f10>") #'clang-format-region-google)
 
 (provide 'setup_clangformat)
+;;; setup_clangformat.el ends here

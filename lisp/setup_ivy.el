@@ -100,8 +100,7 @@
 (use-package counsel
   :diminish
   :hook (ivy-mode . counsel-mode)
-  :bind (("C-s" . swiper-isearch)
-         ("C-r" . swiper-isearch-backward)
+  :bind (("C-r" . swiper-isearch-backward)
          ("s-f" . swiper)
          ("C-S-s" . swiper-all)
 	)

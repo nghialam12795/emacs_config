@@ -17,6 +17,11 @@
   "Penguin Emacs version."
 )
 
+(defconst my-homepage
+  "https://github.com/nghialam12795"
+  "My personal Github page."
+)
+
 (defconst sys/win32
   (eq system-type 'windows-nt)
   "Are we using a Window OS?"
