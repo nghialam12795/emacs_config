@@ -1,8 +1,16 @@
-;; user_template.el
+;;; user_template.el --- Personal settings for each user
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
-;; Usage: File for contains user personal settings
+;;
+;; Please be aware that this file is created based on the author coding perspective,
+;; this may not be suitable for some people.
+
+;;; Commentary:
+;; 
+;; Personal settings for each user
 ;; -----------------------------------------------------------
+
+;;; Code:
 
 ;; Customize some value here
 (setq org-agenda-files (list "~/.emacs.d/org/TODO.org"))
@@ -21,3 +29,5 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
 )
+
+;;; user_template.el ends here
