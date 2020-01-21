@@ -32,7 +32,7 @@
 ;; Package archives
 (package-initialize)
 (setq package-archives
-      '(("gnu"   . "http://elpa.gnu.org/packages/")
+      '(("gnu"   . n"http://elpa.gnu.org/packages/")
         ("melpa" . "http://melpa.org/packages/"))
 )
 
