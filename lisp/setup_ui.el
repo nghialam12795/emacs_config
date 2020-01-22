@@ -159,61 +159,6 @@
 ;; End `Treemacs'
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
 
-;; ;; `Neotree'
-;; (use-package neotree
-;;   :config
-;;   ;; modified version of https://github.com/hemmvm/dotemacs/blob/master/site-lisp/util--neotree.el
-;;   (defun neotree-project-tree-open ()
-;;     (interactive)
-;;     (let ((project-dir (ignore-errors (projectile-project-root)))
-;;           (file-name (buffer-file-name)))
-;;       (if project-dir
-;;           (progn
-;;             (neotree-dir project-dir)
-;;             (neotree-find file-name))
-;;         (neotree-find)))
-;;     (neo-global--select-window))
-
-;;   (defun neotree-project-tree-toggle () (interactive) (if
-;;     (neo-global--window-exists-p) (neotree-hide)
-;;     (neotree-project-tree-open)))
-
-;;   (global-set-key [f8] 'neotree-project-tree-toggle)
-
-;;   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-;;   (setq neo-window-width 35)
-
-;;   ;; https://github.com/jaypei/emacs-neotree/issues/77 + https://github.com/hemmvm/dotemacs/blob/master/site-lisp/util--neotree.el
-;;   (defun custom-neotree-enter-hide ()
-;;     (interactive)
-;;     (neotree-enter)
-;;     (let ((current (neo-buffer--get-filename-current-line)))
-;;       (if (not (and current (file-accessible-directory-p current)))
-;;           (neotree-hide)))
-;;     )
-
-;;   (defun custom-neotree-peek ()
-;;     (interactive)
-;;     (let ((neo-window (neo-global--get-window)))
-;;       (neotree-enter)
-;;       (select-window neo-window))
-;;   )
-
-;;   (add-hook
-;;    'neotree-mode-hook
-;;    (lambda ()
-;;      (define-key neotree-mode-map (kbd "RET") 'custom-neotree-enter-hide)
-;;    )
-;;   )
-
-;;   (add-hook
-;;    'neotree-mode-hook
-;;    (lambda ()
-;;      (define-key neotree-mode-map (kbd "TAB") 'custom-neotree-peek))
-;;   )
-;; )
-;; ;; end `Neotree'
-
 ;; Setup Dashboard
 (defcustom e_logo (expand-file-name "res/penmacs_logo.png" user-emacs-directory)
   "Set up custom logo for the dashboard."
@@ -263,139 +208,117 @@
 
 
 ;; Setup my modeline
-
-;; ;; `doom-modeline'
-;; (use-package doom-modeline
-;;   :demand t
-;;   :custom
-;;   (doom-modeline-override-battery-modeline t)
-;;   (doom-modeline-buffer-file-name-style 'relative-to-project)
-;;   (doom-modeline-enable-word-count t)
-;;   (doom-modeline-icon t)
-;;   (doom-modeline-percent-position nil)
-;;   (doom-modeline-vcs-max-length 28)
-;;   :config
-;;   (doom-modeline-def-segment buffer-default-directory
-;;     "The buffer directory."
-;;     (let* ((active (doom-modeline--active))
-;;            (face (if active 'doom-modeline-buffer-path 'mode-line-inactive)))
-;;       (concat (doom-modeline-spc)
-;;               (propertize (abbreviate-file-name default-directory) 'face face)
-;;               (doom-modeline-spc)))
-;;   )
-;;   (doom-modeline-def-segment penguin/buffer-name
-;;     "The buffer name."
-;;     (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc))
-;;   )
-;;   (doom-modeline-def-segment penguin/battery-life
-;;     "The buffer name."
-;;     (concat (doom-modeline-spc) (fancy-battery-default-mode-line) (doom-modeline-spc))
-;;   )
-;;   (doom-modeline-def-segment penguin/time
-;;     "Time"
-;;     (when (doom-modeline--active)
-;;       (propertize
-;;        (format-time-string " %b %d, %Y - %H:%M ")
-;;        'face (when (doom-modeline--active) `(:foreground "#1b335f" :background "#edb672"))))
-;;   )
-;;   (doom-modeline-def-segment penguin/buffer-name-simple
-;;     "The buffer name but stimpler."
-;;     (let* ((active (doom-modeline--active))
-;;            (face (cond ((and buffer-file-name (buffer-modified-p)) 'doom-modeline-buffer-modified)
-;;                        (active 'doom-modeline-buffer-file)
-;;                        (t 'mode-line-inactive))))
-;;       (concat (doom-modeline-spc) (propertize "%b" 'face face) (doom-modeline-spc)))
-;;   )
-;;   (doom-modeline-def-segment penguin/buffer-pos
-;;     "The buffer position."
-;;     (let* ((active (doom-modeline--active))
-;;            (face (if active 'mode-line 'mode-line-inactive)))
-;;       (propertize (concat (doom-modeline-spc) (format-mode-line "%l:%c") (doom-modeline-spc))
-;;                   'face face))
-;;   )
-;;   (doom-modeline-def-segment penguin/vsc
-;;     "The version control system information."
-;;     (when-let ((branch doom-modeline--vcs-text))
-;;       (let ((active (doom-modeline--active))
-;;             (text (concat ":" branch)))
-;;         (concat (doom-modeline-spc)
-;;                 (if active text (propertize text 'face 'mode-line-inactive))
-;;                 (doom-modeline-spc))))
-;;   )
-;;   (doom-modeline-mode 1)
-;;   (doom-modeline-def-modeline 'info
-;;     '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info )
-;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-;;   (doom-modeline-def-modeline 'main
-;;     '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info )
-;;     '(irc-buffers matches process penguin/vsc major-mode workspace-name penguin/battery-life penguin/time))
-;;   (doom-modeline-def-modeline 'message
-;;     '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info )
-;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-;;   (doom-modeline-def-modeline 'project
-;;     '(bar buffer-default-directory)
-;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-;;   (doom-modeline-def-modeline 'special
-;;     '(bar penguin/buffer-name penguin/buffer-pos selection-info )
-;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-;;   (doom-modeline-def-modeline 'vcs
-;;     '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
-;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-;; )
-;; end `doom-modeline'
-
 ;; `Telephone-line'
-(use-package telephone-line)
-(defface p-red '((t (:foreground "white" :background "red"))) "")
-(defface p-orangered '((t (:foreground "white" :background "orange red"))) "")
-(defface p-orange '((t (:foreground "dim grey" :background "orange"))) "")
-(defface p-gold '((t (:foreground "dim grey" :background "gold"))) "")
-(defface p-yellow '((t (:foreground "dim grey" :background "yellow"))) "")
-(defface p-chartreuse '((t (:foreground "dim grey" :background "chartreuse"))) "")
-(defface p-green '((t (:foreground "dim grey" :background "green"))) "")
-(defface p-sgreen '((t (:foreground "dim grey" :background "spring green"))) "")
-(defface p-cyan '((t (:foreground "dim grey" :background "cyan"))) "")
-(defface p-blue '((t (:foreground "white" :background "blue"))) "")
-(defface p-dmagenta '((t (:foreground "white" :background "dark magenta"))) "")
-(setq telephone-line-faces
-      '((red . (p-red . p-red))
-        (ored . (p-orangered . p-orangered))
-        (orange . (p-orange . p-orange))
-        (gold . (p-gold . p-gold))
-        (yellow . (p-yellow . p-yellow))
-        (chartreuse . (p-chartreuse . p-chartreuse))
-        (green . (p-green . p-green))
-        (sgreen . (p-sgreen . p-sgreen))
-        (cyan . (p-cyan . p-cyan))
-        (blue . (p-blue . p-blue))
-        (dmagenta . (p-dmagenta . p-dmagenta))
-        (evil . telephone-line-evil-face)
-        (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
-        (nil . (mode-line . mode-line-inactive))
-       )
-)
-(setq telephone-line-lhs
-      '((sgreen    . (telephone-line-vc-segment))
-        (orangered . (telephone-line-projectile-segment))
-        (nil       . (telephone-line-buffer-segment))
-        (orangered . (telephone-line-airline-position-segment))
-       )
-)
-(setq telephone-line-rhs
-      '((nil       . (telephone-line-flycheck-segment))
-        (dmagenta  . (telephone-line-minions-mode-segment))
-        (nil       . (telephone-line-misc-info-segment))
-       )
-)
-(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-cubed-right
-      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right
-)
-(setq telephone-line-height 20
-      telephone-line-evil-use-short-tag t
-)
-(telephone-line-mode 1)
+;; (use-package telephone-line)
+;; (defface p-red '((t (:foreground "white" :background "red"))) "")
+;; (defface p-orangered '((t (:foreground "white" :background "orange red"))) "")
+;; (defface p-orange '((t (:foreground "white" :background "orange"))) "")
+;; (defface p-gold '((t (:foreground "white" :background "gold"))) "")
+;; (defface p-yellow '((t (:foreground "white" :background "yellow"))) "")
+;; (defface p-chartreuse '((t (:foreground "white" :background "chartreuse"))) "")
+;; (defface p-green '((t (:foreground "white" :background "green"))) "")
+;; (defface p-sgreen '((t (:foreground "white" :background "spring green"))) "")
+;; (defface p-cyan '((t (:foreground "white" :background "cyan"))) "")
+;; (defface p-blue '((t (:foreground "white" :background "blue"))) "")
+;; (defface p-dmagenta '((t (:foreground "white" :background "dark magenta"))) "")
+;; (setq telephone-line-faces
+;;       '((red . (p-red . p-red))
+;;         (ored . (p-orangered . p-orangered))
+;;         (orange . (p-orange . p-orange))
+;;         (gold . (p-gold . p-gold))
+;;         (yellow . (p-yellow . p-yellow))
+;;         (chartreuse . (p-chartreuse . p-chartreuse))
+;;         (green . (p-green . p-green))
+;;         (sgreen . (p-sgreen . p-sgreen))
+;;         (cyan . (p-cyan . p-cyan))
+;;         (blue . (p-blue . p-blue))
+;;         (dmagenta . (p-dmagenta . p-dmagenta))
+;;         (evil . telephone-line-evil-face)
+;;         (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
+;;         (nil . (mode-line . mode-line-inactive))
+;;        )
+;; )
+;; (setq telephone-line-lhs
+;;       '((chartreuse . (telephone-line-vc-segment))
+;;         (orange     . (telephone-line-projectile-segment))
+;;         (nil        . (telephone-line-buffer-segment))
+;;         (orange     . (telephone-line-airline-position-segment))
+;;         (nil        . (telephone-line-process-segment))
+;;        )
+;; )
+;; (setq telephone-line-rhs
+;;       '((nil        . (telephone-line-flycheck-segment))
+;;         (dmagenta   . (telephone-line-minions-mode-segment))
+;;         (nil        . (telephone-line-misc-info-segment))
+;;        )
+;; )
+;; (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+;;       telephone-line-secondary-left-separator 'telephone-line-cubed-right
+;;       telephone-line-primary-right-separator 'telephone-line-cubed-right
+;;       telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right
+;; )
+;; (setq telephone-line-height 20
+;;       telephone-line-evil-use-short-tag t
+;; )
+;; (telephone-line-mode 1)
+
+(use-package telephone-line
+  :ensure t
+  :config
+  (setq telephone-line-height nil)
+  (setq telephone-line-primary-left-separator
+        'telephone-line-nil)
+  (setq telephone-line-primary-right-separator
+        'telephone-line-halfsin-right)
+  (setq telephone-line-secondary-left-separator
+        'telephone-line-halfsin-hollow-left)
+  (setq telephone-line-secondary-right-separator
+        'telephone-line-halfsin-hollow-right)
+  (setq telephone-line-separator-extra-padding 3)
+
+  (telephone-line-defsegment prot/telephone-line-kbd-macro-segment ()
+    "Offer keyboard macro feedback."
+    (when (or defining-kbd-macro executing-kbd-macro)
+      (telephone-line-raw "Macro")))
+
+  (telephone-line-defsegment prot/telephone-line-narrow-segment ()
+    "Offer feedback on narrowed buffer, with less padding than
+default."
+    (unless (eq (buffer-narrowed-p) nil)
+      (telephone-line-raw "Narrow")))
+
+  (telephone-line-defsegment prot/telephone-line-vcs-segment ()
+    "Show current VCS branch and status indicator."
+    (when (and vc-mode buffer-file-name)
+      (let* ((backend (vc-backend buffer-file-name))
+             (state (vc-state buffer-file-name backend)))
+        (concat
+         (telephone-line-raw
+          (format "%s" (substring vc-mode (+ (if (eq backend 'Hg) 2 3) 2))))
+         (cond ((memq state '(edited added))
+                (telephone-line-raw " *"))
+               ((eq state 'needs-merge)
+                (telephone-line-raw " ?"))
+               ((eq state 'needs-update)
+                (telephone-line-raw " !"))
+               ((memq state '(removed conflict unregistered))
+                (telephone-line-raw " ×"))
+               (t
+                (telephone-line-raw "")))))))
+
+  (setq telephone-line-lhs
+        '((accent . (prot/telephone-line-kbd-macro-segment
+                     prot/telephone-line-narrow-segment))
+          (nil    . (telephone-line-buffer-segment
+                     telephone-line-position-segment))))
+  (setq telephone-line-rhs
+        '((nil    . (telephone-line-process-segment
+                     telephone-line-misc-info-segment
+                     telephone-line-flycheck-segment
+                     prot/telephone-line-vcs-segment
+                     telephone-line-minor-mode-segment
+                     telephone-line-major-mode-segment))))
+  :hook (after-init . telephone-line-mode))
 ;; end `telephone-line'
 
 ;; A minor-mode menu for mode-line
