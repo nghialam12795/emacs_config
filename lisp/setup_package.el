@@ -214,5 +214,11 @@
   (engine-mode t)
 )
 
+;; Clean up whitespaces
+(use-package whitespace
+  :ensure nil
+  :hook (before-save . whitespace-cleanup)
+)
+
 (provide 'setup_package)
 ;;; setup_package.el ends here

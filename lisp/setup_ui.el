@@ -18,6 +18,8 @@
 ;; ###########################
 (use-package doom-themes
   :defines doom-themes-treemacs-theme
+  :custom-face
+  (cursor ((t (:background "#f8f8f2"))))
   :config
   (doom-themes-visual-bell-config)
   (set-face-attribute 'doom-visual-bell nil
@@ -146,7 +148,13 @@
   :after treemacs projectile
 )
 (use-package treemacs-magit
-  :after treemacs magit
+      :after magit
+      :commands treemacs-magit--schedule-update
+      :hook ((magit-post-commit
+              git-commit-post-finish
+              magit-post-stage
+              magit-post-unstage)
+             . treemacs-magit--schedule-update)
 )
 (doom-themes-treemacs-config)
 ;; End `Treemacs'
@@ -412,7 +420,13 @@ FACE defaults to inheriting from default and highlight."
           (blink-matching-open))))
     (advice-add #'show-paren-function :after #'show-paren-off-screen))
 )
-
+;; (use-package highlight-indent-guides
+;;   :hook (prog-mode . highlight-indent-guides-mode)
+;;   :custom
+;;   (highlight-indent-guides-method 'character)
+;;   (highlight-indent-guides-character 9615) ; left-align vertical bar
+;;   (highlight-indent-guides-auto-character-face-perc 20)
+;; )
 
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
