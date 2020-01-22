@@ -6,7 +6,7 @@
 ;; this may not be suitable for some people.
 
 ;;; Commentary:
-;; 
+;;
 ;; Setting the ui, themes for Emacs
 ;; -----------------------------------------------------------
 
@@ -18,8 +18,6 @@
 ;; ###########################
 (use-package doom-themes
   :defines doom-themes-treemacs-theme
-  :custom-face
-  (cursor ((t (:background "#f8f8f2"))))
   :config
   (doom-themes-visual-bell-config)
   (set-face-attribute 'doom-visual-bell nil
@@ -29,6 +27,15 @@
   (doom-themes-org-config)
 )
 (load-theme 'doom-gruvbox t)
+;; (use-package solaire-mode
+;;   :hook
+;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+;;   (minibuffer-setup . solaire-mode-in-minibuffer)
+;;   :config
+;;   (solaire-global-mode 1)
+;;   (solaire-mode-swap-bg)
+;; )
+
 ;; Display dividers between windows
 (setq window-divider-default-places t
       window-divider-default-bottom-width 1
@@ -41,22 +48,13 @@
 )
 
 ;; Setup Fonts
-(defun is_font (font-name)
-  "Check if font with FONT-NAME is available."
-  (find-font (font-spec :name font-name))
-)
-
-(cl-loop for font in '("SF Mono" "Hack" "Source Code Pro" "Fira Code"
-		       "Menlo" "Monaco" "DejaVu Sans Mono" "Consolas")
-	 when (is_font font)
-         return (set-face-attribute 'default nil
-                                    :font font
-                                    :height (cond (sys/macos 110)
-                                                  (sys/win32 100)
-  						  (sys/linux 90)
-						  (t 100)
-					    )
-		)
+(set-face-attribute 'default nil
+                    :font "JetBrains Mono"
+                    :height (cond (sys/macos 110)
+                                  (sys/win32 90)
+                                  (sys/linux 90)
+                                  (t 100)
+                            )
 )
 
 ;; Setup title bar
@@ -104,8 +102,8 @@
           treemacs-indentation-string            " "
           treemacs-is-never-other-window         nil
           treemacs-max-git-entries               500
-          treemacs-missing-project-action        'ask
           treemacs-no-delete-other-windows       t
+          treemacs-missing-project-action        'ask
           treemacs-project-follow-cleanup        nil
           treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
           treemacs-position                      'left
@@ -156,9 +154,10 @@
               magit-post-unstage)
              . treemacs-magit--schedule-update)
 )
+(setq doom-themes-treemacs-theme "doom-colors")
 (doom-themes-treemacs-config)
 ;; End `Treemacs'
-;; (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
+(setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
 
 ;; ;; `Neotree'
 ;; (use-package neotree
@@ -174,18 +173,16 @@
 ;;             (neotree-find file-name))
 ;;         (neotree-find)))
 ;;     (neo-global--select-window))
-  
-;;   (defun neotree-project-tree-toggle ()
-;;     (interactive)
-;;     (if (neo-global--window-exists-p)
-;;         (neotree-hide)
-;;       (neotree-project-tree-open)))
-  
+
+;;   (defun neotree-project-tree-toggle () (interactive) (if
+;;     (neo-global--window-exists-p) (neotree-hide)
+;;     (neotree-project-tree-open)))
+
 ;;   (global-set-key [f8] 'neotree-project-tree-toggle)
-  
+
 ;;   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 ;;   (setq neo-window-width 35)
-  
+
 ;;   ;; https://github.com/jaypei/emacs-neotree/issues/77 + https://github.com/hemmvm/dotemacs/blob/master/site-lisp/util--neotree.el
 ;;   (defun custom-neotree-enter-hide ()
 ;;     (interactive)
@@ -194,21 +191,21 @@
 ;;       (if (not (and current (file-accessible-directory-p current)))
 ;;           (neotree-hide)))
 ;;     )
-  
+
 ;;   (defun custom-neotree-peek ()
 ;;     (interactive)
 ;;     (let ((neo-window (neo-global--get-window)))
 ;;       (neotree-enter)
 ;;       (select-window neo-window))
 ;;   )
-  
+
 ;;   (add-hook
 ;;    'neotree-mode-hook
 ;;    (lambda ()
 ;;      (define-key neotree-mode-map (kbd "RET") 'custom-neotree-enter-hide)
 ;;    )
 ;;   )
-  
+
 ;;   (add-hook
 ;;    'neotree-mode-hook
 ;;    (lambda ()
@@ -267,98 +264,152 @@
 
 ;; Setup my modeline
 
-;; `doom-modeline'
-(use-package doom-modeline
-  :demand t
-  :custom
-  (doom-modeline-override-battery-modeline t)
-  (doom-modeline-buffer-file-name-style 'relative-to-project)
-  (doom-modeline-enable-word-count t)
-  (doom-modeline-icon t)
-  (doom-modeline-percent-position nil)
-  (doom-modeline-vcs-max-length 28)
-  :config
-  (doom-modeline-def-segment buffer-default-directory
-    "The buffer directory."
-    (let* ((active (doom-modeline--active))
-           (face (if active 'doom-modeline-buffer-path 'mode-line-inactive)))
-      (concat (doom-modeline-spc)
-              (propertize (abbreviate-file-name default-directory) 'face face)
-              (doom-modeline-spc)))
-  )
-  (doom-modeline-def-segment penguin/buffer-name
-    "The buffer name."
-    (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc))
-  )
-  (doom-modeline-def-segment penguin/battery-life
-    "The buffer name."
-    (concat (doom-modeline-spc) (fancy-battery-default-mode-line) (doom-modeline-spc))
-  )
-  (doom-modeline-def-segment penguin/time
-    "Time"
-    (when (doom-modeline--active)
-      (propertize
-       (format-time-string " %b %d, %Y - %H:%M ")
-       'face (when (doom-modeline--active) `(:foreground "#1b335f" :background "#edb672"))))
-  )
-  (doom-modeline-def-segment penguin/buffer-name-simple
-    "The buffer name but stimpler."
-    (let* ((active (doom-modeline--active))
-           (face (cond ((and buffer-file-name (buffer-modified-p)) 'doom-modeline-buffer-modified)
-                       (active 'doom-modeline-buffer-file)
-                       (t 'mode-line-inactive))))
-      (concat (doom-modeline-spc) (propertize "%b" 'face face) (doom-modeline-spc)))
-  )
-  (doom-modeline-def-segment penguin/buffer-pos
-    "The buffer position."
-    (let* ((active (doom-modeline--active))
-           (face (if active 'mode-line 'mode-line-inactive)))
-      (propertize (concat (doom-modeline-spc) (format-mode-line "%l:%c") (doom-modeline-spc))
-                  'face face))
-  )
-  (doom-modeline-def-segment penguin/vsc
-    "The version control system information."
-    (when-let ((branch doom-modeline--vcs-text))
-      (let ((active (doom-modeline--active))
-            (text (concat ":" branch)))
-        (concat (doom-modeline-spc)
-                (if active text (propertize text 'face 'mode-line-inactive))
-                (doom-modeline-spc))))
-  )
-  (doom-modeline-mode 1)
-  (doom-modeline-def-modeline 'info
-    '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info )
-    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-  (doom-modeline-def-modeline 'main
-    '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info )
-    '(irc-buffers matches process penguin/vsc major-mode workspace-name penguin/battery-life penguin/time))
-  (doom-modeline-def-modeline 'message
-    '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info )
-    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-  (doom-modeline-def-modeline 'project
-    '(bar buffer-default-directory)
-    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-  (doom-modeline-def-modeline 'special
-    '(bar penguin/buffer-name penguin/buffer-pos selection-info )
-    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
-  (doom-modeline-def-modeline 'vcs
-    '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
-    '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
+;; ;; `doom-modeline'
+;; (use-package doom-modeline
+;;   :demand t
+;;   :custom
+;;   (doom-modeline-override-battery-modeline t)
+;;   (doom-modeline-buffer-file-name-style 'relative-to-project)
+;;   (doom-modeline-enable-word-count t)
+;;   (doom-modeline-icon t)
+;;   (doom-modeline-percent-position nil)
+;;   (doom-modeline-vcs-max-length 28)
+;;   :config
+;;   (doom-modeline-def-segment buffer-default-directory
+;;     "The buffer directory."
+;;     (let* ((active (doom-modeline--active))
+;;            (face (if active 'doom-modeline-buffer-path 'mode-line-inactive)))
+;;       (concat (doom-modeline-spc)
+;;               (propertize (abbreviate-file-name default-directory) 'face face)
+;;               (doom-modeline-spc)))
+;;   )
+;;   (doom-modeline-def-segment penguin/buffer-name
+;;     "The buffer name."
+;;     (concat (doom-modeline-spc) (doom-modeline--buffer-name) (doom-modeline-spc))
+;;   )
+;;   (doom-modeline-def-segment penguin/battery-life
+;;     "The buffer name."
+;;     (concat (doom-modeline-spc) (fancy-battery-default-mode-line) (doom-modeline-spc))
+;;   )
+;;   (doom-modeline-def-segment penguin/time
+;;     "Time"
+;;     (when (doom-modeline--active)
+;;       (propertize
+;;        (format-time-string " %b %d, %Y - %H:%M ")
+;;        'face (when (doom-modeline--active) `(:foreground "#1b335f" :background "#edb672"))))
+;;   )
+;;   (doom-modeline-def-segment penguin/buffer-name-simple
+;;     "The buffer name but stimpler."
+;;     (let* ((active (doom-modeline--active))
+;;            (face (cond ((and buffer-file-name (buffer-modified-p)) 'doom-modeline-buffer-modified)
+;;                        (active 'doom-modeline-buffer-file)
+;;                        (t 'mode-line-inactive))))
+;;       (concat (doom-modeline-spc) (propertize "%b" 'face face) (doom-modeline-spc)))
+;;   )
+;;   (doom-modeline-def-segment penguin/buffer-pos
+;;     "The buffer position."
+;;     (let* ((active (doom-modeline--active))
+;;            (face (if active 'mode-line 'mode-line-inactive)))
+;;       (propertize (concat (doom-modeline-spc) (format-mode-line "%l:%c") (doom-modeline-spc))
+;;                   'face face))
+;;   )
+;;   (doom-modeline-def-segment penguin/vsc
+;;     "The version control system information."
+;;     (when-let ((branch doom-modeline--vcs-text))
+;;       (let ((active (doom-modeline--active))
+;;             (text (concat ":" branch)))
+;;         (concat (doom-modeline-spc)
+;;                 (if active text (propertize text 'face 'mode-line-inactive))
+;;                 (doom-modeline-spc))))
+;;   )
+;;   (doom-modeline-mode 1)
+;;   (doom-modeline-def-modeline 'info
+;;     '(bar penguin/buffer-name info-nodes penguin/buffer-pos selection-info )
+;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
+;;   (doom-modeline-def-modeline 'main
+;;     '(bar penguin/buffer-name remote-host penguin/buffer-pos checker selection-info )
+;;     '(irc-buffers matches process penguin/vsc major-mode workspace-name penguin/battery-life penguin/time))
+;;   (doom-modeline-def-modeline 'message
+;;     '(bar penguin/buffer-name-simple penguin/buffer-pos selection-info )
+;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
+;;   (doom-modeline-def-modeline 'project
+;;     '(bar buffer-default-directory)
+;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
+;;   (doom-modeline-def-modeline 'special
+;;     '(bar penguin/buffer-name penguin/buffer-pos selection-info )
+;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
+;;   (doom-modeline-def-modeline 'vcs
+;;     '(bar penguin/buffer-name remote-host penguin/buffer-pos selection-info)
+;;     '(irc-buffers matches process major-mode workspace-name penguin/battery-life penguin/time))
+;; )
+;; end `doom-modeline'
+
+;; `Telephone-line'
+(use-package telephone-line)
+(defface p-red '((t (:foreground "white" :background "red"))) "")
+(defface p-orangered '((t (:foreground "white" :background "orange red"))) "")
+(defface p-orange '((t (:foreground "dim grey" :background "orange"))) "")
+(defface p-gold '((t (:foreground "dim grey" :background "gold"))) "")
+(defface p-yellow '((t (:foreground "dim grey" :background "yellow"))) "")
+(defface p-chartreuse '((t (:foreground "dim grey" :background "chartreuse"))) "")
+(defface p-green '((t (:foreground "dim grey" :background "green"))) "")
+(defface p-sgreen '((t (:foreground "dim grey" :background "spring green"))) "")
+(defface p-cyan '((t (:foreground "dim grey" :background "cyan"))) "")
+(defface p-blue '((t (:foreground "white" :background "blue"))) "")
+(defface p-dmagenta '((t (:foreground "white" :background "dark magenta"))) "")
+(setq telephone-line-faces
+      '((red . (p-red . p-red))
+        (ored . (p-orangered . p-orangered))
+        (orange . (p-orange . p-orange))
+        (gold . (p-gold . p-gold))
+        (yellow . (p-yellow . p-yellow))
+        (chartreuse . (p-chartreuse . p-chartreuse))
+        (green . (p-green . p-green))
+        (sgreen . (p-sgreen . p-sgreen))
+        (cyan . (p-cyan . p-cyan))
+        (blue . (p-blue . p-blue))
+        (dmagenta . (p-dmagenta . p-dmagenta))
+        (evil . telephone-line-evil-face)
+        (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
+        (nil . (mode-line . mode-line-inactive))
+       )
 )
+(setq telephone-line-lhs
+      '((sgreen    . (telephone-line-vc-segment))
+        (orangered . (telephone-line-projectile-segment))
+        (nil       . (telephone-line-buffer-segment))
+        (orangered . (telephone-line-airline-position-segment))
+       )
+)
+(setq telephone-line-rhs
+      '((nil       . (telephone-line-flycheck-segment))
+        (dmagenta  . (telephone-line-minions-mode-segment))
+        (nil       . (telephone-line-misc-info-segment))
+       )
+)
+(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-cubed-right
+      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right
+)
+(setq telephone-line-height 20
+      telephone-line-evil-use-short-tag t
+)
+(telephone-line-mode 1)
+;; end `telephone-line'
+
 ;; A minor-mode menu for mode-line
 (use-package minions
   :hook (after-init . minions-mode)
-  :init (setq minions-mode-line-lighter "✬")
+  :init (setq minions-mode-line-lighter "❤")
 )
-(use-package fancy-battery
-  :after doom-modeline
-  :diminish
-  :hook (after-init . fancy-battery-mode)
+(use-package time
+  :defer t
+  :custom
+  (display-time-default-load-average nil)
+  (display-time-24hr-format t)
   :config
-    (setq fancy-battery-show-percentage t)
-    (setq battery-update-interval 15)
-    (fancy-battery-mode)
-    (display-battery-mode)
+  (display-time-mode t)
 )
 
 ;; ##########################
@@ -424,8 +475,6 @@ FACE defaults to inheriting from default and highlight."
 ;;   :hook (prog-mode . highlight-indent-guides-mode)
 ;;   :custom
 ;;   (highlight-indent-guides-method 'character)
-;;   (highlight-indent-guides-character 9615) ; left-align vertical bar
-;;   (highlight-indent-guides-auto-character-face-perc 20)
 ;; )
 
 (provide 'setup_ui)
