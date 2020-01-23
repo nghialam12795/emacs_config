@@ -139,7 +139,32 @@
     )
   )
 )
-
+(use-package ibuffer-vc
+  :defer t
+  :ensure t
+  :config
+  (define-ibuffer-column icon
+    (:name "Icon" :inline t)
+    (all-the-icons-ivy--icon-for-mode major-mode))
+  :custom
+  (ibuffer-formats
+   '((mark modified read-only vc-status-mini " "
+           (name 18 18 :left :elide)
+           " "
+           (size 9 -1 :right)
+           " "
+           (mode 16 16 :left :elide)
+           " "
+           filename-and-process)) "include vc status info")
+  :hook
+  (ibuffer . (lambda ()
+               (ibuffer-vc-set-filter-groups-by-vc-root)
+               (unless (eq ibuffer-sorting-mode 'alphabetic)
+                 (ibuffer-do-sort-by-alphabetic)
+               )
+             )
+  )
+)
 ;; ###############################
 ;; Utilities packages
 ;; ###############################

@@ -27,14 +27,14 @@
   (doom-themes-org-config)
 )
 (load-theme 'doom-gruvbox t)
-(use-package solaire-mode
-  :hook
-  ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
-  (minibuffer-setup . solaire-mode-in-minibuffer)
-  :config
-  (solaire-mode-swap-bg)
-)
-(solaire-global-mode +1)
+;; (use-package solaire-mode
+;;   :hook
+;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+;;   (minibuffer-setup . solaire-mode-in-minibuffer)
+;;   :config
+;;   (solaire-mode-swap-bg)
+;; )
+;; (solaire-global-mode +1)
 ;; Display dividers between windows
 (setq window-divider-default-places t
       window-divider-default-bottom-width 1
@@ -44,6 +44,10 @@
 (use-package fancy-narrow
   :diminish
   :hook (after-init . fancy-narrow-mode)
+)
+(setq resize-mini-windows 'grow-only
+      ;; But don't let the minibuffer grow beyond this size
+      max-mini-window-height 0.15
 )
 
 ;; Setup Fonts
@@ -57,7 +61,9 @@
 )
 
 ;; Setup title bar
-(setq frame-title-format '("" "%b - Penguin Emacs 🐧"))
+(setq frame-title-format '("" "%b - Penguin Emacs 🐧")
+      icon-title-format frame-title-format
+)
 ;; Setup line number
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (add-hook 'prog-mode-hook 'page-break-lines-mode)
@@ -281,7 +287,15 @@
 ;; `Highlight'
 ;; ##########################
 ;; Setup cursor highlight
-(global-hl-line-mode t)
+(use-package hl-line
+  ;; Highlights the current line
+  :hook ((prog-mode text-mode conf-mode) . hl-line-mode)
+  :config
+  (setq hl-line-sticky-flag nil
+        global-hl-line-sticky-flag nil
+  )
+)
+
 ;; Highlight matching parens
 (use-package paren
   :ensure nil

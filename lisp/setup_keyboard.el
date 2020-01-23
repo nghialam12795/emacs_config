@@ -108,6 +108,11 @@ The function wraps a function with `ignore-errors' macro."
   :bind   ("C-x |" . transpose-frame)
 )
 
+;; Smart comment
+(use-package smart-comment
+  :bind ("M-;" . smart-comment)
+)
+
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)
 (global-set-key (kbd "C-+") 'text-scale-increase)

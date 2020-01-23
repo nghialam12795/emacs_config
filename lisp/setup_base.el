@@ -11,6 +11,8 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
+(require 'setup_misc)
+
 (setq-default user-full-name "Nghia Lam"
               user-mail-address "nghialam12795@gmail.com"
 )
@@ -19,6 +21,7 @@
 (setq-default
   ad-redefinition-action 'accept                   ; Silence warnings for redefinition
   auto-window-vscroll nil                          ; Lighten vertical scroll
+  blink-matching-paren nil                         ; Dont blink mathcing paren
   confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
   cursor-in-non-selected-windows nil               ; Hide the cursor in inactive windows
   delete-by-moving-to-trash t                      ; Delete files to trash
@@ -28,12 +31,20 @@
   help-window-select t                             ; Focus new help windows when opened
   indent-tabs-mode nil                             ; Stop using tabs to indent
   inhibit-startup-screen t                         ; Disable start-up screen
-  initial-scratch-message ""                       ; Empty the initial *scratch* buffer
+  initial-scratch-message nil                      ; Empty the initial *scratch* buffer
   mouse-yank-at-point t                            ; Yank at point rather than pointer
   ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
   recenter-positions '(5 top bottom)               ; Set re-centering positions
+  ffap-machine-p-known 'reject                     ; Dont ping thing that look like domain
+  frame-inhibit-implied-resize t                   ; Frame optimization
+  hscroll-margin 2                                 ; Horizontal scroll
+  hscroll-step 1                                   ; Horizontal step
+  fast-but-imprecise-scrolling t                   ; Fast scrolling
   scroll-conservatively most-positive-fixnum       ; Always scroll by one line
-  scroll-margin 10                                 ; Add a margin when scrolling vertically
+  scroll-margin 0                                  ; Add a margin when scrolling vertically
+  scroll-preserve-screen-position t                ; Reduce cursor lag a bit
+  mouse-wheel-scroll-amount '(5 ((shift) . 2))     ; Shift Mouse wheel
+  mouse-wheel-progressive-speed nil                ; don't accelerate scrolling
   select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
   sentence-end-double-space nil                    ; End a sentence after a dot and a space
   show-help-function nil                           ; Disable help messages
@@ -56,9 +67,36 @@
 (set-default-coding-systems 'utf-8)                ; Default to utf-8 encoding
 ;; (toggle-frame-maximized)                           ; Toggle maximized
 
+;; MacOS tweak
+(when sys/macos
+  (setq mac-redisplay-dont-reset-vscroll t
+        mac-mouse-wheel-smooth-scroll nil
+        ns-popns-pop-up-frames nil
+  )
+  (and (or (daemonp)
+           (display-graphic-p))
+       (require 'ns-auto-titlebar nil t)
+       (ns-auto-titlebar-mode +1)
+  )
+  ;; (add-hook '(window-setup-hook after-make-frame-functions)
+  ;;   (defun penguin-init-menu-bar-in-gui-frames (&optional frame)
+  ;;     "Re-enable menu-bar-lines in GUI frames."
+  ;;     (when-let (frame (or frame (selected-frame)))
+  ;;       (when (display-graphic-p frame)
+  ;;         (set-frame-parameter frame 'menu-bar-lines 1)
+  ;;       )
+  ;;     )
+  ;;   )
+  ;; )
+)
+
 ;; Set up cursor
 ;; (setq-default cursor-type 'bar)
 (setq-default cursor-in-non-selected-windows 'hollow)
+(setq x-stretch-cursor nil)
+(setq visible-cursor nil)
+(setq-default cursor-in-non-selected-windows nil)
+(setq highlight-nonselected-windows nil)
 
 ;; Turn off unnecessary
 (custom-set-variables
@@ -100,6 +138,13 @@
 (if (file-exists-p custom-file)
     (load custom-file)
 )
+
+;;; Optimization
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right
+)
+(unless sys/macos (setq command-line-ns-option-alist nil))
+(unless sys/linux (setq command-line-x-option-alist nil))
 
 (provide 'setup_base)
 ;;; setup_base.el ends here
