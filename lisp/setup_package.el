@@ -151,7 +151,7 @@
 ;; `Calendar'
 (use-package calfw
   :commands cfw:open-calendar-buffer
-  :bind ("<C-f12>" . open-calendar)
+  :bind ("<C-f11>" . open-calendar)
   :init
   (use-package calfw-org
     :commands (cfw:open-org-calendar cfw:org-create-source))
@@ -181,8 +181,8 @@
   :custom
   (browse-url-browser-function 'browse-url-generic)
   :config
-  (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win))
-        (sys/macos (setq browse-url-generic-program "qutebrowser"))
+  (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win32))
+        (sys/macos (setq browse-url-generic-program qutebrowser/macos))
         (sys/linux (setq browse-url-generic-program "qutebrowser"))
   )
 )
@@ -229,6 +229,25 @@
 (use-package whitespace
   :ensure nil
   :hook (before-save . whitespace-cleanup)
+)
+;; imenu-list
+(use-package imenu-list
+  :ensure t
+  :defer t
+  :config
+  (setq imenu-list-position 'right
+        imenu-list-auto-resize t)
+  :bind
+  ("<f12>" . imenu-list-smart-toggle)
+)
+
+;; Fast scrolling (Mac slowness issue)
+(use-package fast-scroll
+  :ensure t
+  :diminish fast-scroll-mode
+  :config
+  (fast-scroll-config)
+  (fast-scroll-mode 1)
 )
 
 (provide 'setup_package)

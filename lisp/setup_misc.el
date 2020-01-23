@@ -43,10 +43,39 @@
 )
 
 ;; ----------------------------------
-(defconst qutebrowser/win
+(defconst qutebrowser/win32
   "c:/Program Files/qutebrowser/qutebrowser.exe"
   "The installation path of qutebrowser on Window."
 )
+
+(defconst qutebrowser/macos
+  "/Applications/qutebrowser.app/Contents/MacOS/qutebrowser"
+  "The installation path of qutebrowser on MacOS."
+)
+
+;; ----------------------------------
+;; `FUNCTIONS'
+;; ----------------------------------
+
+(defun penguin-emacs-reload-init-file ()
+  "Reload your init.el file without restarting Emacs."
+  (interactive)
+  (load-file "~/.emacs.d/init.el")
+)
+
+(defun penguin-emacs-update-config ()
+  "Update Penguin Emacs configuration to the latest version."
+  (interactive)
+  (let ((dir (expand-file-name user-emacs-directory)))
+    (progn
+      (message "Updating Penguin Emacs configuration...")
+      (cd dir)
+      (shell-command "git pull")
+      (message "Load new Penguin Emacs configuration...")
+      (penguin-emacs-reload-init-file)
+      (message "Update finished.")))
+)
+
 
 (provide 'setup_misc)
 ;;; setup_misc.el ends here

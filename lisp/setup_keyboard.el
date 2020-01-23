@@ -93,6 +93,21 @@ The function wraps a function with `ignore-errors' macro."
   :config (move-text-default-bindings)
 )
 
+;; Always quit minibuffer
+(use-package delsel
+  :bind
+  (:map mode-specific-map
+        ("C-g" . minibuffer-keyboard-quit)
+  )
+)
+
+;; Transpose frame
+(use-package transpose-frame
+  :ensure t
+  :defer t
+  :bind   ("C-x |" . transpose-frame)
+)
+
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)
 (global-set-key (kbd "C-+") 'text-scale-increase)

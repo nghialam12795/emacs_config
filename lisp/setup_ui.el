@@ -27,15 +27,14 @@
   (doom-themes-org-config)
 )
 (load-theme 'doom-gruvbox t)
-;; (use-package solaire-mode
-;;   :hook
-;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
-;;   (minibuffer-setup . solaire-mode-in-minibuffer)
-;;   :config
-;;   (solaire-global-mode 1)
-;;   (solaire-mode-swap-bg)
-;; )
-
+(use-package solaire-mode
+  :hook
+  ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+  (minibuffer-setup . solaire-mode-in-minibuffer)
+  :config
+  (solaire-mode-swap-bg)
+)
+(solaire-global-mode +1)
 ;; Display dividers between windows
 (setq window-divider-default-places t
       window-divider-default-bottom-width 1
@@ -179,9 +178,14 @@
             (lambda (&rest _) (browse-url my-homepage))
            )
            (,(when (display-graphic-p)
+                (all-the-icons-octicon "repo-pull" :height 1.1 :v-adjust 0.0))
+            "Update P-Emacs" "Update Penguin Emacs"
+            (lambda (&rest _) (penguin-emacs-update-config))
+           )
+           (,(when (display-graphic-p)
                (all-the-icons-material "update" :height 1.35 :v-adjust -0.24))
-            "Update" "Update Penguin Emacs"
-            (lambda (&rest _) (package-refresh-contents))
+            "Update Package" "Update Installed Package"
+            (lambda (&rest _) (auto-package-update-now))
            )
            (,(if (display-graphic-p)
                  (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
@@ -209,116 +213,54 @@
 
 ;; Setup my modeline
 ;; `Telephone-line'
-;; (use-package telephone-line)
-;; (defface p-red '((t (:foreground "white" :background "red"))) "")
-;; (defface p-orangered '((t (:foreground "white" :background "orange red"))) "")
-;; (defface p-orange '((t (:foreground "white" :background "orange"))) "")
-;; (defface p-gold '((t (:foreground "white" :background "gold"))) "")
-;; (defface p-yellow '((t (:foreground "white" :background "yellow"))) "")
-;; (defface p-chartreuse '((t (:foreground "white" :background "chartreuse"))) "")
-;; (defface p-green '((t (:foreground "white" :background "green"))) "")
-;; (defface p-sgreen '((t (:foreground "white" :background "spring green"))) "")
-;; (defface p-cyan '((t (:foreground "white" :background "cyan"))) "")
-;; (defface p-blue '((t (:foreground "white" :background "blue"))) "")
-;; (defface p-dmagenta '((t (:foreground "white" :background "dark magenta"))) "")
-;; (setq telephone-line-faces
-;;       '((red . (p-red . p-red))
-;;         (ored . (p-orangered . p-orangered))
-;;         (orange . (p-orange . p-orange))
-;;         (gold . (p-gold . p-gold))
-;;         (yellow . (p-yellow . p-yellow))
-;;         (chartreuse . (p-chartreuse . p-chartreuse))
-;;         (green . (p-green . p-green))
-;;         (sgreen . (p-sgreen . p-sgreen))
-;;         (cyan . (p-cyan . p-cyan))
-;;         (blue . (p-blue . p-blue))
-;;         (dmagenta . (p-dmagenta . p-dmagenta))
-;;         (evil . telephone-line-evil-face)
-;;         (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
-;;         (nil . (mode-line . mode-line-inactive))
-;;        )
-;; )
-;; (setq telephone-line-lhs
-;;       '((chartreuse . (telephone-line-vc-segment))
-;;         (orange     . (telephone-line-projectile-segment))
-;;         (nil        . (telephone-line-buffer-segment))
-;;         (orange     . (telephone-line-airline-position-segment))
-;;         (nil        . (telephone-line-process-segment))
-;;        )
-;; )
-;; (setq telephone-line-rhs
-;;       '((nil        . (telephone-line-flycheck-segment))
-;;         (dmagenta   . (telephone-line-minions-mode-segment))
-;;         (nil        . (telephone-line-misc-info-segment))
-;;        )
-;; )
-;; (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-;;       telephone-line-secondary-left-separator 'telephone-line-cubed-right
-;;       telephone-line-primary-right-separator 'telephone-line-cubed-right
-;;       telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right
-;; )
-;; (setq telephone-line-height 20
-;;       telephone-line-evil-use-short-tag t
-;; )
-;; (telephone-line-mode 1)
+(use-package telephone-line)
+(defface p-red '((t (:foreground "white" :background "red"))) "")
+(defface p-orangered '((t (:foreground "white" :background "orange red"))) "")
+(defface p-orange '((t (:foreground "white" :background "orange"))) "")
+(defface p-gold '((t (:foreground "white" :background "gold"))) "")
+(defface p-yellow '((t (:foreground "black" :background "#ffaf00"))) "")
+(defface p-chartreuse '((t (:foreground "white" :background "chartreuse"))) "")
+(defface p-green '((t (:foreground "black" :background "#afaf00"))) "")
+(defface p-sgreen '((t (:foreground "white" :background "spring green"))) "")
+(defface p-cyan '((t (:foreground "white" :background "cyan"))) "")
+(defface p-blue '((t (:foreground "white" :background "blue"))) "")
+(defface p-dmagenta '((t (:foreground "white" :background "#8f3f71"))) "")
+(setq telephone-line-faces
+      '((red . (p-red . p-red))
+        (ored . (p-orangered . p-orangered))
+        (orange . (p-orange . p-orange))
+        (gold . (p-gold . p-gold))
+        (yellow . (p-yellow . p-yellow))
+        (chartreuse . (p-chartreuse . p-chartreuse))
+        (green . (p-green . p-green))
+        (sgreen . (p-sgreen . p-sgreen))
+        (cyan . (p-cyan . p-cyan))
+        (blue . (p-blue . p-blue))
+        (dmagenta . (p-dmagenta . p-dmagenta))
+        (evil . telephone-line-evil-face)
+        (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
+        (nil . (mode-line . mode-line-inactive))
+       )
+)
+(setq telephone-line-lhs
+      '((green      . (telephone-line-vc-segment))
+        (yellow     . (telephone-line-projectile-segment))
+        (nil        . (telephone-line-buffer-segment))
+        (nil        . (telephone-line-process-segment))
+       )
+)
+(setq telephone-line-rhs
+      '((nil        . (telephone-line-flycheck-segment))
+        (dmagenta   . (telephone-line-minions-mode-segment))
+        (nil        . (telephone-line-misc-info-segment))
+       )
+)
+(setq telephone-line-separator-extra-padding 3
+      telephone-line-height 18
+      telephone-line-evil-use-short-tag t
+)
+(telephone-line-mode 1)
 
-(use-package telephone-line
-  :ensure t
-  :config
-  (setq telephone-line-height nil)
-  (setq telephone-line-primary-left-separator
-        'telephone-line-nil)
-  (setq telephone-line-primary-right-separator
-        'telephone-line-halfsin-right)
-  (setq telephone-line-secondary-left-separator
-        'telephone-line-halfsin-hollow-left)
-  (setq telephone-line-secondary-right-separator
-        'telephone-line-halfsin-hollow-right)
-  (setq telephone-line-separator-extra-padding 3)
-
-  (telephone-line-defsegment prot/telephone-line-kbd-macro-segment ()
-    "Offer keyboard macro feedback."
-    (when (or defining-kbd-macro executing-kbd-macro)
-      (telephone-line-raw "Macro")))
-
-  (telephone-line-defsegment prot/telephone-line-narrow-segment ()
-    "Offer feedback on narrowed buffer, with less padding than
-default."
-    (unless (eq (buffer-narrowed-p) nil)
-      (telephone-line-raw "Narrow")))
-
-  (telephone-line-defsegment prot/telephone-line-vcs-segment ()
-    "Show current VCS branch and status indicator."
-    (when (and vc-mode buffer-file-name)
-      (let* ((backend (vc-backend buffer-file-name))
-             (state (vc-state buffer-file-name backend)))
-        (concat
-         (telephone-line-raw
-          (format "%s" (substring vc-mode (+ (if (eq backend 'Hg) 2 3) 2))))
-         (cond ((memq state '(edited added))
-                (telephone-line-raw " *"))
-               ((eq state 'needs-merge)
-                (telephone-line-raw " ?"))
-               ((eq state 'needs-update)
-                (telephone-line-raw " !"))
-               ((memq state '(removed conflict unregistered))
-                (telephone-line-raw " ×"))
-               (t
-                (telephone-line-raw "")))))))
-
-  (setq telephone-line-lhs
-        '((accent . (prot/telephone-line-kbd-macro-segment
-                     prot/telephone-line-narrow-segment))
-          (nil    . (telephone-line-buffer-segment
-                     telephone-line-position-segment))))
-  (setq telephone-line-rhs
-        '((nil    . (telephone-line-process-segment
-                     telephone-line-misc-info-segment
-                     telephone-line-flycheck-segment
-                     prot/telephone-line-vcs-segment
-                     telephone-line-minor-mode-segment
-                     telephone-line-major-mode-segment))))
-  :hook (after-init . telephone-line-mode))
 ;; end `telephone-line'
 
 ;; A minor-mode menu for mode-line
@@ -338,10 +280,6 @@ default."
 ;; ##########################
 ;; `Highlight'
 ;; ##########################
-(use-package rainbow-mode
-  :delight
-  :hook (prog-mode)
-)
 ;; Setup cursor highlight
 (global-hl-line-mode t)
 ;; Highlight matching parens
@@ -394,11 +332,6 @@ FACE defaults to inheriting from default and highlight."
           (blink-matching-open))))
     (advice-add #'show-paren-function :after #'show-paren-off-screen))
 )
-;; (use-package highlight-indent-guides
-;;   :hook (prog-mode . highlight-indent-guides-mode)
-;;   :custom
-;;   (highlight-indent-guides-method 'character)
-;; )
 
 (provide 'setup_ui)
 ;;; setup_ui.el ends here

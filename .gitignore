@@ -17,6 +17,7 @@ projectile-bookmarks.eld
 
 # User personal settings
 /.cache
+/eshell
 user.el
 recentf
 /irony

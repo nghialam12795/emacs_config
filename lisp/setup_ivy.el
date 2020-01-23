@@ -39,10 +39,10 @@
 ;;   :after ivy
 ;;   :diminish
 ;;   :config
-;;   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center))
+;;   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display))
 ;;         ivy-posframe-height-alist '((t . 20))
 ;;         ivy-posframe-parameters '((internal-border-width . 10)))
-;;   (setq ivy-posframe-width 70)
+;;   (setq ivy-posframe-width 100)
 ;; )
 ;; (ivy-posframe-mode 1)
 (use-package ivy-rich
@@ -54,11 +54,14 @@
             (ivy-rich-switch-buffer-project (:width 15 :face success))
             (ivy-rich-switch-buffer-major-mode (:width 13 :face warning)))
            :predicate
-           #'(lambda (cand) (get-buffer cand)))
+           #'(lambda (cand) (get-buffer cand))
+          )
           counsel-M-x
           (:columns
-           ((counsel-M-x-transformer (:width 35))
-            (ivy-rich-counsel-function-docstring (:width 34 :face font-lock-doc-face))))
+           ((counsel-M-x-transformer (:width 40))
+            (ivy-rich-counsel-function-docstring (:width 40 :face font-lock-doc-face))
+           )
+          )
           counsel-describe-function
           (:columns
            ((counsel-describe-function-transformer (:width 35))
