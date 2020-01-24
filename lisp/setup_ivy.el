@@ -96,8 +96,12 @@
   (setq swiper-goto-start-of-match t)
 )
 (use-package anzu
-  :config
-  (global-anzu-mode t)
+  :bind
+  ([remap query-replace] . anzu-query-replace-regexp)
+  :hook
+  (after-init . global-anzu-mode)
+  :custom
+  (anzu-cons-mode-line-p nil)
 )
 
 (use-package counsel

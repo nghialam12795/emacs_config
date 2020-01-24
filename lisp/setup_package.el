@@ -39,7 +39,17 @@
   (quelpa-update-melpa-p nil "Don't update the MELPA git repo.")
 )
 (use-package quelpa-use-package :ensure t)
-
+;; Package Manager
+(use-package paradox
+  :custom
+  (paradox-column-width-package 27)
+  (paradox-column-width-version 13)
+  (paradox-execute-asynchronously t)
+  (paradox-github-token t)
+  (paradox-hide-wiki-packages t)
+  :config
+  (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print)
+)
 
 ;; Built-in packages
 (use-package "startup"
@@ -165,6 +175,8 @@
              )
   )
 )
+
+
 ;; ###############################
 ;; Utilities packages
 ;; ###############################
@@ -273,6 +285,19 @@
   :config
   (fast-scroll-config)
   (fast-scroll-mode 1)
+)
+
+;; Windows tiling manager
+(use-package eyebrowse
+  :bind
+  ("<f5>" . eyebrowse-switch-to-window-config-1)
+  ("<f6>" . eyebrowse-switch-to-window-config-2)
+  ("<f7>" . eyebrowse-switch-to-window-config-3)
+  ("<f8>" . eyebrowse-switch-to-window-config-4)
+  :hook
+  (after-init . eyebrowse-mode)
+  :custom
+  (eyebrowse-new-workspace t)
 )
 
 (provide 'setup_package)

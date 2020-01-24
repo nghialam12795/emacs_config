@@ -30,6 +30,7 @@
   fill-column 80                                   ; Set width for automatic line breaks
   help-window-select t                             ; Focus new help windows when opened
   indent-tabs-mode nil                             ; Stop using tabs to indent
+  idle-update-delay 1                              ; Slow down update ui a bit
   inhibit-startup-screen t                         ; Disable start-up screen
   initial-scratch-message nil                      ; Empty the initial *scratch* buffer
   mouse-yank-at-point t                            ; Yank at point rather than pointer
@@ -138,6 +139,18 @@
 (if (file-exists-p custom-file)
     (load custom-file)
 )
+
+;; Remove unnecessary error warnings
+(defun penguin-command-error-function (data context caller)
+  "Ignore the buffer-read-only, beginning-of-buffer,
+end-of-buffer signals; pass the rest to the default handler."
+  (when (not (memq (car data) '(buffer-read-only
+                                beginning-of-buffer
+                                end-of-buffer)))
+    (command-error-default-function data context caller))
+)
+
+(setq command-error-function #'penguin-command-error-function)
 
 ;;; Optimization
 (setq-default bidi-display-reordering 'left-to-right

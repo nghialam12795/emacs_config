@@ -113,6 +113,21 @@ The function wraps a function with `ignore-errors' macro."
   :bind ("M-;" . smart-comment)
 )
 
+(defun penguin/switch-to-buffer-continue ()
+  "Activate a sparse keymap:
+<left>   `previous-buffer'
+<right>  `next-buffer'"
+  (set-transient-map
+   (let ((map (make-sparse-keymap)))
+     (define-key map (kbd "<left>") #'previous-buffer)
+     (define-key map (kbd "<right>") #'next-buffer)
+     map
+   )
+  )
+)
+(advice-add 'previous-buffer :after #'penguin/switch-to-buffer-continue)
+(advice-add 'next-buffer :after #'penguin/switch-to-buffer-continue)
+
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)
 (global-set-key (kbd "C-+") 'text-scale-increase)
