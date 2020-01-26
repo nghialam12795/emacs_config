@@ -11,29 +11,31 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
-
+(require 'setup_hydra)
 
 ;; Setup `Org'
 (use-package org
   :ensure nil
   :preface
-  (defun me/org-src-buffer-name (org-buffer-name language)
+  (defun penguin/org-src-buffer-name (org-buffer-name language)
     "Construct the buffer name for a source editing buffer. See
 `org-src--construct-edit-buffer-name'."
-    (format "*%s*" org-buffer-name))
-  (defun me/org-set-ongoing-hydra-body ()
-    (setq me/ongoing-hydra-body #'hydra-org/body))
+    (format "*%s*" org-buffer-name)
+  )
+  (defun penguin/org-set-ongoing-hydra-body ()
+    (setq penguin/ongoing-hydra-body #'hydra-org/body)
+  )
   :bind
   (:map org-mode-map
-        ([remap backward-paragraph] . me/backward-paragraph-dwim)
-        ([remap forward-paragraph] . me/forward-paragraph-dwim)
+        ([remap backward-paragraph] . penguin/backward-paragraph-dwim)
+        ([remap forward-paragraph] . penguin/forward-paragraph-dwim)
         ("<C-return>" . nil)
         ("<C-S-down>" . nil)
         ("<C-S-up>" . nil)
         ("<M-S-down>" . nil)
         ("<M-S-up>" . nil))
   :hook
-  ((org-mode . me/org-set-ongoing-hydra-body)
+  ((org-mode . penguin/org-set-ongoing-hydra-body)
    (org-mode . org-sticky-header-mode)
    (org-mode . toc-org-enable))
   :custom
@@ -47,7 +49,7 @@
   (org-startup-truncated nil)
   (org-support-shift-select 'always)
   :config
-  (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
+  (advice-add 'org-src--construct-edit-buffer-name :override #'penguin/org-src-buffer-name)
 )
 
 (provide 'setup_org)

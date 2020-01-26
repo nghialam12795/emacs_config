@@ -25,6 +25,18 @@
                       :background (face-foreground 'error)
                       :inverse-video 'unspecified)
   (doom-themes-org-config)
+  (with-eval-after-load 'erc-goodies
+    (set-face-attribute 'erc-bold-face nil :bold nil)
+  )
+  (with-eval-after-load 'flycheck
+    (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
+    (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
+    (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line))
+  )
+  (with-eval-after-load 'isearch
+    (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
+    (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))
+  )
 )
 (load-theme 'doom-gruvbox t)
 ;; (use-package solaire-mode

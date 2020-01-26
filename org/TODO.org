@@ -6,9 +6,12 @@
 ** TODO [emacs_config] Writing a proper README
    SCHEDULED: <2020-01-10 Fri>
 ** TODO [emacs_config] Investigate config dashboard more mordern (Doom Emacs?)
-** TODO [emacs_config] Setting Hydra support (High Priority)
+** DONE [emacs_config] Setting Hydra support (High Priority)
+
 -------------------------------------------------------------------------------------------------------------
 ** TODO [Asteroid] Investigate shrink_to_fit for optimization
 ** TODO [Asteroid] Add Menus
+
+
 
    

@@ -69,12 +69,13 @@
 ;; --------------------------------------------------------
 
 ;; ###### Emacs Util ##### ;;
-(require 'setup_org)
 (require 'setup_keyboard)
 (require 'setup_ivy)
 (require 'setup_projectile)
 (require 'setup_git)
 (require 'setup_company)
+(require 'setup_hydra)
+(require 'setup_org)
 
 ;; ##### Emacs Lisp ###### ;;
 (require 'setup_lisp)
