@@ -16,6 +16,7 @@ projectile.cache
 projectile-bookmarks.eld
 
 # User personal settings
+/.docsets
 /.cache
 /eshell
 user.el

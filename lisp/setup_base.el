@@ -66,7 +66,7 @@
 (put 'downcase-region 'disabled nil)               ; Enable downcase-region
 (put 'upcase-region 'disabled nil)                 ; Enable upcase-region
 (set-default-coding-systems 'utf-8)                ; Default to utf-8 encoding
-;; (toggle-frame-maximized)                           ; Toggle maximized
+(toggle-frame-maximized)                           ; Toggle maximized
 
 ;; MacOS tweak
 (when sys/macos

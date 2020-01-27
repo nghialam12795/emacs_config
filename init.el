@@ -76,6 +76,7 @@
 (require 'setup_company)
 (require 'setup_hydra)
 (require 'setup_org)
+(require 'setup_docsets)
 
 ;; ##### Emacs Lisp ###### ;;
 (require 'setup_lisp)

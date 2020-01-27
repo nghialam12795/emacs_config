@@ -6,7 +6,7 @@
 ;; this may not be suitable for some people.
 
 ;;; Commentary:
-;; 
+;;
 ;; Setting up Use Package for manage packages and configure some minimal packages
 ;; -----------------------------------------------------------
 
@@ -180,10 +180,6 @@
 ;; ###############################
 ;; Utilities packages
 ;; ###############################
-(require 'devdocs-lookup)
-(devdocs-setup)
-(global-set-key (kbd "C-h C-p") #'devdocs-lookup-python)
-(global-set-key (kbd "C-h C-c") #'devdocs-lookup-cpp)
 
 ;; `Calendar'
 (use-package calfw
@@ -216,6 +212,7 @@
 (use-package browse-url
   :ensure nil
   :custom
+  ;; (browse-url-browser-function 'eww-browse-url)
   (browse-url-browser-function 'browse-url-generic)
   :config
   (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win32))
@@ -223,6 +220,7 @@
         (sys/linux (setq browse-url-generic-program "qutebrowser"))
   )
 )
+
 (use-package engine-mode
   :defer 3
   :config
@@ -298,6 +296,13 @@
   (after-init . eyebrowse-mode)
   :custom
   (eyebrowse-new-workspace t)
+)
+
+;; Automatic paren
+(use-package elec-pair
+  :ensure nil
+  :hook (after-init . electric-pair-mode)
+  :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
 )
 
 (provide 'setup_package)

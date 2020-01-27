@@ -11,6 +11,7 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
+(require 'setup_misc)
 
 ;; Setup `projectile' - For Project Management
 (use-package projectile
@@ -31,6 +32,7 @@
     :ensure t
   )
   (setq projectile-completion-system 'helm)
+  (setq helm-default-display-buffer-functions '(display-buffer-in-side-window))
   (helm-projectile-on)
   
   ;; Use the faster searcher to handle project files: ripgrep `rg'.
