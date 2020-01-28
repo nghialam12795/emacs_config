@@ -25,7 +25,7 @@
 ;; Addon - Clang format Google Style on C-f10
 (require 'cc-mode)
 (defun clang-format-region-google (s e)
-  "Format the selected region."
+  "Format the selected region S & E."
   (interactive
    (if (use-region-p)
        (list (region-beginning) (region-end))

@@ -63,6 +63,8 @@
 (require 'setup_package)
 (require 'setup_ui)
 (require 'setup_ido)
+(require 'setup_hydra)
+(require 'setup_web)
 
 ;; --------------------------------------------------------
 ;; Coding Setup
@@ -74,7 +76,6 @@
 (require 'setup_projectile)
 (require 'setup_git)
 (require 'setup_company)
-(require 'setup_hydra)
 (require 'setup_org)
 (require 'setup_docsets)
 

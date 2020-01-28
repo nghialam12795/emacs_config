@@ -25,7 +25,7 @@
 
 ;; Setup `window_cursor_move'
 (defun ignore-error-wrapper (fn)
-  "Funtion return new function that ignore errors.
+  "Funtion return new function FN that ignore errors.
 The function wraps a function with `ignore-errors' macro."
   (lexical-let ((fn fn))
     (lambda ()
@@ -127,6 +127,30 @@ The function wraps a function with `ignore-errors' macro."
 )
 (advice-add 'previous-buffer :after #'penguin/switch-to-buffer-continue)
 (advice-add 'next-buffer :after #'penguin/switch-to-buffer-continue)
+
+;; Restart Emacs
+(defun launch-separate-emacs-in-terminal ()
+  "Launch Emacs in terminal."
+  (suspend-emacs "fg ; emacs -nw")
+)
+
+(defun launch-separate-emacs-under-x ()
+  "Launch Emacs under x."
+  (call-process "sh" nil nil nil "-c" "emacs &")
+)
+
+(defun restart-emacs ()
+  "Kill Emacs and then start it again."
+  (interactive)
+  ;; We need the new emacs to be spawned after all kill-emacs-hooks
+  ;; have been processed and there is nothing interesting left
+  (let ((kill-emacs-hook (append kill-emacs-hook (list (if (display-graphic-p)
+                                                           #'launch-separate-emacs-under-x
+                                                         #'launch-separate-emacs-in-terminal)))))
+    (save-buffers-kill-emacs)
+  )
+)
+(global-set-key (kbd "C-c C-c") 'restart-emacs)
 
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)

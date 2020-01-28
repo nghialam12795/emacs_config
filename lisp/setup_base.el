@@ -112,6 +112,7 @@
 
 ;; Make backup to a designated dir, mirroring the full path
 (defun my_backup_file_name (fpath)
+  "Backup files in a designated FPATH."
   (let* (
         (backupRootDir "~/.emacs.d/_backup/")
         (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path, for example, “C:”
@@ -142,8 +143,8 @@
 
 ;; Remove unnecessary error warnings
 (defun penguin-command-error-function (data context caller)
-  "Ignore the buffer-read-only, beginning-of-buffer,
-end-of-buffer signals; pass the rest to the default handler."
+  "Ignore the `buffer-read-only',`beginning-of-buffer',`end-of-buffer' signals.
+Then pass DATA, CONTEXT & CALLER to the default handler."
   (when (not (memq (car data) '(buffer-read-only
                                 beginning-of-buffer
                                 end-of-buffer)))

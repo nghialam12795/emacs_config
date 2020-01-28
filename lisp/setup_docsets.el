@@ -1,4 +1,4 @@
-;;; setup_docsets.el --- Settings up Helm package (Mostly for helm-dash)
+;;; setup_docsets.el --- Settings up docsets package (Mostly for helm-dash)
 ;; -----------------------------------------------------------
 ;; Author: Nghia Lam
 ;;
@@ -7,7 +7,7 @@
 
 ;;; Commentary:
 ;; 
-;; Setting up Helm package (Mostly for helm-dash)
+;; Setting up docsets package (Mostly for helm-dash)
 ;; -----------------------------------------------------------
 
 ;;; Code:
@@ -28,7 +28,7 @@
 (global-set-key (kbd "M-h")  'counsel-dash-at-point)
 
 (setq dash-docs-docsets-path "~/.emacs.d/.docsets")
-(setq dash-docs-browser-func 'eww-browse-url)
+;; (setq dash-docs-browser-func 'eww-browse-url)
 (setq counsel-dash-min-length 3)
 (setq counsel-dash-candidate-format "%d %n (%t)")
 (setq counsel-dash-enable-debugging nil)

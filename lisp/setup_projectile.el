@@ -34,7 +34,10 @@
   (setq projectile-completion-system 'helm)
   (setq helm-default-display-buffer-functions '(display-buffer-in-side-window))
   (helm-projectile-on)
-  
+  (use-package wgrep
+  :ensure t
+  :config (use-package wgrep-helm :ensure t)
+  )
   ;; Use the faster searcher to handle project files: ripgrep `rg'.
   (when (and (not (executable-find "fd"))
              (executable-find "rg"))
