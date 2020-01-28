@@ -12,7 +12,7 @@
 
 ;;; Code:
 (require 'setup_misc)
-
+(require 'setup_hydra)
 ;; ###########################
 ;; Setup Themes
 ;; ###########################
@@ -183,6 +183,39 @@
 )
 (use-package dashboard
   :ensure t
+  :pretty-hydra
+  ((:title (phydra-title "Dashboard" 'material "dashboard" :height 1.1 :v-adjust -0.225)
+    :color pink :quit-key "q"
+   )
+   ("Navigator"
+    (("U" update-config-and-packages "update" :exit t)
+     ("H" browse-homepage "homepage" :exit t)
+     ("R" restore-session "recover session" :exit t)
+     ("L" persp-load-state-from-file "list sessions" :exit t)
+     ("S" open-custom-file "settings" :exit t)
+    )
+    "Section"
+    (("}" dashboard-next-section "next")
+     ("{" dashboard-previous-section "previous")
+     ("r" dashboard-goto-recent-files "recent files")
+     ("m" dashboard-goto-bookmarks "projects")
+     ("p" dashboard-goto-projects "bookmarks")
+    )
+    "Item"
+    (("RET" widget-button-press "open" :exit t)
+     ("<tab>" widget-forward "next")
+     ("C-i" widget-forward "next")
+     ("<backtab>" widget-backward "previous")
+     ("C-n" next-line "next line")
+     ("C-p" previous-line "previous  line")
+    )
+    "Misc"
+    (("<f2>" open-dashboard "open" :exit t)
+     ("g" dashboard-refresh-buffer "refresh" :exit t)
+     ("Q" quit-dashboard "quit" :exit t)
+    )
+   )
+  )
   :config
   (setq dashboard-startup-banner (or e_logo 'official)
         dashboard-banner-logo-title "Penguin Emacs"
@@ -209,7 +242,7 @@
                  (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
                "?")
             "Help" "Help (?/h)"
-            (lambda (&rest _) ())
+            (lambda (&rest _) (dashboard-hydra/body))
             font-lock-string-face
            )
           )

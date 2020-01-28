@@ -109,7 +109,7 @@
   :hook (ivy-mode . counsel-mode)
   :bind (("C-r" . swiper-isearch-backward)
          ("s-f" . swiper)
-         ("C-S-s" . swiper-all)
+         ("C-S-s" . helm-projectile-grep)
 	)
   :custom
   (counsel-rg-base-command "rg --vimgrep %s")
