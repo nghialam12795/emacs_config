@@ -87,8 +87,8 @@
 ;; ######### C++ ######### ;;
 (require 'setup_lspmode)
 (require 'setup_flycheck)
-(require 'setup_irony)
 (require 'setup_cmake)
+(require 'setup_ccls)
 
 ;; Style guide
 (require 'setup_clangformat)

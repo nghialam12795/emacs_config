@@ -73,6 +73,10 @@
   (setq mac-redisplay-dont-reset-vscroll t
         mac-mouse-wheel-smooth-scroll nil
         ns-popns-pop-up-frames nil
+        initial-frame-alist (append '((ns-transparent-titlebar . t)
+                                      (ns-appearance . dark)
+                                     )
+                            )
   )
   (and (or (daemonp)
            (display-graphic-p))

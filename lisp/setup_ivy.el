@@ -89,8 +89,10 @@
     (interactive)
     (swiper (ivy-thing-at-point))
   )
-  :bind
-  :bind ("C-s" . penguin/swiper)
+  :bind (("C-s" . penguin/swiper)
+         :map swiper-map
+         ("C-r" . swiper-query-replace)
+        )
   :config
   (setq swiper-action-recenter t)
   (setq swiper-goto-start-of-match t)
@@ -107,10 +109,7 @@
 (use-package counsel
   :diminish
   :hook (ivy-mode . counsel-mode)
-  :bind (("C-r" . swiper-isearch-backward)
-         ("s-f" . swiper)
-         ("C-S-s" . helm-projectile-grep)
-	)
+  :bind (("C-S-s" . helm-projectile-grep))
   :custom
   (counsel-rg-base-command "rg --vimgrep %s")
   :config

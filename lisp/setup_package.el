@@ -214,15 +214,16 @@
   :hook (before-save . whitespace-cleanup)
 )
 ;; imenu-list
-(use-package imenu-list
-  :ensure t
-  :defer t
-  :config
-  (setq imenu-list-position 'right
-        imenu-list-auto-resize t)
-  :bind
-  ("<f12>" . imenu-list-smart-toggle)
-)
+;; (use-package imenu-list
+;;   :ensure t
+;;   :defer t
+;;   :config
+;;   (setq imenu-list-position 'right
+;;         imenu-list-auto-resize t
+;;         imenu-list-focus-after-activation t)
+;;   :bind
+;;   ("<f12>" . imenu-list-smart-toggle)
+;; )
 
 ;; Fast scrolling (Mac slowness issue)
 (use-package fast-scroll
@@ -231,6 +232,13 @@
   :config
   (fast-scroll-config)
   (fast-scroll-mode 1)
+)
+
+;; Automatically reload files was modified by external program
+(use-package autorevert
+  :ensure nil
+  :diminish
+  :hook (after-init . global-auto-revert-mode)
 )
 
 ;; Windows tiling manager
