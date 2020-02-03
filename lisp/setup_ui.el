@@ -192,8 +192,11 @@
 
           (" *Flycheck checkers*" :select t :size 0.4 :align 'below :autoclose t)
           ((flycheck-error-list-mode flymake-diagnostics-buffer-mode)
-           :select t :size 0.3 :align 'below :autoclose t)
-
+             :select t :size 0.3 :align 'below :autoclose t
+          )
+          ("*Ibuffer*" :select t :size 0.4 :align 'below :autoclose t)
+          (ibuffer-mode :select t :size 0.4 :align 'below :autoclose t)
+          
           (profiler-report-mode :select t :size 0.5 :align 'below)
           ("*ELP Profiling Restuls*" :select t :size 0.5 :align 'below)
 
