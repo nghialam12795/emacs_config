@@ -53,6 +53,8 @@
   split-height-threshold nil                       ; Disable vertical window splitting
   split-width-threshold nil                        ; Disable horizontal window splitting
   tab-width 4                                      ; Set width for tabs
+  use-file-dialog nil                              ; Disable use file dialog
+  use-dialog-box nil                               ; Disable use dialog box
   uniquify-buffer-name-style 'forward              ; Uniquify buffer names
   window-combination-resize t                      ; Resize windows proportionally
   x-stretch-cursor t)                              ; Stretch cursor to the glyph width
@@ -93,6 +95,20 @@
   ;;     )
   ;;   )
   ;; )
+  (setq mac-command-modifier 'meta) ; make cmd key do Meta
+  (setq mac-option-modifier 'super) ; make opt key do Super
+  (setq mac-control-modifier 'control) ; make Control key do Control
+  (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
+)
+
+;; Windows tweak
+(when sys/win32
+  (setq w32-pass-lwindow-to-system nil)
+  (setq w32-lwindow-modifier 'super) ; Left Windows key
+  (setq w32-pass-rwindow-to-system nil)
+  (setq w32-rwindow-modifier 'super) ; Right Windows key
+  (setq w32-pass-apps-to-system nil)
+  (setq w32-apps-modifier 'hyper) ; Menu/App key
 )
 
 ;; Set up cursor

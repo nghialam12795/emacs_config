@@ -69,7 +69,7 @@
       max-mini-window-height 0.15
 )
 
-;; Setup Fonts
+;; Setup Fonts - Setup JetBrains Fonts in .emacs.d/font first
 (set-face-attribute 'default nil
                     :font "JetBrains Mono"
                     :height (cond (sys/macos 110)
@@ -96,6 +96,95 @@
 )
 (use-package all-the-icons-dired)
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+
+;; Setup windows
+(use-package window
+  :ensure nil
+  :init
+  ;; TODO do not repeat common parts, abstract them somehow
+  (setq display-buffer-alist
+        '(;; top side window
+          ("\\*\\(Flycheck\\|Package-Lint\\).*"
+           (display-buffer-in-side-window)
+           (window-height . 0.15)
+           (side . top)
+           (slot . 0)
+           (window-parameters . ((no-other-window . t)))
+          )
+          ;; bottom side window
+          ("\\*e?shell.*"
+           (display-buffer-in-side-window)
+           (window-height . 0.25)
+           (side . bottom)
+           (slot . 0)
+          )
+          ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|[Hh]elp\\|Messages\\)\\*"
+           (display-buffer-in-side-window)
+           (window-height . 0.25)
+           (side . bottom)
+           (slot . 1)
+          )
+          ;; right side window
+          ("\\*Faces\\*"
+           (display-buffer-in-side-window)
+           (window-width . 0.333)
+           (side . right)
+           (slot . 0)
+           (window-parameters . ((no-other-window . t)
+                                 (mode-line-format . (" "
+                                                      mode-line-buffer-identification)
+                                 )
+                                )
+           )
+          )
+          ("\\*Custom.*"
+           (display-buffer-in-side-window)
+           (window-width . 0.333)
+           (side . right)
+           (slot . 1)
+          )
+         )
+  )
+  :bind (("s-n" . next-buffer)
+         ("s-p" . previous-buffer)
+         ("s-o" . other-window)
+         ("s-2" . split-window-below)
+         ("s-3" . split-window-right)
+         ("s-0" . delete-window)
+         ("s-1" . delete-other-windows)
+         ("s-5" . delete-frame)
+         ("<f8>" . window-toggle-side-windows)
+        )
+)
+
+;; For tracking windows layout in emacs
+(use-package winner
+  :hook (after-init . winner-mode)
+  :bind (("<s-right>" . winner-redo)
+         ("<s-left>" . winner-undo)
+        )
+)
+
+;; ############################
+;; Setup Tab bar
+;; ############################
+(use-package tab-bar
+  :commands (tab-bar-mode tab-bar-history-mode)
+  :config
+  (setq tab-bar-close-button-show t)
+  (setq tab-bar-close-last-tab-choice nil)
+  (setq tab-bar-close-tab-select 'recent)
+  (setq tab-bar-new-tab-choice t)
+  (setq tab-bar-new-tab-to 'rightmost)
+  (setq tab-bar-position nil)
+  (setq tab-bar-show 1)
+  (setq tab-bar-tab-hints nil)
+  (setq tab-bar-tab-name-function 'tab-bar-tab-name-current)
+
+  (tab-bar-mode 1)
+  (tab-bar-history-mode -1)
+)
+
 
 ;; ############################
 ;; Setup Tree Directory

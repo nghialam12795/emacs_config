@@ -113,6 +113,11 @@
   :custom
   (counsel-rg-base-command "rg --vimgrep %s")
   :config
+  (setq counsel-yank-pop-preselect-last t)
+  (setq counsel-yank-pop-separator "\n—————————\n")
+  (setq counsel-rg-base-command
+        "rg -SHn --no-heading --color never --no-follow --hidden %s"
+  )
   (global-set-key (kbd "s-P") #'counsel-M-x)
   (global-set-key (kbd "s-f") #'counsel-grep-or-swiper)
 )
@@ -122,6 +127,33 @@
   (setq-default ivy-initial-inputs-alist nil)
 )
 (counsel-projectile-mode 1)
+
+;; For tracking history of M-x
+(use-package prescient
+  :ensure t
+  :config
+  (setq prescient-history-length 200)
+  (setq prescient-save-file "~/.emacs.d/prescient-items")
+  (setq prescient-filter-method '(literal regexp))
+  (prescient-persist-mode 1)
+)
+
+(use-package ivy-prescient
+  :ensure t
+  :after (prescient ivy)
+  :config
+  (setq ivy-prescient-sort-commands
+        '(:not counsel-grep
+               counsel-rg
+               counsel-switch-buffer
+               ivy-switch-buffer
+               swiper
+               swiper-multi))
+  (setq ivy-prescient-retain-classic-highlighting t)
+  (setq ivy-prescient-enable-filtering nil)
+  (setq ivy-prescient-enable-sorting t)
+  (ivy-prescient-mode 1)
+)
 
 (provide 'setup_ivy)
 ;;; setup_ivy.el ends here

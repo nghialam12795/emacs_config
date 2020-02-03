@@ -21,6 +21,7 @@
 (eval-and-compile
   (setq use-package-always-ensure t)
   (setq use-package-always-defer t)
+  (setq use-package-always-demand nil)
   (setq use-package-expand-minimally t)
   (setq use-package-enable-imenu-support t)
 )
@@ -83,6 +84,15 @@
               ("<backtab>" . dired-subtree-cycle)
               ("<tab>" . dired-subtree-toggle))
 )
+(use-package dired-git-info
+  :ensure t
+  :after dired
+  :config
+  (setq dgi-commit-message-format "%h\t%s\t%cr")
+  :bind (:map dired-mode-map
+              (")" . dired-git-info-mode)
+        )
+)
 (use-package ibuffer
   :ensure nil
   :functions (all-the-icons-icon-for-file
@@ -95,6 +105,53 @@
   :bind ("C-x C-b" . ibuffer)
   :init (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold)))
   :config
+  (setq ibuffer-saved-filter-groups
+        '(("Main"
+           ("Directories" (mode . dired-mode))
+           ("Org" (mode . org-mode))
+           ("Programming" (or
+                           (mode . c-mode)
+                           (mode . conf-mode)
+                           (mode . css-mode)
+                           (mode . emacs-lisp-mode)
+                           (mode . html-mode)
+                           (mode . mhtml-mode)
+                           (mode . python-mode)
+                           (mode . ruby-mode)
+                           (mode . scss-mode)
+                           (mode . shell-script-mode)
+                           (mode . yaml-mode))
+           )
+           ("Markdown" (mode . markdown-mode))
+           ("Magit" (or
+                     (mode . magit-blame-mode)
+                     (mode . magit-cherry-mode)
+                     (mode . magit-diff-mode)
+                     (mode . magit-log-mode)
+                     (mode . magit-process-mode)
+                     (mode . magit-status-mode))
+           )
+           ("Apps" (or
+                    (mode . bongo-playlist-mode)
+                    (mode . mu4e-compose-mode)
+                    (mode . mu4e-headers-mode)
+                    (mode . mu4e-main-mode)
+                    (mode . elfeed-search-mode)
+                    (mode . elfeed-show-mode)
+                    (mode . mu4e-view-mode))
+           )
+           ("Emacs" (or
+                     (name . "^\\*Help\\*$")
+                     (name . "^\\*Custom.*")
+                     (name . "^\\*Org Agenda\\*$")
+                     (name . "^\\*info\\*$")
+                     (name . "^\\*scratch\\*$")
+                     (name . "^\\*Backtrace\\*$")
+                     (name . "^\\*Messages\\*$"))
+           )
+          )
+         )
+  )
   ;; Display buffer icons on GUI
   (when (and (display-graphic-p)
              (require 'all-the-icons nil t))
@@ -147,6 +204,10 @@
                " ")
             "Project: ")
     )
+  )
+  :hook
+  (ibuffer-mode . (lambda ()
+                    (ibuffer-switch-to-saved-filter-groups "Main"))
   )
 )
 (use-package ibuffer-vc
@@ -259,6 +320,16 @@
   :ensure nil
   :hook (after-init . electric-pair-mode)
   :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
+)
+
+;; Uniquify buffers name
+(use-package uniquify
+  :ensure nil
+  :config
+  (setq uniquify-separator "|")
+  (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
+  (setq uniquify-strip-common-suffix t)
+  (setq uniquify-after-kill-buffer-p t)
 )
 
 (provide 'setup_package)

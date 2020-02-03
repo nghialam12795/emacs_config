@@ -35,8 +35,11 @@
   (setq helm-default-display-buffer-functions '(display-buffer-in-side-window))
   (helm-projectile-on)
   (use-package wgrep
-  :ensure t
-  :config (use-package wgrep-helm :ensure t)
+    :ensure t
+    :config
+    (use-package wgrep-helm :ensure t)
+    (setq wgrep-auto-save-buffer t)
+    (setq wgrep-change-readonly-file t)
   )
   ;; Use the faster searcher to handle project files: ripgrep `rg'.
   (when (and (not (executable-find "fd"))

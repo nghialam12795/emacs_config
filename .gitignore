@@ -18,6 +18,7 @@ projectile-bookmarks.eld
 # User personal settings
 /.docsets
 /.cache
+/prescient-items
 /eshell
 user.el
 recentf
