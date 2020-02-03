@@ -332,5 +332,43 @@
   (setq uniquify-after-kill-buffer-p t)
 )
 
+;; A Simmple and cool pomodoro timer
+(use-package pomidor
+  :bind ("<f12>" . pomidor)
+  :init
+  (setq alert-default-style 'mode-line)
+
+  (with-eval-after-load 'all-the-icons
+    (setq alert-severity-colors
+          `((urgent   . ,(face-foreground 'all-the-icons-red))
+            (high     . ,(face-foreground 'all-the-icons-orange))
+            (moderate . ,(face-foreground 'all-the-icons-yellow))
+            (normal   . ,(face-foreground 'all-the-icons-green))
+            (low      . ,(face-foreground 'all-the-icons-blue))
+            (trivial  . ,(face-foreground 'all-the-icons-purple))
+           )
+    )
+  )
+)
+
+;; Persistent the scratch buffer
+(use-package persistent-scratch
+  :diminish
+  :hook ((after-init . persistent-scratch-autosave-mode)
+         (lisp-interaction-mode . persistent-scratch-mode)
+        )
+)
+
+
+;; OTHERS -------------------------------------------------------
+(use-package copyit)                    ; copy path, url, etc.
+(use-package daemons)                   ; system services/daemons
+(use-package diffview)                  ; side-by-side diff view
+(use-package esup)                      ; Emacs startup profiler
+(use-package focus)                     ; Focus on the current region
+(use-package list-environment)
+(use-package memory-usage)
+
+
 (provide 'setup_package)
 ;;; setup_package.el ends here

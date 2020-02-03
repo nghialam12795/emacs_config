@@ -11,16 +11,12 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
-
+(require 'setup_misc)
 
 ;; Setup `flycheck' - For syntax highlight
 (use-package flycheck
   :diminish
-  :hook ((css-mode . flycheck-mode)
-	 (emacs-lisp-mode . flycheck-mode)
-	 (python-mode . flycheck-mode)
-	 (after-init . global-flycheck-mode)
-	)
+  :hook (after-init . global-flycheck-mode)
   :config
   (setq flycheck-emacs-lisp-load-path 'inherit)
 

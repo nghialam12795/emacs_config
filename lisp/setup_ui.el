@@ -98,63 +98,116 @@
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
 ;; Setup windows
-(use-package window
-  :ensure nil
-  :init
-  ;; TODO do not repeat common parts, abstract them somehow
-  (setq display-buffer-alist
-        '(;; top side window
-          ("\\*\\(Flycheck\\|Package-Lint\\).*"
-           (display-buffer-in-side-window)
-           (window-height . 0.15)
-           (side . top)
-           (slot . 0)
-           (window-parameters . ((no-other-window . t)))
-          )
-          ;; bottom side window
-          ("\\*e?shell.*"
-           (display-buffer-in-side-window)
-           (window-height . 0.25)
-           (side . bottom)
-           (slot . 0)
-          )
-          ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|[Hh]elp\\|Messages\\)\\*"
-           (display-buffer-in-side-window)
-           (window-height . 0.25)
-           (side . bottom)
-           (slot . 1)
-          )
-          ;; right side window
-          ("\\*Faces\\*"
-           (display-buffer-in-side-window)
-           (window-width . 0.333)
-           (side . right)
-           (slot . 0)
-           (window-parameters . ((no-other-window . t)
-                                 (mode-line-format . (" "
-                                                      mode-line-buffer-identification)
-                                 )
-                                )
-           )
-          )
-          ("\\*Custom.*"
-           (display-buffer-in-side-window)
-           (window-width . 0.333)
-           (side . right)
-           (slot . 1)
-          )
+(defvar shackle--popup-window-list nil) ; all popup windows
+(defvar-local shackle--current-popup-window nil) ; current popup window
+(put 'shackle--current-popup-window 'permanent-local t)
+
+(use-package shackle
+  :functions org-switch-to-buffer-other-window
+  :commands shackle-display-buffer
+  :hook (after-init . shackle-mode)
+  :config
+  (eval-and-compile
+    (defun shackle-last-popup-buffer ()
+      "View last popup buffer."
+      (interactive)
+      (ignore-errors
+        (display-buffer shackle-last-buffer)))
+    (bind-key "C-h z" #'shackle-last-popup-buffer)
+
+    ;; Add keyword: `autoclose'
+    (defun shackle-display-buffer-hack (fn buffer alist plist)
+      (let ((window (funcall fn buffer alist plist)))
+        (setq shackle--current-popup-window window)
+
+        (when (plist-get plist :autoclose)
+          (push (cons window buffer) shackle--popup-window-list))
+        window))
+
+    (defun shackle-close-popup-window-hack (&rest _)
+      "Close current popup window via `C-g'."
+      (setq shackle--popup-window-list
+            (cl-loop for (window . buffer) in shackle--popup-window-list
+                     if (and (window-live-p window)
+                             (equal (window-buffer window) buffer))
+                     collect (cons window buffer)))
+      ;; `C-g' can deactivate region
+      (when (and (called-interactively-p 'interactive)
+                 (not (region-active-p)))
+        (let (window buffer)
+          (if (one-window-p)
+              (progn
+                (setq window (selected-window))
+                (when (equal (buffer-local-value 'shackle--current-popup-window
+                                                 (window-buffer window))
+                             window)
+                  (winner-undo)))
+            (setq window (caar shackle--popup-window-list))
+            (setq buffer (cdar shackle--popup-window-list))
+            (when (and (window-live-p window)
+                       (equal (window-buffer window) buffer))
+              (delete-window window)
+
+              (pop shackle--popup-window-list))))))
+
+    (advice-add #'keyboard-quit :before #'shackle-close-popup-window-hack)
+    (advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack))
+
+  ;; HACK: compatibility issuw with `org-switch-to-buffer-other-window'
+  (advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window)
+
+  ;; rules
+  (setq shackle-default-size 0.4
+        shackle-default-alignment 'below
+        shackle-default-rule nil
+        shackle-rules
+        '((("*Help*" "*Apropos*") :select t :size 0.3 :align 'below :autoclose t)
+          (("*compilation*" "*Compile-Log*") :select t :size 0.3 :align 'below :autoclose t)
+          ("*Completions*" :size 0.3 :align 'below :autoclose t)
+          ("*Pp Eval Output*" :size 15 :align 'below :autoclose t)
+          ("*Backtrace*" :select t :size 15 :align 'below)
+          (("*Warnings*" "*Messages*") :size 0.3 :align 'below :autoclose t)
+          ("^\\*.*Shell Command.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
+          ("\\*[Wo]*Man.*\\*" :regexp t :select t :align 'below :autoclose t)
+          ("*Calendar*" :select t :size 0.3 :align 'below)
+          (("*shell*" "*eshell*" "*ielm*") :popup t :align 'below)
+          ("^\\*vc-.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
+          ("*gud-debug*" :select t :size 0.4 :align 'below :autoclose t)
+          ("\\*ivy-occur .*\\*" :regexp t :select t :align 'below)
+          (" *undo-tree*" :select t)
+          ("*quickrun*" :select t :size 15 :align 'below)
+          ("*Finder*" :select t :size 0.3 :align 'below :autoclose t)
+          ("^\\*macro expansion\\**" :regexp t :size 0.4 :align 'below)
+          ("^\\*elfeed-entry" :regexp t :size 0.7 :align 'below :autoclose t)
+          ((" *Org todo*" "*Org Dashboard*" "*Org Select*") :select t :size 0.4 :align 'below :autoclose t)
+          (("*lsp-help*" "*lsp session*") :size 0.3 :align 'below :autoclose t)
+          (" *Install vterm" :size 0.35 :same t :align 'below)
+          (("*Paradox Report*" "*package update results*") :size 0.2 :align 'below :autoclose t)
+          ("*Package-Lint*" :size 0.4 :align 'below :autoclose t)
+          (("*Gofmt Errors*" "*Go Test*") :select t :size 0.3 :align 'below :autoclose t)
+          ("*How Do You*" :select t :size 0.5 :align 'below :autoclose t)
+
+          ("*ert*" :size 15 :align 'below :autoclose t)
+          (overseer-buffer-mode :size 15 :align 'below :autoclose t)
+
+          (" *Flycheck checkers*" :select t :size 0.4 :align 'below :autoclose t)
+          ((flycheck-error-list-mode flymake-diagnostics-buffer-mode)
+           :select t :size 0.3 :align 'below :autoclose t)
+
+          (profiler-report-mode :select t :size 0.5 :align 'below)
+          ("*ELP Profiling Restuls*" :select t :size 0.5 :align 'below)
+
+          ((inferior-python-mode inf-ruby-mode swift-repl-mode) :size 0.4 :align 'below)
+          ("*prolog*" :size 0.4 :align 'below)
+
+          ((grep-mode rg-mode deadgrep-mode ag-mode pt-mode) :select t :align 'below)
+          (Buffer-menu-mode :select t :size 20 :align 'below :autoclose t)
+          (helpful-mode :select t :size 0.3 :align 'below :autoclose t)
+          ((process-menu-mode cargo-process-mode) :select t :size 0.3 :align 'below :autoclose t)
+          (list-environment-mode :select t :size 0.3 :align 'below :autoclose t)
+          (tabulated-list-mode :size 0.4 :align 'below)
          )
   )
-  :bind (("s-n" . next-buffer)
-         ("s-p" . previous-buffer)
-         ("s-o" . other-window)
-         ("s-2" . split-window-below)
-         ("s-3" . split-window-right)
-         ("s-0" . delete-window)
-         ("s-1" . delete-other-windows)
-         ("s-5" . delete-frame)
-         ("<f8>" . window-toggle-side-windows)
-        )
 )
 
 ;; For tracking windows layout in emacs
@@ -432,6 +485,61 @@ FACE defaults to inheriting from default and highlight."
                               (window-start) msg ))))))
           (blink-matching-open))))
     (advice-add #'show-paren-function :after #'show-paren-off-screen))
+)
+
+;; Highlight indentation
+(when (display-graphic-p)
+  (use-package highlight-indent-guides
+    :diminish
+    :functions (ivy-cleanup-string
+                my-ivy-cleanup-indentation)
+    :commands highlight-indent-guides--highlighter-default
+    :functions my-indent-guides-for-all-but-first-column
+    ;; :hook (prog-mode . highlight-indent-guides-mode)
+    :init (setq highlight-indent-guides-method 'character
+                highlight-indent-guides-responsive 'top)
+    :config
+    ;; Don't display indentations while editing with `company'
+    (with-eval-after-load 'company
+      (add-hook 'company-completion-started-hook
+                (lambda (&rest _)
+                  "Trun off indentation highlighting."
+                  (when highlight-indent-guides-mode
+                    (highlight-indent-guides-mode -1))))
+      (add-hook 'company-after-completion-hook
+                (lambda (&rest _)
+                  "Trun on indentation highlighting."
+                  (when (and (derived-mode-p 'prog-mode)
+                             (not highlight-indent-guides-mode))
+                    (highlight-indent-guides-mode 1)))
+      )
+    )
+
+    ;; Don't display first level of indentation
+    (defun my-indent-guides-for-all-but-first-column (level responsive display)
+      (unless (< level 1)
+        (highlight-indent-guides--highlighter-default level responsive display)))
+    (setq highlight-indent-guides-highlighter-function
+          #'my-indent-guides-for-all-but-first-column)
+
+    ;; Don't display indentations in `swiper'
+    ;; https://github.com/DarthFennec/highlight-indent-guides/issues/40
+    (with-eval-after-load 'ivy
+      (defun my-ivy-cleanup-indentation (str)
+        "Clean up indentation highlighting in ivy minibuffer."
+        (let ((pos 0)
+              (next 0)
+              (limit (length str))
+              (prop 'highlight-indent-guides-prop))
+          (while (and pos next)
+            (setq next (text-property-not-all pos limit prop nil str))
+            (when next
+              (setq pos (text-property-any next limit prop nil str))
+              (ignore-errors
+                (remove-text-properties next pos '(display nil face nil) str))))))
+      (advice-add #'ivy-cleanup-string :after #'my-ivy-cleanup-indentation)
+    )
+  )
 )
 
 (provide 'setup_ui)
