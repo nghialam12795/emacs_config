@@ -20,8 +20,10 @@ projectile-bookmarks.eld
 /.cache
 /prescient-items
 /eshell
+/transient
+
+.lsp-session-v1
+.mc-lists.el
+.persistent-scratch
 user.el
 recentf
-/irony
-.mc-lists.el
-/transient
