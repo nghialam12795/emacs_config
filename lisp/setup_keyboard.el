@@ -23,14 +23,14 @@
 (which-key-mode 1)
 
 ;; Show keymap using on the modeline
-;; (use-package keycast
-;;   :ensure t
-;;   :config
-;;   (setq keycast-window-predicate 'keycast-active-frame-bottom-right-p)
-;;   (setq keycast-separator-width 3)
-;;   (setq keycast-insert-after 'mode-line-buffer-identification)
-;;   (setq keycast-remove-tail-elements t)
-;; )
+(use-package keycast
+  :ensure t
+  :config
+  (setq keycast-window-predicate 'keycast-active-frame-bottom-right-p)
+  (setq keycast-separator-width 3)
+  (setq keycast-insert-after 'mode-line-buffer-identification)
+  (setq keycast-remove-tail-elements t)
+)
 
 ;; Setup `window_cursor_move'
 (defun ignore-error-wrapper (fn)

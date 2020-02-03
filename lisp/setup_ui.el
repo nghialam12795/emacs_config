@@ -166,27 +166,6 @@
 )
 
 ;; ############################
-;; Setup Tab bar
-;; ############################
-(use-package tab-bar
-  :commands (tab-bar-mode tab-bar-history-mode)
-  :config
-  (setq tab-bar-close-button-show t)
-  (setq tab-bar-close-last-tab-choice nil)
-  (setq tab-bar-close-tab-select 'recent)
-  (setq tab-bar-new-tab-choice t)
-  (setq tab-bar-new-tab-to 'rightmost)
-  (setq tab-bar-position nil)
-  (setq tab-bar-show 1)
-  (setq tab-bar-tab-hints nil)
-  (setq tab-bar-tab-name-function 'tab-bar-tab-name-current)
-
-  (tab-bar-mode 1)
-  (tab-bar-history-mode -1)
-)
-
-
-;; ############################
 ;; Setup Tree Directory
 ;; ############################
 
