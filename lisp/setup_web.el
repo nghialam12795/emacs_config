@@ -17,12 +17,36 @@
 (use-package browse-url
   :ensure nil
   :custom
-  ;; (browse-url-browser-function 'eww-browse-url)
-  (browse-url-browser-function 'browse-url-generic)
+  (browse-url-browser-function 'eww-browse-url)
+  ;; (browse-url-browser-function 'browse-url-generic)
+  ;; :config
+  ;; (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win32))
+  ;;       (sys/macos (setq browse-url-generic-program qutebrowser/macos))
+  ;;       (sys/linux (setq browse-url-generic-program "qutebrowser"))
+  ;; )
+)
+
+(use-package shr
+  :commands (eww
+             eww-browse-url)
   :config
-  (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win32))
-        (sys/macos (setq browse-url-generic-program qutebrowser/macos))
-        (sys/linux (setq browse-url-generic-program "qutebrowser"))
+  (setq browse-url-browser-function 'eww-browse-url)
+  (setq shr-use-fonts nil)
+  (setq shr-use-colors nil)
+  (setq shr-max-image-proportion 0.2)
+  (setq shr-width (current-fill-column))
+)
+(use-package shr-tag-pre-highlight
+  :ensure t
+  :after shr
+  :config
+  (add-to-list 'shr-external-rendering-functions
+               '(pre . shr-tag-pre-highlight))
+  (when (version< emacs-version "26")
+    (with-eval-after-load 'eww
+      (advice-add 'eww-display-html :around
+                  'eww-display-html--override-shr-external-rendering-functions)
+    )
   )
 )
 
