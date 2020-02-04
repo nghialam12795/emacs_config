@@ -62,6 +62,7 @@
 (require 'setup_ido)
 (require 'setup_hydra)
 (require 'setup_web)
+(require 'setup_reader)
 
 ;; --------------------------------------------------------
 ;; Coding Setup
