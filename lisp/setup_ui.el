@@ -69,7 +69,7 @@
       max-mini-window-height 0.15
 )
 
-;; Setup Fonts - Setup JetBrains Fonts in .emacs.d/font first
+;; Setup Fonts - Setup JetBrains Fonts in .emacs.d/res/font first
 (set-face-attribute 'default nil
                     :font "JetBrains Mono"
                     :height (cond (sys/macos 110)

@@ -18,6 +18,7 @@ projectile-bookmarks.eld
 # User personal settings
 /.docsets
 /.cache
+/.local
 /prescient-items
 /eshell
 /transient

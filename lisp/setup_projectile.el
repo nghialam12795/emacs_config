@@ -65,6 +65,14 @@
   )
 )
 
+(setq projectile-cache-file (concat pcache-dir "projectile.cache")
+      projectile-enable-caching (not noninteractive)
+      projectile-indexing-method 'alien
+      projectile-known-projects-file (concat pcache-dir "projectile.projects")
+      projectile-require-project-root nil
+      projectile-globally-ignored-files '(".DS_Store" "Icon" "TAGS")
+      projectile-globally-ignored-file-suffixes '(".elc" ".pyc" ".o")
+)
 
 (provide 'setup_projectile)
 ;;; setup_projectile.el ends here

@@ -18,26 +18,43 @@
 )
 
 ;; Default
+(advice-add #'display-startup-echo-area-message :override #'ignore)
 (setq-default
   ad-redefinition-action 'accept                   ; Silence warnings for redefinition
   auto-window-vscroll nil                          ; Lighten vertical scroll
   blink-matching-paren nil                         ; Dont blink mathcing paren
   confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
   cursor-in-non-selected-windows nil               ; Hide the cursor in inactive windows
+  compilation-always-kill t                        ; Kill compilation process before starting another
+  compilation-ask-about-save nil                   ; Save all buffers on `compile'
+  compilation-scroll-output t
   delete-by-moving-to-trash t                      ; Delete files to trash
   display-time-default-load-average nil            ; Don't display load average
   display-time-format "%H:%M"                      ; Format the time string
   fill-column 80                                   ; Set width for automatic line breaks
+  fringe-indicator-alist
+    (delq (assq 'continuation
+                fringe-indicator-alist)
+          fringe-indicator-alist)                  ; Remove continuation arrow on the right frame
   help-window-select t                             ; Focus new help windows when opened
   indent-tabs-mode nil                             ; Stop using tabs to indent
   idle-update-delay 1                              ; Slow down update ui a bit
-  inhibit-startup-screen t                         ; Disable start-up screen
+  inhibit-default-init t                           ; Default initialization
+  inhibit-startup-message t                        ; Do not show anythings unnecessary
   initial-scratch-message nil                      ; Empty the initial *scratch* buffer
+  inhibit-startup-echo-area-message user-full-name ; Show User name
+  initial-major-mode 'fundamental-mode
+  jit-lock-defer-time nil                          ; Font lock optimization
+  jit-lock-stealth-nice 0.1
+  jit-lock-stealth-time 0.2
+  jit-lock-stealth-verbose nil
+  mode-line-format nil                             ; Disable mode line format when startup
   mouse-yank-at-point t                            ; Yank at point rather than pointer
   ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
   recenter-positions '(5 top bottom)               ; Set re-centering positions
   ffap-machine-p-known 'reject                     ; Dont ping thing that look like domain
   frame-inhibit-implied-resize t                   ; Frame optimization
+  highlight-nonselected-windows nil                ; Remove highlight on nonselected windows
   hscroll-margin 2                                 ; Horizontal scroll
   hscroll-step 1                                   ; Horizontal step
   fast-but-imprecise-scrolling t                   ; Fast scrolling
@@ -74,7 +91,7 @@
 (when sys/macos
   (setq mac-redisplay-dont-reset-vscroll t
         mac-mouse-wheel-smooth-scroll nil
-        ns-popns-pop-up-frames nil
+        ns-pop-up-frames nil
         initial-frame-alist (append '((ns-transparent-titlebar . t)
                                       (ns-appearance . dark)
                                      )
@@ -180,5 +197,20 @@ Then pass DATA, CONTEXT & CALLER to the default handler."
 (unless sys/macos (setq command-line-ns-option-alist nil))
 (unless sys/linux (setq command-line-x-option-alist nil))
 
+;; Files
+(setq-default
+  abbrev-file-name             (concat plocal-dir "abbrev.el")
+  auto-save-list-file-name     (concat pcache-dir "autosave")
+  backup-directory-alist       (list (cons "." (concat pcache-dir "backup/")))
+  pcache-directory             (concat pcache-dir "pcache/")
+  mc/list-file                 (concat petc-dir "mc-lists.el")
+  server-auth-dir              (concat pcache-dir "server/")
+  shared-game-score-directory  (concat petc-dir "shared-game-score/")
+  tramp-auto-save-directory    (concat pcache-dir "tramp-auto-save/")
+  tramp-backup-directory-alist backup-directory-alist
+  tramp-persistency-file-name  (concat pcache-dir "tramp-persistency.el")
+  url-cache-directory          (concat pcache-dir "url/")
+  url-configuration-directory  (concat petc-dir "url/")
+)
 (provide 'setup_base)
 ;;; setup_base.el ends here

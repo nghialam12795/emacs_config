@@ -42,6 +42,41 @@
   "Emacs is 26 or above."
 )
 
+(defvar pemacs-dir
+  (file-truename user-emacs-directory)
+  "The path to this emacs.d directory."
+)
+
+(defvar pcore-dir
+  (concat pemacs-dir "core/")
+  "Where essential files are stored."
+)
+
+(defvar pmodules-dir
+  (concat pemacs-dir "modules/")
+  "Where configuration modules are stored."
+)
+
+(defvar plocal-dir
+  (concat pemacs-dir ".local/")
+  "Root directory for local Emacs files.
+Use this as permanent storage for files that are safe to share
+across systems (if this config is symlinked across several computers)."
+)
+
+(defvar petc-dir
+  (concat plocal-dir "etc/")
+  "Directory for non-volatile storage.
+Use this for files that don't change much, like servers binaries, external
+dependencies or long-term shared data."
+)
+
+(defvar pcache-dir
+  (concat plocal-dir "cache/")
+  "Directory for volatile storage.
+Use this for files that change often, like cache files."
+)
+
 ;; ----------------------------------
 (defconst qutebrowser/win32
   "c:/Program Files/qutebrowser/qutebrowser.exe"
