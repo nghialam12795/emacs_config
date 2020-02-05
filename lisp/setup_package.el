@@ -351,14 +351,6 @@
   )
 )
 
-;; Persistent the scratch buffer
-(use-package persistent-scratch
-  :diminish
-  :hook ((after-init . persistent-scratch-autosave-mode)
-         (lisp-interaction-mode . persistent-scratch-mode)
-        )
-)
-
 
 ;; OTHERS -------------------------------------------------------
 (use-package copyit)                    ; copy path, url, etc.

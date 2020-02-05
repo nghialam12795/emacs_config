@@ -253,7 +253,7 @@
           treemacs-no-delete-other-windows       t
           treemacs-missing-project-action        'ask
           treemacs-project-follow-cleanup        nil
-          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-persist-file                  (expand-file-name "treemacs-persist" pcache-dir)
           treemacs-position                      'left
           treemacs-recenter-distance             0.1
           treemacs-recenter-after-file-follow    nil

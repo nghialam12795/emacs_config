@@ -11,6 +11,7 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
+(require 'setup_misc)
 
 (use-package git-commit
   :preface
@@ -209,6 +210,8 @@
 (use-package gitconfig-mode)
 (use-package gitignore-mode)
 
+;; File location management
+(setq-default transient-values-file (concat pcache-dir "transient"))
 
 (provide 'setup_git)
 ;;; setup_git.el ends here

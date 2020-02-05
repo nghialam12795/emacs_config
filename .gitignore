@@ -5,14 +5,10 @@
 # Emacs ignore
 # -------------------------------------
 
-/url
 /auto-save-list
 /elpa
-/_backup
-/server
 
 ido.last
-projectile.cache
 projectile-bookmarks.eld
 
 # User personal settings

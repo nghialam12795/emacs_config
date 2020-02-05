@@ -14,6 +14,8 @@
 (require 'setup_misc)
 
 ;; Setup `projectile' - For Project Management
+(setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" pcache-dir))
+
 (use-package projectile
   :diminish
   :bind (:map projectile-mode-map

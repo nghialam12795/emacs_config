@@ -151,7 +151,7 @@
 (defun my_backup_file_name (fpath)
   "Backup files in a designated FPATH."
   (let* (
-        (backupRootDir "~/.emacs.d/_backup/")
+        (backupRootDir (concat plocal-dir "_backup"))
         (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path, for example, “C:”
         (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") ))
         )
@@ -201,8 +201,8 @@ Then pass DATA, CONTEXT & CALLER to the default handler."
 (setq-default
   abbrev-file-name             (concat plocal-dir "abbrev.el")
   auto-save-list-file-name     (concat pcache-dir "autosave")
-  backup-directory-alist       (list (cons "." (concat pcache-dir "backup/")))
   pcache-directory             (concat pcache-dir "pcache/")
+  recentf-save-file            (concat plocal-dir "recentf")
   mc/list-file                 (concat petc-dir "mc-lists.el")
   server-auth-dir              (concat pcache-dir "server/")
   shared-game-score-directory  (concat petc-dir "shared-game-score/")
