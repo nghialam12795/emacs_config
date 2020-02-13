@@ -82,6 +82,7 @@
 
 ;; END Lisp --------
 
+
 ;; ######### C++ ######### ;;
 (require 'setup_lspmode)
 (require 'setup_flycheck)
@@ -95,6 +96,12 @@
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 ;; END C++ --------
+
+
+;; ######## Python  ######## ;;
+(require 'setup_python)
+
+;; END Python --------
 
 
 ;; ####### Markdown ####### ;;
