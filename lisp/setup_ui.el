@@ -71,7 +71,7 @@
 
 ;; Setup Fonts - Setup JetBrains Fonts in .emacs.d/res/font first
 (set-face-attribute 'default nil
-                    :font "JetBrains Mono"
+                    ;; :font "JetBrains Mono"
                     :height (cond (sys/macos 110)
                                   (sys/win32 90)
                                   (sys/linux 90)

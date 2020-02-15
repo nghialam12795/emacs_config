@@ -13,12 +13,27 @@
 ;;; Code:
 
 ;; Enable ido mode
-(ido-mode t)
-(setq ido-enable-flex-matching t)
-(setq ido-create-new-buffer 'always)
-(setq ido-ignore-directories '(".git"))
-(setq ido-ignore-extensions t)
+(use-package ido
+  :init
+  (progn
+    (ido-mode 1)
+    (use-package ido-vertical-mode
+      :config
+      (ido-vertical-mode 1)
+      :custom
+      (ido-vertical-define-keys 'c-n-and-c-p-only)))
+  :custom
+  (ido-enable-flex-matching t)
+  (ido-everywhere t)
+  (ido-create-new-buffer 'always)
+  (ido-default-buffer-method 'selected-window)
+)
 
+(use-package ido-completing-read+
+  :demand t
+  :init
+  (ido-ubiquitous-mode 1)
+)
 
 (provide 'setup_ido)
 ;;; setup_ido.el ends here

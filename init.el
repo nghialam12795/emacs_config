@@ -76,6 +76,7 @@
 (require 'setup_company)
 (require 'setup_org)
 (require 'setup_docsets)
+(require 'setup_yasnippet)
 
 ;; ##### Emacs Lisp ###### ;;
 (require 'setup_lisp)

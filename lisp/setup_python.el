@@ -101,9 +101,6 @@
   :commands nose-mode
   :preface
   (defvar nose-mode-map (make-sparse-keymap))
-
-  :config
-  (set! :popup "*nosetests*" :size 0.4 :noselect t)
 )
 
 

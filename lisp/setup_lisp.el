@@ -17,6 +17,11 @@
   :hook (ielm-mode . (lambda () (setq-local scroll-margin 0)))
 )
 
+(use-package elisp-mode :ensure nil :delight "ξ ")
+(use-package eldoc
+  :delight
+  :hook (emacs-lisp-mode . eldoc-mode)
+)
 
 (provide 'setup_lisp)
 ;;; setup_lisp.el ends here

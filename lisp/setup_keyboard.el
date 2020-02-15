@@ -161,11 +161,42 @@ The function wraps a function with `ignore-errors' macro."
 )
 (global-set-key (kbd "C-c C-c") 'restart-emacs)
 
+;; Make scrolling right
+(defun push-mark-no-activate ()
+  "Pushes `point` to `mark-ring' and does not activate the region.
+Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled"
+  (interactive)
+  (push-mark (point) t nil)
+) ; removed the message, visible-mark takes care of this
+(defun penguin/scroll-down-with-mark ()
+  "Like `scroll-down-command`, but push a mark if this is not a repeat invocation."
+  (interactive)
+  (unless (equal last-command 'penguin/scroll-down-with-mark)
+    (push-mark-no-activate))
+  (scroll-down-command)
+)
+(defun penguin/scroll-up-with-mark ()
+  "Like `scroll-up-command`, but push a mark if this is not a repeat invocation."
+  (interactive)
+  (unless (equal last-command 'penguin/scroll-up-with-mark)
+    (push-mark-no-activate))
+  (scroll-up-command)
+)
+
+(global-set-key (kbd "C-v") 'penguin/scroll-up-with-mark)
+(global-set-key (kbd "M-v") 'penguin/scroll-down-with-mark)
+
 ;; Custom setup
 (define-key global-map (kbd "C-G") 'ff-find-other-file)
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key [remap kill-buffer] #'kill-this-buffer)
+(global-set-key (kbd "C-x 3") (lambda () (interactive)(split-window-right) (other-window 1)))
+(global-set-key (kbd "C-x 2") (lambda () (interactive)(split-window-below) (other-window 1)))
+(global-set-key (kbd "M-o") 'other-window)
+(global-set-key (kbd "M-O") 'other-frame)
+(global-set-key (kbd "M-N") 'next-buffer)
+(global-set-key (kbd "M-P") 'previous-buffer)
 (global-unset-key (kbd "C-z")) ;; Remove annoying keymap
 (global-unset-key (kbd "C-x C-z"))
 (global-unset-key (kbd "C-h h"))

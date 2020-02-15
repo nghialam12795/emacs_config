@@ -18,6 +18,7 @@ projectile-bookmarks.eld
 /prescient-items
 /eshell
 /transient
+/org
 
 .lsp-session-v1
 .mc-lists.el
