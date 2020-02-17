@@ -99,10 +99,16 @@
 ;; END C++ --------
 
 
-;; ######## Python  ######## ;;
+;; ######## Python ######## ;;
 (require 'setup_python)
 
 ;; END Python --------
+
+
+;; ######## JSON ######### ;;
+(require 'setup_json)
+
+;; END JSON --------
 
 
 ;; ####### Markdown ####### ;;

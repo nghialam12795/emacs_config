@@ -19,7 +19,7 @@
     :ensure pdf-tools
     :diminish (pdf-view-midnight-minor-mode pdf-view-printer-minor-mode)
     :defines pdf-annot-activate-created-annotations
-    :functions (my-pdf-view-set-midnight-colors my-pdf-view-set-dark-theme)
+    :functions (penguin/pdf-view-set-midnight-colors penguin/pdf-view-set-dark-theme)
     :commands pdf-view-midnight-minor-mode
     :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
     :magic ("%PDF" . pdf-view-mode)
@@ -35,21 +35,21 @@
     (pdf-tools-install t nil t t)
 
     ;; Set dark theme
-    (defun my-pdf-view-set-midnight-colors ()
+    (defun penguin/pdf-view-set-midnight-colors ()
       "Set pdf-view midnight colors."
       (setq pdf-view-midnight-colors
             `(,(face-foreground 'default) . ,(face-background 'default))))
 
-    (defun my-pdf-view-set-dark-theme ()
+    (defun penguin/pdf-view-set-dark-theme ()
       "Set pdf-view midnight theme as color theme."
-      (my-pdf-view-set-midnight-colors)
+      (penguin/pdf-view-set-midnight-colors)
       (dolist (buf (buffer-list))
         (with-current-buffer buf
           (when (eq major-mode 'pdf-view-mode)
             (pdf-view-midnight-minor-mode (if pdf-view-midnight-minor-mode 1 -1))))))
 
-    (my-pdf-view-set-midnight-colors)
-    (add-hook 'after-load-theme-hook #'my-pdf-view-set-dark-theme)
+    (penguin/pdf-view-set-midnight-colors)
+    (add-hook 'after-load-theme-hook #'penguin/pdf-view-set-dark-theme)
 
     ;; FIXME: Support retina
     ;; @see https://emacs-china.org/t/pdf-tools-mac-retina-display/10243/
@@ -93,9 +93,9 @@
 (use-package nov
   :mode ("\\.epub\\'" . nov-mode)
   :functions centaur-read-mode
-  :hook (nov-mode . my-nov-setup)
+  :hook (nov-mode . penguin/nov-setup)
   :init
-  (defun my-nov-setup ()
+  (defun penguin/nov-setup ()
     "Setup `nov-mode' for better reading experience."
     (visual-line-mode 1)
     (centaur-read-mode)
@@ -104,14 +104,14 @@
   ;; FIXME: errors while opening `nov' files with Unicode characters
   ;; @see https://github.com/wasamasa/nov.el/issues/63
   (with-no-warnings
-    (defun my-nov-content-unique-identifier (content)
+    (defun penguin/nov-content-unique-identifier (content)
       "Return the the unique identifier for CONTENT."
       (when-let* ((name (nov-content-unique-identifier-name content))
                   (selector (format "package>metadata>identifier[id='%s']"
                                     (regexp-quote name)))
                   (id (car (esxml-node-children (esxml-query selector content)))))
         (intern id)))
-    (advice-add #'nov-content-unique-identifier :override #'my-nov-content-unique-identifier))
+    (advice-add #'nov-content-unique-identifier :override #'penguin/nov-content-unique-identifier))
 
   ;; Fix encoding issue on Windows
   (when sys/win32

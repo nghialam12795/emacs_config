@@ -25,9 +25,14 @@
   ;; )
   :custom
   (ccls-sem-highlight-method 'font-lock)
+  (projectile-project-root-files-top-down-recurring
+   (append '("compile_commands.json" ".ccls")
+           projectile-project-root-files-top-down-recurring)
+  )
   :config
   (setq lsp-prefer-flymake nil)
   (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+  (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
   :hook ((c-mode c++-mode objc-mode) .
          (lambda () (require 'ccls) (lsp))
         )

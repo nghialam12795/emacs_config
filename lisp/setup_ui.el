@@ -38,7 +38,6 @@
     (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))
   )
 )
-(load-theme 'doom-gruvbox t)
 ;; (use-package solaire-mode
 ;;   :hook
 ;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
@@ -71,13 +70,15 @@
 
 ;; Setup Fonts - Setup JetBrains Fonts in .emacs.d/res/font first
 (set-face-attribute 'default nil
-                    ;; :font "JetBrains Mono"
+                    :font "JetBrains Mono"
+                    ;; :font "Source Code Pro Medium"
                     :height (cond (sys/macos 110)
                                   (sys/win32 90)
                                   (sys/linux 90)
                                   (t 100)
                             )
 )
+;; (set-fontset-font t 'latin "Noto Sans")
 
 ;; Setup title bar
 (setq frame-title-format '("" "%b - Penguin Emacs 🐧")
@@ -308,7 +309,7 @@
               magit-post-unstage)
              . treemacs-magit--schedule-update)
 )
-(setq doom-themes-treemacs-theme "doom-colors")
+;; (setq doom-themes-treemacs-theme "doom-colors")
 (doom-themes-treemacs-config)
 ;; End `Treemacs'
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
@@ -496,5 +497,6 @@ FACE defaults to inheriting from default and highlight."
     (advice-add #'show-paren-function :after #'show-paren-off-screen))
 )
 
+(load-theme 'doom-gruvbox t)
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
