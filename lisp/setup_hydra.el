@@ -23,8 +23,10 @@
 )
 (use-package pretty-hydra
   :bind
+  ("C-c h c" . hydra-clock/body)
   ("C-c h l" . hydra-lspui/body)
   ("C-c h f" . hydra-flycheck/body)
+  ("C-c h p" . hydra-projectile/body)
   ("C-c h w" . hydra-window/body)
 )
 
@@ -92,9 +94,9 @@ _ESC_ to exit    _i_ Toggle Overwrite/Insert
 )
 
 
-;; ;; ------------------------------------
-;; ;; `flycheck'
-;; ;; ------------------------------------
+;; ------------------------------------
+;; `flycheck'
+;; ------------------------------------
 (pretty-hydra-define hydra-flycheck (:title (phydra-title "Flycheck" 'faicon "bug")
                                      :color pink
                                      :quit-key "q"
@@ -214,31 +216,51 @@ _ESC_ to exit    _i_ Toggle Overwrite/Insert
 ;; )
 
 ;; ;; ------------------------------------
-;; ;; `projectile'
+;; ;; `org-clock'
 ;; ;; ------------------------------------
-;; (defhydra hydra-projectile (:color blue)
-;;   "
-;; ^
-;; ^Projectile^        ^Buffers^           ^Find^              ^Search^
-;; ^──────────^────────^───────^───────────^────^──────────────^──────^────────────
-;; _q_ quit            [_b_] list          [_d_] directory     [_s_] swiper
-;; _i_ reset cache     [_k_] kill buffer   [_D_] root          [_S_] helm-grep
-;; ^^                  [_K_] kill all      [_f_] file          ^^
-;; ^^                  ^^                  [_p_] project       ^^
-;; ^^                  ^^                  ^^                  ^^
-;; "
-;;   ("q" nil)
-;;   ("b" counsel-projectile-switch-to-buffer)
-;;   ("d" counsel-projectile-find-dir)
-;;   ("D" projectile-dired)
-;;   ("f" counsel-projectile-find-file)
-;;   ("i" projectile-invalidate-cache :color red)
-;;   ("k" kill-this-buffer)
-;;   ("K" projectile-kill-buffers)
-;;   ("p" counsel-projectile-switch-project)
-;;   ("s" swiper)
-;;   ("S" helm-projectile-grep)
-;; )
+(pretty-hydra-define hydra-clock (:title (phydra-title "Clock" 'faicon "clock-o")
+                                  :color pink
+                                  :quit-key "q"
+                                 )
+  ("Actions"
+   (("c" org-clock-cancel "cancel")
+    ("d" org-clock-display "display")
+    ("e" org-clock-modify-effort-estimate "effort")
+    ("i" org-clock-in "in")
+    ("j" org-clock-goto "jump")
+    ("o" org-clock-out "out")
+    ("r" org-clock-report "report")
+   )
+  )
+)
+
+;; ------------------------------------
+;; `projectile'
+;; ------------------------------------
+(pretty-hydra-define hydra-projectile (:title (phydra-title "Projectile" 'faicon "rocket")
+                                       :color pink
+                                       :quit-key "q"
+                                      )
+  ("Buffers"
+   (("b" counsel-projectile-switch-to-buffer "list")
+    ("k" projectile-kill-buffers "kill all")
+    ("S" projectile-save-project-buffers "save all")
+   )
+   "Find"
+   (("d" counsel-projectile-find-dir "directory")
+    ("D" projectile-dired "root")
+    ("f" counsel-projectile-find-file "file")
+    ("p" counsel-projectile-switch-project "project")
+   )
+   "Other"
+   (("i" projectile-invalidate-cache "reset cache"))
+   "Search"
+   (("r" projectile-replace "replace")
+    ("R" projectile-replace-regexp "regexp replace")
+    ("s" counsel-rg "search")
+   )
+  )
+)
 
 ;; ;; ------------------------------------
 ;; ;; `hydra'

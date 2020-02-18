@@ -309,7 +309,7 @@
               magit-post-unstage)
              . treemacs-magit--schedule-update)
 )
-;; (setq doom-themes-treemacs-theme "doom-colors")
+(setq doom-themes-treemacs-theme "doom-colors")
 (doom-themes-treemacs-config)
 ;; End `Treemacs'
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons

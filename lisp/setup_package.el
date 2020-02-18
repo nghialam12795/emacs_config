@@ -332,23 +332,14 @@
   (setq uniquify-after-kill-buffer-p t)
 )
 
-;; A Simmple and cool pomodoro timer
-(use-package pomidor
-  :bind ("<f12>" . pomidor)
-  :init
-  (setq alert-default-style 'mode-line)
+;; Generate a fast and quality graphic
+(use-package gnuplot
+  :defer 2
+)
 
-  (with-eval-after-load 'all-the-icons
-    (setq alert-severity-colors
-          `((urgent   . ,(face-foreground 'all-the-icons-red))
-            (high     . ,(face-foreground 'all-the-icons-orange))
-            (moderate . ,(face-foreground 'all-the-icons-yellow))
-            (normal   . ,(face-foreground 'all-the-icons-green))
-            (low      . ,(face-foreground 'all-the-icons-blue))
-            (trivial  . ,(face-foreground 'all-the-icons-purple))
-           )
-    )
-  )
+(use-package gnuplot-mode
+  :after gnuplot
+  :mode "\\.gp\\'"
 )
 
 

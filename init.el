@@ -101,21 +101,24 @@
 
 ;; ######## Python ######## ;;
 (require 'setup_python)
-
 ;; END Python --------
 
 
-;; ######## JSON ######### ;;
+;; ######## Json ######### ;;
 (require 'setup_json)
-
-;; END JSON --------
+;; END Json --------
 
 
 ;; ####### Markdown ####### ;;
 (require 'setup_markdown)
+;; END Markdown -------
 
-;; END Markdown --------
+;; ######## Latex ######### ;;
+(require 'setup_latex)
+;; END Latex ---------
 
-
+;; ####### MISC LANG ####### ;;
+(require 'setup_otherlang)
+;; END MISC -----------
 
 ;;; init.el ends here

@@ -15,10 +15,10 @@ projectile-bookmarks.eld
 /.docsets
 /.cache
 /.local
+/.private
 /prescient-items
 /eshell
 /transient
-/org
 
 .lsp-session-v1
 .mc-lists.el
