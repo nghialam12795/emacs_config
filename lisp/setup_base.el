@@ -163,7 +163,7 @@
 
 
 ;; personal settings will be written to user.el
-(setq custom-file (expand-file-name "user.el" user-emacs-directory))
+(setq custom-file (expand-file-name "~/.emacs.d/.local/user.el" user-emacs-directory))
 
 (let ((user-template-file
        (expand-file-name "user_template.el" user-emacs-directory)))

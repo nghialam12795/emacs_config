@@ -53,8 +53,7 @@
     `(lambda (&rest _rest)
        (funcall ,fnc))
   )
-  :hook ((after-save . penguin/config-tangle)
-         (auto-save . org-save-all-org-buffers)
+  :hook ((auto-save . org-save-all-org-buffers)
          (org-mode . org-indent-mode))
   :custom
   ;; (org-archive-location "~/.emacs.d/.private/org/.archives/%s::")
@@ -289,37 +288,37 @@
   (org-clock-in-switch-to-state "STARTED")
   (org-clock-out-remove-zero-time-clocks t)
   (org-clock-persist t)
-  (org-clock-persist-file (expand-file-name (format "%s/emacs/org-clock-save.el" xdg-cache)))
+  (org-clock-persist-file (expand-file-name "~/.emacs.d/.local/org-clock-save.el" user-emacs-directory))
   (org-clock-persist-query-resume nil)
   (org-clock-report-include-clocking-task t)
   (org-show-notification-handler (lambda (msg) (alert msg)))
 )
 
-;; ;; Setup `Org-journal'
-;; (use-package org-journal
-;;   :after org
-;;   :bind (("C-c T" . org-journal-new-entry)
-;;          ("C-c Y" . journal-file-yesterday))
-;;   :preface
-;;   (defun get-journal-file-yesterday ()
-;;     "Gets filename for yesterday's journal entry."
-;;     (let* ((yesterday (time-subtract (current-time) (days-to-time 1)))
-;;            (daily-name (format-time-string "%Y%m%d" yesterday)))
-;;       (expand-file-name (concat org-journal-dir daily-name)))
-;;   )
-;;   (defun journal-file-yesterday ()
-;;     "Creates and load a file based on yesterday's date."
-;;     (interactive)
-;;     (find-file (get-journal-file-yesterday))
-;;   )
-;;   :custom
-;;   (org-journal-date-format "%e %b %Y (%A)")
-;;   (org-journal-dir "~/.emacs.d/.private/org/journal/")
-;;   (org-journal-file-type 'weekly)
-;;   (org-journal-enable-encryption t)
-;;   (org-journal-file-format "%Y%m%d")
-;;   (org-journal-time-format "")
-;; )
+;; Setup `Org-journal'
+(use-package org-journal
+  :after org
+  :bind (("C-c T" . org-journal-new-entry)
+         ("C-c Y" . journal-file-yesterday))
+  :preface
+  (defun get-journal-file-yesterday ()
+    "Gets filename for yesterday's journal entry."
+    (let* ((yesterday (time-subtract (current-time) (days-to-time 1)))
+           (daily-name (format-time-string "%Y%m%d" yesterday)))
+      (expand-file-name (concat org-journal-dir daily-name)))
+  )
+  (defun journal-file-yesterday ()
+    "Creates and load a file based on yesterday's date."
+    (interactive)
+    (find-file (get-journal-file-yesterday))
+  )
+  :custom
+  (org-journal-date-format "%e %b %Y (%A)")
+  (org-journal-dir "~/.emacs.d/.private/org/journal/")
+  (org-journal-file-type 'weekly)
+  (org-journal-enable-encryption t)
+  (org-journal-file-format "%Y%m%d")
+  (org-journal-time-format "")
+)
 
 
 (provide 'setup_org)
