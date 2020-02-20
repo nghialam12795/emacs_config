@@ -61,14 +61,15 @@
 (require 'setup_ui)
 (require 'setup_ido)
 (require 'setup_hydra)
-(require 'setup_web)
-(require 'setup_reader)
 
 ;; --------------------------------------------------------
 ;; Coding Setup
 ;; --------------------------------------------------------
 
 ;; ###### Emacs Util ##### ;;
+(require 'setup_web)
+(require 'setup_reader)
+(require 'setup_term)
 (require 'setup_keyboard)
 (require 'setup_ivy)
 (require 'setup_projectile)
