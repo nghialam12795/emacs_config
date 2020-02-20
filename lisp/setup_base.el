@@ -84,7 +84,19 @@
 (mouse-avoidance-mode 'banish)                     ; Avoid collision of mouse with point
 (put 'downcase-region 'disabled nil)               ; Enable downcase-region
 (put 'upcase-region 'disabled nil)                 ; Enable upcase-region
-(set-default-coding-systems 'utf-8)                ; Default to utf-8 encoding
+(prefer-coding-system 'utf-8-unix)
+(set-locale-environment "en_US.UTF-8")
+(set-default-coding-systems 'utf-8-unix)
+(set-selection-coding-system 'utf-8-unix)
+(set-buffer-file-coding-system 'utf-8-unix)
+(set-clipboard-coding-system 'utf-8)               ; included by set-selection-coding-system
+(set-keyboard-coding-system 'utf-8)                ; configured by prefer-coding-system
+(set-terminal-coding-system 'utf-8)                ; configured by prefer-coding-system
+(setq buffer-file-coding-system 'utf-8)            ; utf-8-unix
+(setq save-buffer-coding-system 'utf-8-unix)       ; nil
+(setq process-coding-system-alist
+      (cons '("grep" utf-8 . utf-8) process-coding-system-alist)
+)
 (toggle-frame-maximized)                           ; Toggle maximized
 
 ;; MacOS tweak
@@ -116,16 +128,6 @@
   (setq mac-option-modifier 'super) ; make opt key do Super
   (setq mac-control-modifier 'control) ; make Control key do Control
   (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
-)
-
-;; Windows tweak
-(when sys/win32
-  (setq w32-pass-lwindow-to-system nil)
-  (setq w32-lwindow-modifier 'super) ; Left Windows key
-  (setq w32-pass-rwindow-to-system nil)
-  (setq w32-rwindow-modifier 'super) ; Right Windows key
-  (setq w32-pass-apps-to-system nil)
-  (setq w32-apps-modifier 'hyper) ; Menu/App key
 )
 
 ;; Set up cursor

@@ -81,7 +81,6 @@
 
 ;; ##### Emacs Lisp ###### ;;
 (require 'setup_lisp)
-
 ;; END Lisp --------
 
 

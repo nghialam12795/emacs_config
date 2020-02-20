@@ -51,13 +51,7 @@
       window-divider-default-bottom-width 1
       window-divider-default-right-width 1)
 (add-hook 'window-setup-hook #'window-divider-mode)
-;; vertical border
-(let ((display-table (or standard-display-table (make-display-table))))
-  (set-display-table-slot display-table 'vertical-border (make-glyph-code ?┃)) ; or ┃ │ ║
-  (setq standard-display-table display-table)
-)
-(set-face-background 'vertical-border "#007f7f")
-(set-face-foreground 'vertical-border (face-background 'vertical-border))
+
 ;; Narrow/Widen
 (use-package fancy-narrow
   :diminish
@@ -159,7 +153,7 @@
 
   ;; rules
   (setq shackle-default-size 0.4
-        shackle-default-alignment 'below
+        shackle-default-alignment 'right
         shackle-default-rule nil
         shackle-rules
         '((("*Help*" "*Apropos*") :select t :size 0.3 :align 'below :autoclose t)
@@ -309,7 +303,6 @@
               magit-post-unstage)
              . treemacs-magit--schedule-update)
 )
-(setq doom-themes-treemacs-theme "doom-colors")
 (doom-themes-treemacs-config)
 ;; End `Treemacs'
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
@@ -497,6 +490,7 @@ FACE defaults to inheriting from default and highlight."
     (advice-add #'show-paren-function :after #'show-paren-off-screen))
 )
 
+(setq doom-themes-treemacs-theme "doom-colors")
 (load-theme 'doom-gruvbox t)
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
