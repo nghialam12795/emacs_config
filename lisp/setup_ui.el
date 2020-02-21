@@ -355,6 +355,14 @@
         dashboard-set-file-icons t
         show-week-agenda-p t
   )
+  ;; Insert custom item
+  (defun dashboard-insert-custom (list-size)
+    (insert (if (display-graphic-p)
+                (all-the-icons-faicon "google" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+    (insert "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)")
+  )
+  (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+  (add-to-list 'dashboard-items '(custom) t)
   (add-to-list 'dashboard-item-generators '(packages . dashboard-load-packages))
 )
 (dashboard-setup-startup-hook)

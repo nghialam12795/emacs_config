@@ -13,18 +13,20 @@
 
 ;;; Code:
 (use-package yasnippet-snippets
+  :ensure t
   :after yasnippet
   :config (yasnippet-snippets-initialize)
 )
 
 (use-package yasnippet
   :delight yas-minor-mode " υ"
-  :hook (yas-minor-mode . my/disable-yas-if-no-snippets)
+  :hook (yas-minor-mode . penguin/disable-yas-if-no-snippets)
   :config (yas-global-mode)
   :preface
-  (defun my/disable-yas-if-no-snippets ()
+  (defun penguin/disable-yas-if-no-snippets ()
     (when (and yas-minor-mode (null (yas--get-snippet-tables)))
-      (yas-minor-mode -1)))
+      (yas-minor-mode -1))
+  )
 )
 
 (use-package ivy-yasnippet :after yasnippet)
