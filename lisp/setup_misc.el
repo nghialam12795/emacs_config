@@ -12,7 +12,7 @@
 
 ;;; Code:
 
-(defconst pemacs/version
+(defvar pemacs/version
   "0.1.1"
   "Penguin Emacs version."
 )

@@ -316,7 +316,7 @@
   :ensure t
   :config
   (setq dashboard-startup-banner (or e_logo 'official)
-        dashboard-banner-logo-title "Penguin Emacs"
+        dashboard-banner-logo-title (concat "Penguin Emacs v" pemacs/version)
         dashboard-set-navigator t
         dashboard-navigator-buttons
         `(
@@ -351,7 +351,6 @@
                           (agenda   . 5)
                          )
         dashboard-set-footer t
-        dashboard-footer (format "Penguin Emacs v0.1.1")
         dashboard-footer-icon (cond ((display-graphic-p)
                                        (all-the-icons-faicon "linux"
                                                              :height 1.1
@@ -366,7 +365,15 @@
   (defun dashboard-insert-custom (list-size)
     (insert (if (display-graphic-p)
                 (all-the-icons-faicon "tasks" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-    (insert "  🗓 Calendar: (c)   ⛅ Weather: (w)   📧 Mail: (m)   💻 Twitter: (t)   💬 Slack: (s)   📚 GH: (h)")
+    (when sys/win32
+      (insert "  🗓 Calendar: (c)   ⛅ Weather: (w)   📧 Mail: (m)   💻 Twitter: (t)   💬 Slack: (s)   📚 GH: (h)")
+    )
+    (when sys/linux
+      (insert "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)")
+    )
+    (when sys/macos
+      (insert "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)")
+    )
   )
   (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
   (add-to-list 'dashboard-items '(custom) t)
