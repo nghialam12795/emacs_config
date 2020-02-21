@@ -191,7 +191,7 @@
           )
           ("*Ibuffer*" :select t :size 0.4 :align 'below :autoclose t)
           (ibuffer-mode :select t :size 0.4 :align 'below :autoclose t)
-          
+
           (profiler-report-mode :select t :size 0.5 :align 'below)
           ("*ELP Profiling Restuls*" :select t :size 0.5 :align 'below)
 
@@ -203,7 +203,7 @@
 
           ("*nose-mode*" :noselect t :size 0.4)
           (nose-mode :noselect t :size 0.4)
-          
+
           ((grep-mode rg-mode deadgrep-mode ag-mode pt-mode) :select t :align 'below)
           (Buffer-menu-mode :select t :size 20 :align 'below :autoclose t)
           (helpful-mode :select t :size 0.3 :align 'below :autoclose t)
@@ -350,7 +350,14 @@
                           (projects . 5)
                           (agenda   . 5)
                          )
-        dashboard-set-footer nil
+        dashboard-set-footer t
+        dashboard-footer (format "Penguin Emacs v0.1.1")
+        dashboard-footer-icon (cond ((display-graphic-p)
+                                       (all-the-icons-faicon "linux"
+                                                             :height 1.1
+                                                             :v-adjust -0.05
+                                                             :face 'error))
+                              )
         dashboard-set-heading-icons t
         dashboard-set-file-icons t
         show-week-agenda-p t
@@ -358,8 +365,8 @@
   ;; Insert custom item
   (defun dashboard-insert-custom (list-size)
     (insert (if (display-graphic-p)
-                (all-the-icons-faicon "google" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-    (insert "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)")
+                (all-the-icons-faicon "tasks" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+    (insert "  🗓 Calendar: (c)   ⛅ Weather: (w)   📧 Mail: (m)   💻 Twitter: (t)   💬 Slack: (s)   📚 GH: (h)")
   )
   (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
   (add-to-list 'dashboard-items '(custom) t)
