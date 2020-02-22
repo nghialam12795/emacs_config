@@ -11,6 +11,7 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
+(require 'setup_misc)
 
 ;; Enable ido mode
 (use-package ido
@@ -19,6 +20,7 @@
   :config
   (progn
     (ido-mode 1)
+    (setq ido-save-directory-list-file (concat pcache-dir "ido-last"))
     (setq ido-auto-merge-work-directories-length -1
           ido-default-buffer-method 'selected-window
           ido-use-virtual-buffers t

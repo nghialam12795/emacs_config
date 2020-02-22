@@ -11,7 +11,7 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
-
+(require 'setup_misc)
 
 ;; Prerequisite
 (use-package flx)
@@ -133,7 +133,7 @@
   :ensure t
   :config
   (setq prescient-history-length 200)
-  (setq prescient-save-file "~/.emacs.d/prescient-items")
+  (setq prescient-save-file (concat pcache-dir "prescient-items"))
   (setq prescient-filter-method '(literal regexp))
   (prescient-persist-mode 1)
 )

@@ -46,6 +46,7 @@
 (setq load-prefer-newer noninteractive)
 
 ;; Package archives
+(setq package-user-dir "~/.emacs.d/.local/packages")
 (package-initialize)
 (setq package-archives
       '(("gnu"   . "http://elpa.gnu.org/packages/")
