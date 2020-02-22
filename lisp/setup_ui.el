@@ -82,6 +82,14 @@
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (add-hook 'prog-mode-hook 'page-break-lines-mode)
 
+;; Setup M-x usage
+(use-package smex
+  :ensure t
+  :config
+  (setq smex-save-file (concat pcache-dir ".smex-items"))
+  (smex-initialize)
+)
+
 ;; Setup Icons
 (use-package all-the-icons
   :config (setq all-the-icons-scale-factor 1.0)
@@ -153,7 +161,7 @@
 
   ;; rules
   (setq shackle-default-size 0.4
-        shackle-default-alignment 'right
+        shackle-default-alignment 'below
         shackle-default-rule nil
         shackle-rules
         '((("*Help*" "*Apropos*") :select t :size 0.3 :align 'below :autoclose t)
@@ -192,6 +200,9 @@
           ("*Ibuffer*" :select t :size 0.4 :align 'below :autoclose t)
           (ibuffer-mode :select t :size 0.4 :align 'below :autoclose t)
 
+          ("*Org Agenda*" :select t :size 0.4 :align 'right :autoclose t)
+          (org-super-agenda-mode :select t :size 0.4 :align 'right :autoclose t)
+          
           (profiler-report-mode :select t :size 0.5 :align 'below)
           ("*ELP Profiling Restuls*" :select t :size 0.5 :align 'below)
 
@@ -313,6 +324,16 @@
   :type 'string
 )
 (use-package dashboard
+  :bind (("<f4>" . open-dashboard)
+         :map dashboard-mode-map
+         ("c" . penguin/browse-calendar)
+         ("w" . penguin/browse-weather)
+         ("m" . penguin/browse-gmail)
+         ("t" . penguin/browse-tweetdeck)
+         ("s" . penguin/browse-slack)
+         ("h" . penguin/browse-homepage)
+         ("l" . penguin/line-app-open)
+         ("<f4>" . quit-dashboard))
   :ensure t
   :config
   (setq dashboard-startup-banner (or e_logo 'official)
@@ -350,28 +371,91 @@
                           (projects . 5)
                           (agenda   . 5)
                          )
-        dashboard-set-footer nil
+        dashboard-footer (concat "Hello " user-full-name)
+        dashboard-footer-icon (all-the-icons-octicon "dashboard"
+                                                     :height 1.1
+                                                     :v-adjust -0.05
+                                                     :face 'font-lock-keyword-face)
         dashboard-set-heading-icons t
         dashboard-set-file-icons t
         show-week-agenda-p t
   )
   ;; Insert custom item
   (defun dashboard-insert-custom (list-size)
-    (insert (if (display-graphic-p)
-                (all-the-icons-faicon "linux" :height 1.2 :v-adjust -0.05 :face 'error) " "))
     (when sys/win32
-      (insert "  🗓 Calendar: (c)   ⛅ Weather: (w)   📧 Mail: (m)   💻 Twitter: (t)   💬 Slack: (s)   📚 GH: (h)")
+      (let ((items  "  🗓 Calendar: (c)   ⛅ Weather: (w)   📧 Mail: (m)   💻 Twitter: (t)   💬 Slack: (s)   📚 GH: (h)"))
+        (put-text-property 0 (length items) 'face 'font-lock-warning-face
+                           items)
+        (insert items)
+      )
     )
     (when sys/linux
-      (insert "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)")
+      (let ((items  "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)"))
+        (put-text-property 0 (length items) 'face 'font-lock-warning-face
+                           items)
+        (insert items)
+      )
     )
     (when sys/macos
-      (insert "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)")
+      (let ((items  "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)"))
+        (put-text-property 0 (length items) 'face 'font-lock-warning-face
+                           items)
+        (insert items)
+      )
     )
   )
+
   (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
   (add-to-list 'dashboard-items '(custom) t)
   (add-to-list 'dashboard-item-generators '(packages . dashboard-load-packages))
+
+  (defun open-dashboard ()
+    "Open the *dashboard* buffer and jump to the first widget."
+    (interactive)
+    (delete-other-windows)
+    ;; Refresh dashboard buffer
+    (if (get-buffer dashboard-buffer-name)
+    (kill-buffer dashboard-buffer-name))
+    (dashboard-insert-startupify-lists)
+    (switch-to-buffer dashboard-buffer-name)
+    ;; Jump to the first section
+    (goto-char (point-min))
+    (dashboard-goto-recent-files)
+  )
+  (defun quit-dashboard ()
+    "Quit dashboard window."
+    (interactive)
+    (quit-window t)
+    (when (and dashboard-recover-layout-p
+           (bound-and-true-p winner-mode))
+      (winner-undo)
+      (setq dashboard-recover-layout-p nil))
+  )
+  (defun dashboard-goto-recent-files ()
+    "Go to recent files."
+    (interactive)
+    (funcall (local-key-binding "r"))
+  )
+  (defun penguin/browse-calendar ()
+    "Open the org-agenda."
+    (interactive)
+    (open-dashboard)
+    (split-window-right)
+    (other-window 1)
+    (let ((org-agenda-window-setup 'current-window))
+      (org-agenda nil "n")
+    )
+  )
+  (defun penguin/browse-weather ()
+    "Open the weather forcast."
+    (interactive)
+    (wttrin "Hochiminh")
+  )
+  (defun penguin/browse-homepage ()
+    "Open my github homepage."
+    (interactive)
+    (lambda (&rest _) (browse-url my-homepage))
+  )
 )
 (dashboard-setup-startup-hook)
 
@@ -453,6 +537,15 @@
   (setq hl-line-sticky-flag nil
         global-hl-line-sticky-flag nil
   )
+)
+
+;; Highlight symbol
+(use-package highlight-symbol
+  :ensure t
+  :bind (("C-M-n" . highlight-symbol-next)
+         ("C-M-p" . highlight-symbol-prev))
+  :config
+  (highlight-symbol-nav-mode)
 )
 
 ;; Highlight matching parens

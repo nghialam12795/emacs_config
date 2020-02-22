@@ -77,15 +77,15 @@
   (org-refile-targets '((org-agenda-files . (:maxlevel . 6))))
   (org-startup-folded nil)
   (org-startup-with-inline-images t)
-  (org-tag-alist '(("@coding" . ?c)
+  (org-tag-alist '(("@coding"   . ?c)
                    ("@computer" . ?l)
-                   ("@home" . ?h)
-                   ("@phone" . ?p)
-                   ("@reading" . ?r)
-                   ("@work" . ?b)
-                   ("@writing" . ?w)
-                   ("crypt" . ?C)
-                   ("fuzzy" . ?0)
+                   ("@home"     . ?h)
+                   ("@phone"    . ?p)
+                   ("@reading"  . ?r)
+                   ("@work"     . ?b)
+                   ("@writing"  . ?w)
+                   ("crypt"     . ?C)
+                   ("fuzzy"     . ?0)
                   )
   )
   (org-tags-exclude-from-inheritance '("crypt" "project"))
@@ -230,7 +230,9 @@
                                    )
                                   )
 )
-
+(org-super-agenda-mode)
+(setq split-height-threshold 40) ; nil
+(setq split-width-threshold nil) ; 100
 
 ;; Setup `Org-capture'
 (use-package org-capture
@@ -320,6 +322,35 @@
   (org-journal-time-format "")
 )
 
+;; Compiler for other languages
+(use-package ob-C :ensure nil :after org)
+(use-package ob-css :ensure nil :after org)
+(use-package ob-ditaa :ensure nil :after org)
+(use-package ob-dot :ensure nil :after org)
+(use-package ob-emacs-lisp :ensure nil :after org)
+(use-package ob-gnuplot :ensure nil :after org)
+(use-package ob-java :ensure nil :after org)
+(use-package ob-js :ensure nil :after org)
+
+(use-package ob-latex
+  :ensure nil
+  :after org
+  :custom (org-latex-compiler "xelatex")
+)
+
+(use-package ob-ledger :ensure nil :after org)
+(use-package ob-makefile :ensure nil :after org)
+(use-package ob-org :ensure nil :after org)
+
+;; (use-package ob-plantuml
+;;   :ensure nil
+;;   :after org
+;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
+
+(use-package ob-python :ensure nil :after org)
+(use-package ob-ruby :ensure nil :after org)
+(use-package ob-shell :ensure nil :after org)
+(use-package ob-sql :ensure nil :after org)
 
 (provide 'setup_org)
 ;;; setup_org.el ends here

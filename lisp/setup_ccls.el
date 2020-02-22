@@ -15,34 +15,18 @@
 
 ;; `ccls'
 (use-package ccls
-  ;; :init
-  ;; (setq ccls-initialization-options '(:clang (:extraArgs
-  ;;                                             ["-isysroot"
-  ;;                                              "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
-  ;;                                             ]
-  ;;                                            )
-  ;;                                    )
-  ;; )
+  :after projectile
+  :ensure t
   :custom
-  (ccls-sem-highlight-method 'font-lock)
+  (ccls-args nil)
+  (ccls-executable (executable-find "ccls"))
   (projectile-project-root-files-top-down-recurring
    (append '("compile_commands.json" ".ccls")
-           projectile-project-root-files-top-down-recurring)
-  )
-  :config
-  (setq lsp-prefer-flymake nil)
-  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
-  (add-to-list 'projectile-globally-ignored-directories ".ccls-cache")
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))
-        )
+           projectile-project-root-files-top-down-recurring))
+  :config (push ".ccls-cache" projectile-globally-ignored-directories)
 )
+
 (require 'lsp-clients)
-(setq ccls-executable (cond (sys/macos "/usr/local/Cellar/ccls/0.20190823.5/bin/ccls")
-                            (sys/win32 "temp")
-                            (sys/linux "/usr/local/bin/ccls")
-                      )
-)
 (setq lsp-disabled-clients '(clangd)) ;; Disable unused clangd server
 ;; (when sys/macos
 ;;   (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")

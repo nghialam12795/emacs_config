@@ -270,10 +270,11 @@
 )
 
 ;; Clean up whitespaces
-(use-package whitespace
+(use-package simple
   :ensure nil
-  :hook (before-save . whitespace-cleanup)
+  :hook (before-save . delete-trailing-whitespace)
 )
+
 ;; imenu-list
 ;; (use-package imenu-list
 ;;   :ensure t
@@ -302,34 +303,11 @@
   :hook (after-init . global-auto-revert-mode)
 )
 
-;; Windows tiling manager
-(use-package eyebrowse
-  :bind
-  ("<f5>" . eyebrowse-switch-to-window-config-1)
-  ("<f6>" . eyebrowse-switch-to-window-config-2)
-  ("<f7>" . eyebrowse-switch-to-window-config-3)
-  ("<f8>" . eyebrowse-switch-to-window-config-4)
-  :hook
-  (after-init . eyebrowse-mode)
-  :custom
-  (eyebrowse-new-workspace t)
-)
-
 ;; Automatic paren
 (use-package elec-pair
   :ensure nil
   :hook (after-init . electric-pair-mode)
   :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
-)
-
-;; Uniquify buffers name
-(use-package uniquify
-  :ensure nil
-  :config
-  (setq uniquify-separator "|")
-  (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
-  (setq uniquify-strip-common-suffix t)
-  (setq uniquify-after-kill-buffer-p t)
 )
 
 ;; Generate a fast and quality graphic
@@ -342,6 +320,27 @@
   :mode "\\.gp\\'"
 )
 
+;; Fix PATH for MacOS
+(when sys/macos
+  (use-package exec-path-from-shell
+    :ensure t
+    :demand t
+    :init
+    (setq exec-path-from-shell-check-startup-files nil)
+    :config
+    ;; (exec-path-from-shell-copy-env "PYTHONPATH")
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize))
+  )
+)
+
+;; Weather forcast
+(use-package wttrin
+  :ensure t
+  :commands (wttrin)
+  :init
+  (setq wttrin-default-cities '("Hochiminh"))
+)
 
 ;; OTHERS -------------------------------------------------------
 (use-package copyit)                    ; copy path, url, etc.

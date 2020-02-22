@@ -123,28 +123,10 @@ The function wraps a function with `ignore-errors' macro."
 )
 
 ;; Restart Emacs
-(defun launch-separate-emacs-in-terminal ()
-  "Launch Emacs in terminal."
-  (suspend-emacs "fg ; emacs -nw")
+(use-package restart-emacs
+  :ensure t
+  :bind* (("C-x M-c" . restart-emacs))
 )
-
-(defun launch-separate-emacs-under-x ()
-  "Launch Emacs under x."
-  (call-process "sh" nil nil nil "-c" "emacs &")
-)
-
-(defun restart-emacs ()
-  "Kill Emacs and then start it again."
-  (interactive)
-  ;; We need the new emacs to be spawned after all kill-emacs-hooks
-  ;; have been processed and there is nothing interesting left
-  (let ((kill-emacs-hook (append kill-emacs-hook (list (if (display-graphic-p)
-                                                           #'launch-separate-emacs-under-x
-                                                         #'launch-separate-emacs-in-terminal)))))
-    (save-buffers-kill-emacs)
-  )
-)
-(global-set-key (kbd "C-c C-c") 'restart-emacs)
 
 ;; Make scrolling right
 (defun push-mark-no-activate ()

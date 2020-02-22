@@ -58,6 +58,7 @@
   hscroll-margin 2                                 ; Horizontal scroll
   hscroll-step 1                                   ; Horizontal step
   fast-but-imprecise-scrolling t                   ; Fast scrolling
+  recenter-positions '(top middle bottom)          ; Setup recenter
   scroll-conservatively most-positive-fixnum       ; Always scroll by one line
   scroll-margin 0                                  ; Add a margin when scrolling vertically
   scroll-preserve-screen-position t                ; Reduce cursor lag a bit
@@ -114,16 +115,6 @@
        (require 'ns-auto-titlebar nil t)
        (ns-auto-titlebar-mode +1)
   )
-  ;; (add-hook '(window-setup-hook after-make-frame-functions)
-  ;;   (defun penguin-init-menu-bar-in-gui-frames (&optional frame)
-  ;;     "Re-enable menu-bar-lines in GUI frames."
-  ;;     (when-let (frame (or frame (selected-frame)))
-  ;;       (when (display-graphic-p frame)
-  ;;         (set-frame-parameter frame 'menu-bar-lines 1)
-  ;;       )
-  ;;     )
-  ;;   )
-  ;; )
   (setq mac-command-modifier 'meta) ; make cmd key do Meta
   (setq mac-option-modifier 'super) ; make opt key do Super
   (setq mac-control-modifier 'control) ; make Control key do Control
