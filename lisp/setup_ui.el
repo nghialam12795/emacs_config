@@ -80,7 +80,6 @@
 )
 ;; Setup line number
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(add-hook 'prog-mode-hook 'page-break-lines-mode)
 
 ;; Setup M-x usage
 (use-package smex
@@ -202,7 +201,7 @@
 
           ("*Org Agenda*" :select t :size 0.4 :align 'right :autoclose t)
           (org-super-agenda-mode :select t :size 0.4 :align 'right :autoclose t)
-          
+
           (profiler-report-mode :select t :size 0.5 :align 'below)
           ("*ELP Profiling Restuls*" :select t :size 0.5 :align 'below)
 
@@ -338,67 +337,84 @@
   :config
   (setq dashboard-startup-banner (or e_logo 'official)
         dashboard-banner-logo-title (concat "v. " pemacs/version)
-        dashboard-set-navigator t
-        dashboard-navigator-buttons
-        `(
-          (
-           (,(when (display-graphic-p)
-                (all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0))
-            "GithubPage" "Browse Github homepage"
-            (lambda (&rest _) (browse-url my-homepage))
-           )
-           (,(when (display-graphic-p)
-                (all-the-icons-octicon "repo-pull" :height 1.1 :v-adjust 0.0))
-            "Update P-Emacs" "Update Penguin Emacs"
-            (lambda (&rest _) (penguin-emacs-update-config))
-           )
-           (,(when (display-graphic-p)
-               (all-the-icons-material "update" :height 1.35 :v-adjust -0.24))
-            "Update Package" "Update Installed Package"
-            (lambda (&rest _) (auto-package-update-now))
-           )
-           (,(if (display-graphic-p)
-                 (all-the-icons-faicon "question" :height 1.2 :v-adjust -0.1)
-               "?")
-            "Help" "Help (?/h)"
-            (lambda (&rest _) (hydra-dashboard/body))
-            font-lock-string-face
-           )
-          )
-         )
+        dashboard-set-navigator nil
         dashboard-center-content t
-        dashboard-items '((recents  . 5)
-                          (projects . 5)
-                          (agenda   . 5)
-                         )
-        dashboard-footer (concat "Hello " user-full-name)
-        dashboard-footer-icon (all-the-icons-octicon "dashboard"
-                                                     :height 1.1
-                                                     :v-adjust -0.05
-                                                     :face 'font-lock-keyword-face)
+        ;; dashboard-items '((recents  . 5)
+        ;;                   (projects . 5)
+        ;;                   (agenda   . 5)
+        ;;                  )
+        dashboard-items nil
+        dashboard-set-footer t
+        dashboard-footer (concat "Let the work flow into you, " user-full-name)
+        dashboard-footer-icon (all-the-icons-faicon "heart"
+                                                    :height 1.1
+                                                    :v-adjust -0.05
+                                                    :face 'font-lock-keyword-face)
         dashboard-set-heading-icons t
         dashboard-set-file-icons t
         show-week-agenda-p t
   )
   ;; Insert custom item
+  (defface penguin/ultilities-face
+    '((t . (:height 1.2 :foreground "#ffaf00" :weight bold)))
+    "A face for ultilities."
+  )
+  (defface penguin/title-face
+    '((t . (:height 1.5 :foreground "#ff4400")))
+    "A face for title."
+  )
   (defun dashboard-insert-custom (list-size)
     (when sys/win32
       (let ((items  "  🗓 Calendar: (c)   ⛅ Weather: (w)   📧 Mail: (m)   💻 Twitter: (t)   💬 Slack: (s)   📚 GH: (h)"))
-        (put-text-property 0 (length items) 'face 'font-lock-warning-face
+        (put-text-property 0 (length items) 'face 'penguin/items-face
                            items)
         (insert items)
       )
     )
     (when sys/linux
       (let ((items  "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)"))
-        (put-text-property 0 (length items) 'face 'font-lock-warning-face
+        (put-text-property 0 (length items) 'face 'penguin/items-face
                            items)
         (insert items)
       )
     )
     (when sys/macos
-      (let ((items  "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)"))
-        (put-text-property 0 (length items) 'face 'font-lock-warning-face
+      ;; Working
+      (insert (if (display-graphic-p)
+                  (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+      (let ((items  " Working: \n\n"))
+        (put-text-property 0 (length items) 'face 'penguin/title-face
+                           items)
+        (insert items)
+      )
+      (let ((items  (concat "      📝 Recent Files                   (SPC r)  \n\n"
+                            "      📚 Browse Projects                (SPC p)  \n\n"
+                    )
+            )
+           )
+        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                           items)
+        (insert items)
+      )
+
+      ;; Ultilities
+      (insert (if (display-graphic-p)
+                  (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+      (let ((items  " Ultilities: \n\n"))
+        (put-text-property 0 (length items) 'face 'penguin/title-face
+                           items)
+        (insert items)
+      )
+      (let ((items  (concat "      🗓 Open Agenda                    (SPC c)  \n\n"
+                            "      ⛅ View Weather                   (SPC w)  \n\n"
+                            "      📧 List Mail                      (SPC m)  \n\n"
+                            "      🖥 Go Twitter                     (SPC t)  \n\n"
+                            "      💬 Online Slack                   (SPC s)  \n\n"
+                            "      🌎 Browse Homepage                (SPC h)  "
+                    )
+            )
+           )
+        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
                            items)
         (insert items)
       )
@@ -418,9 +434,6 @@
     (kill-buffer dashboard-buffer-name))
     (dashboard-insert-startupify-lists)
     (switch-to-buffer dashboard-buffer-name)
-    ;; Jump to the first section
-    (goto-char (point-min))
-    (dashboard-goto-recent-files)
   )
   (defun quit-dashboard ()
     "Quit dashboard window."
@@ -457,6 +470,7 @@
     (lambda (&rest _) (browse-url my-homepage))
   )
 )
+(add-hook 'prog-mode-hook 'page-break-lines-mode) ;; Requirements for emacs dashboard packages
 (dashboard-setup-startup-hook)
 
 

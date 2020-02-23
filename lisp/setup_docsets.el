@@ -11,6 +11,8 @@
 ;; -----------------------------------------------------------
 
 ;;; Code:
+(require 'setup_ivy)
+(require 'cheat-sh)
 
 (use-package helm-dash)
 (use-package counsel-dash)
@@ -33,6 +35,7 @@
 (setq counsel-dash-candidate-format "%d %n (%t)")
 (setq counsel-dash-enable-debugging nil)
 (setq counsel-dash-ignored-docsets nil)
+
 
 (provide 'setup_docsets)
 ;;; setup_docsets.el ends here

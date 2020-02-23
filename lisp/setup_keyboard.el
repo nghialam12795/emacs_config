@@ -79,7 +79,7 @@ The function wraps a function with `ignore-errors' macro."
 ;; Setup `ace-jump'
 (require 'ace-jump-mode)
 (eval-after-load "ace-jump-mode" '(ace-jump-mode-enable-mark-sync))
-(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+(define-key global-map (kbd "C-j") 'ace-jump-mode)
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 
 ;; Smarter `C-a'

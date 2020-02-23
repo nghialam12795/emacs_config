@@ -35,5 +35,11 @@
 
 (define-key c-mode-base-map (kbd "C-<f10>") #'clang-format-region-google)
 
+(use-package google-c-style
+  :hook
+  ((c-mode c++-mode) . google-set-c-style)
+  (c-mode-common . google-make-newline-indent)
+)
+
 (provide 'setup_clangformat)
 ;;; setup_clangformat.el ends here
