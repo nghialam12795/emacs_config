@@ -364,13 +364,6 @@
     "A face for title."
   )
   (defun dashboard-insert-custom (list-size)
-    (when sys/win32
-      (let ((items  "  🗓 Calendar: (c)   ⛅ Weather: (w)   📧 Mail: (m)   💻 Twitter: (t)   💬 Slack: (s)   📚 GH: (h)"))
-        (put-text-property 0 (length items) 'face 'penguin/items-face
-                           items)
-        (insert items)
-      )
-    )
     (when sys/linux
       (let ((items  "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)"))
         (put-text-property 0 (length items) 'face 'penguin/items-face
@@ -378,7 +371,7 @@
         (insert items)
       )
     )
-    (when sys/macos
+    (when (or sys/macos sys/win32)
       ;; Working
       (insert (if (display-graphic-p)
                   (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
@@ -408,7 +401,6 @@
       (let ((items  (concat "      🗓 Open Org Agenda                         (SPC c)  \n\n"
                             "      ⛅ View Weather forcast                    (SPC w)  \n\n"
                             "      📧 Reading Mails                           (SPC m)  \n\n"
-                            "      🖥 Go Twitter                              (SPC t)  \n\n"
                             "      💬 Online Slack                            (SPC s)  \n\n"
                             "      🌎 Browse Github Homepage                  (SPC h)  "
                     )
