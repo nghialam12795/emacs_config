@@ -387,8 +387,8 @@
                            items)
         (insert items)
       )
-      (let ((items  (concat "      📝 Recent Files                   (SPC r)  \n\n"
-                            "      📚 Browse Projects                (SPC p)  \n\n"
+      (let ((items  (concat "      📝 Recently opened files                   (SPC r)  \n\n"
+                            "      📚 Open Project                            (SPC p)  \n\n"
                     )
             )
            )
@@ -405,12 +405,12 @@
                            items)
         (insert items)
       )
-      (let ((items  (concat "      🗓 Open Agenda                    (SPC c)  \n\n"
-                            "      ⛅ View Weather                   (SPC w)  \n\n"
-                            "      📧 List Mail                      (SPC m)  \n\n"
-                            "      🖥 Go Twitter                     (SPC t)  \n\n"
-                            "      💬 Online Slack                   (SPC s)  \n\n"
-                            "      🌎 Browse Homepage                (SPC h)  "
+      (let ((items  (concat "      🗓 Open Org Agenda                         (SPC c)  \n\n"
+                            "      ⛅ View Weather forcast                    (SPC w)  \n\n"
+                            "      📧 Reading Mails                           (SPC m)  \n\n"
+                            "      🖥 Go Twitter                              (SPC t)  \n\n"
+                            "      💬 Online Slack                            (SPC s)  \n\n"
+                            "      🌎 Browse Github Homepage                  (SPC h)  "
                     )
             )
            )
