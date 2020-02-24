@@ -90,6 +90,8 @@
 )
 
 ;; Setup Icons
+(require 'font-lock)
+(require 'font-lock+)
 (use-package all-the-icons
   :config (setq all-the-icons-scale-factor 1.0)
 )
@@ -364,14 +366,47 @@
     "A face for title."
   )
   (defun dashboard-insert-custom (list-size)
-    (when sys/linux
-      (let ((items  "   Calendar: (c)    Weather: (w)    Mail: (m)    Twitter: (t)    LINE: (l)    Slack: (s)    GH: (h)"))
-        (put-text-property 0 (length items) 'face 'penguin/items-face
+    (when (or sys/linux sys/macos)
+      ;; Working
+      (insert (if (display-graphic-p)
+                  (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+      (let ((items  " Working: \n\n"))
+        (put-text-property 0 (length items) 'face 'penguin/title-face
+                           items)
+        (insert items)
+      )
+      (let ((items  (concat "       Recently opened files                   (SPC r)  \n\n"
+                            "       Open Project                            (SPC p)  \n\n"
+                    )
+            )
+           )
+        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                           items)
+        (insert items)
+      )
+
+      ;; Ultilities
+      (insert (if (display-graphic-p)
+                  (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+      (let ((items  " Ultilities: \n\n"))
+        (put-text-property 0 (length items) 'face 'penguin/title-face
+                           items)
+        (insert items)
+      )
+      (let ((items  (concat "       Open Org Agenda                         (SPC c)  \n\n"
+                            "       View Weather forcast                    (SPC w)  \n\n"
+                            "       Reading Mails                           (SPC m)  \n\n"
+                            "       Online Slack                            (SPC s)  \n\n"
+                            "       Browse Github Homepage                  (SPC h)  "
+                    )
+            )
+           )
+        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
                            items)
         (insert items)
       )
     )
-    (when (or sys/macos sys/win32)
+    (when sys/win32
       ;; Working
       (insert (if (display-graphic-p)
                   (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
