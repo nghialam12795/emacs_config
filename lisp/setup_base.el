@@ -48,7 +48,7 @@
   jit-lock-stealth-nice 0.1
   jit-lock-stealth-time 0.2
   jit-lock-stealth-verbose nil
-  mode-line-format nil                             ; Disable mode line format when startup
+  ;; mode-line-format nil                             ; Disable mode line format when startup
   mouse-yank-at-point t                            ; Yank at point rather than pointer
   ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
   recenter-positions '(5 top bottom)               ; Set re-centering positions

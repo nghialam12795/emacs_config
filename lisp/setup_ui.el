@@ -500,58 +500,22 @@
 (add-hook 'prog-mode-hook 'page-break-lines-mode) ;; Requirements for emacs dashboard packages
 (dashboard-setup-startup-hook)
 
-
 ;; Setup my modeline
-;; `Telephone-line'
-(use-package telephone-line)
-(defface p-red '((t (:foreground "white" :background "red"))) "")
-(defface p-orangered '((t (:foreground "white" :background "orange red"))) "")
-(defface p-orange '((t (:foreground "white" :background "orange"))) "")
-(defface p-gold '((t (:foreground "white" :background "gold"))) "")
-(defface p-yellow '((t (:foreground "black" :background "#ffaf00"))) "")
-(defface p-chartreuse '((t (:foreground "white" :background "chartreuse"))) "")
-(defface p-green '((t (:foreground "black" :background "#afaf00"))) "")
-(defface p-sgreen '((t (:foreground "white" :background "spring green"))) "")
-(defface p-cyan '((t (:foreground "white" :background "cyan"))) "")
-(defface p-blue '((t (:foreground "white" :background "blue"))) "")
-(defface p-dmagenta '((t (:foreground "white" :background "#8f3f71"))) "")
-(setq telephone-line-faces
-      '((red . (p-red . p-red))
-        (ored . (p-orangered . p-orangered))
-        (orange . (p-orange . p-orange))
-        (gold . (p-gold . p-gold))
-        (yellow . (p-yellow . p-yellow))
-        (chartreuse . (p-chartreuse . p-chartreuse))
-        (green . (p-green . p-green))
-        (sgreen . (p-sgreen . p-sgreen))
-        (cyan . (p-cyan . p-cyan))
-        (blue . (p-blue . p-blue))
-        (dmagenta . (p-dmagenta . p-dmagenta))
-        (evil . telephone-line-evil-face)
-        (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
-        (nil . (mode-line . mode-line-inactive))
-       )
+;; `Custom'
+(use-package moody
+  :config
+  (let ((line (face-attribute 'mode-line :underline)))
+    (set-face-attribute 'mode-line          nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :overline   line)
+    (set-face-attribute 'mode-line-inactive nil :underline  line)
+    (set-face-attribute 'mode-line          nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :box        nil)
+    (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9")
+  )
+  (setq x-underline-at-descent-line t)
 )
-(setq telephone-line-lhs
-      '((green      . (telephone-line-vc-segment))
-        (yellow     . (telephone-line-projectile-segment))
-        (nil        . (telephone-line-buffer-segment))
-        (nil        . (telephone-line-process-segment))
-       )
-)
-(setq telephone-line-rhs
-      '((nil        . (telephone-line-flycheck-segment))
-        (dmagenta   . (telephone-line-minions-mode-segment))
-        (nil        . (telephone-line-misc-info-segment))
-       )
-)
-(setq telephone-line-separator-extra-padding 3
-      telephone-line-height 18
-      telephone-line-evil-use-short-tag t
-)
-(telephone-line-mode 1)
-
-;; end `telephone-line'
+(moody-replace-mode-line-buffer-identification)
+(moody-replace-vc-mode)
 
 ;; A minor-mode menu for mode-line
 (use-package minions
@@ -641,6 +605,6 @@ FACE defaults to inheriting from default and highlight."
 )
 
 (setq doom-themes-treemacs-theme "doom-colors")
-(load-theme 'doom-gruvbox t)
+(load-theme 'doom-molokai t)
 (provide 'setup_ui)
 ;;; setup_ui.el ends here
