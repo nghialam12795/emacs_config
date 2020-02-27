@@ -327,13 +327,13 @@
 (use-package dashboard
   :bind (("<f4>" . open-dashboard)
          :map dashboard-mode-map
-         ("c" . penguin/browse-calendar)
-         ("w" . penguin/browse-weather)
-         ("m" . penguin/browse-gmail)
-         ("t" . penguin/browse-tweetdeck)
-         ("s" . penguin/browse-slack)
-         ("h" . penguin/browse-homepage)
-         ("l" . penguin/line-app-open)
+         ("SPC r" . penguin/browse-recents)
+         ("SPC p" . penguin/browse-projects)
+         ("SPC c" . penguin/browse-calendar)
+         ("SPC w" . penguin/browse-weather)
+         ("SPC m" . penguin/browse-gmail)
+         ("SPC s" . penguin/browse-slack)
+         ("SPC h" . penguin/browse-homepage)
          ("<f4>" . quit-dashboard))
   :ensure t
   :config
@@ -471,10 +471,15 @@
       (winner-undo)
       (setq dashboard-recover-layout-p nil))
   )
-  (defun dashboard-goto-recent-files ()
-    "Go to recent files."
+  (defun penguin/browse-recents ()
+    "Open recent files."
     (interactive)
-    (funcall (local-key-binding "r"))
+    (counsel-recentf)
+  )
+  (defun penguin/browse-projects ()
+    "Open projectiles."
+    (interactive)
+    (helm-projectile-switch-project)
   )
   (defun penguin/browse-calendar ()
     "Open the org-agenda."
