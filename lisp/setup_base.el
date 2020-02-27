@@ -121,6 +121,11 @@
   (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
 )
 
+;; Windows tweak
+(when sys/win32
+  (set-selection-coding-system 'utf-16-le)
+)
+
 ;; Set up cursor
 ;; (setq-default cursor-type 'bar)
 (setq-default cursor-in-non-selected-windows 'hollow)

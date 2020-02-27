@@ -200,31 +200,77 @@
 (setq org-agenda-custom-commands '(("n" "Agenda"
                                     ((agenda "")
                                      (todo ""
-                                           ((org-agenda-overriding-header (concat (all-the-icons-faicon "chain-broken" :v-adjust 0.01) " Stuck Projects"))
+                                           ((org-agenda-overriding-header (concat
+                                                                           (if (or sys/macos sys/linux)
+                                                                               (all-the-icons-faicon "chain-broken" :v-adjust 0.01)
+                                                                             "🔗"
+                                                                           )
+                                                                           " Stuck Projects")
+                                            )
                                             (org-agenda-skip-function #'penguin/should-skip)
                                             (org-agenda-prefix-format penguin-org-deadline-prefix)
-                                            (org-agenda-sorting-strategy nil)))
+                                            (org-agenda-sorting-strategy nil))
+                                     )
                                      (todo "NEXT"
-                                           ((org-agenda-overriding-header (concat (all-the-icons-faicon "bolt" :v-adjust 0.01) " Next Tasks"))
+                                           ((org-agenda-overriding-header (concat
+                                                                           (if (or sys/macos sys/linux)
+                                                                               (all-the-icons-faicon "bolt" :v-adjust 0.01)
+                                                                             "⚡"
+                                                                           )
+                                                                           " Next Tasks")
+                                            )
                                             (org-agenda-sorting-strategy
-                                             '(priority-down category-up))))
+                                             '(priority-down category-up)))
+                                     )
                                      (todo "TODO"
                                            ((org-agenda-files '("~/.emacs.d/.private/org/todo.org" "~/.emacs.d/.private/org/notes.org"))
                                             (org-agenda-sorting-strategy
                                              '(priority-down category-up))
-                                            (org-agenda-overriding-header (concat (all-the-icons-faicon "check-square-o" :v-adjust 0.01) " Tasks"))))
+                                            (org-agenda-overriding-header (concat
+                                                                           (if (or sys/linux sys/macos)
+                                                                               (all-the-icons-faicon "check-square-o" :v-adjust 0.01)
+                                                                             "☑"
+                                                                           )
+                                                                           " Tasks")
+                                            )
+                                           )
+                                     )
                                      (todo "WAITING|DELEGATED"
-                                           ((org-agenda-overriding-header (concat (all-the-icons-faicon "hourglass" :v-adjust 0.01) " Waiting/Delegated"))
-                                            (org-agenda-sorting-strategy '(priority-down category-up))))
+                                           ((org-agenda-overriding-header (concat
+                                                                           (if (or sys/linux sys/macos)
+                                                                               (all-the-icons-faicon "hourglass" :v-adjust 0.01)
+                                                                             "⌛"
+                                                                           )
+                                                                           " Waiting/Delegated")
+                                            )
+                                            (org-agenda-sorting-strategy '(priority-down category-up))
+                                           )
+                                     )
                                      (todo "LATER"
                                            ((org-agenda-sorting-strategy
                                              '(priority-down category-up))
-                                            (org-agenda-overriding-header (concat (all-the-icons-faicon "thumb-tack" :v-adjust 0.01) " Later"))))
+                                            (org-agenda-overriding-header (concat
+                                                                           (if (or sys/linux sys/macos)
+                                                                               (all-the-icons-faicon "thumb-tack" :v-adjust 0.01)
+                                                                             "💣"
+                                                                           )
+                                                                           " Later")
+                                            )
+                                           )
+                                     )
                                      (todo "NOTE"
-                                           ((org-agenda-overriding-header (concat (all-the-icons-faicon "sticky-note" :v-adjust 0.01) " Notes"))
+                                           ((org-agenda-overriding-header (concat
+                                                                           (if (or sys/macos sys/linux)
+                                                                               (all-the-icons-faicon "sticky-note" :v-adjust 0.01)
+                                                                             "🗒"
+                                                                           )
+                                                                           " Notes")
+                                            )
                                             (org-agenda-max-entries 10)
                                             (org-agenda-sorting-strategy
-                                             '(tsia-down)))))
+                                             '(tsia-down)))
+                                     )
+                                    )
 
                                     nil
                                    )
