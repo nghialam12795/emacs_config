@@ -91,7 +91,8 @@
   (org-tags-exclude-from-inheritance '("crypt" "project"))
   (org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                        (sequence "NOTE(N)" "MEETING(M)")
-                       (sequence "WAITING(w@)" "DELEGATED(e@)" "LATER(l)" "|" "CANCELLED(c)"))
+                       (sequence "WAITING(w@)" "DELEGATED(e@)" "LATER(l)" "|" "CANCELLED(c)")
+                       (sequence "TOBUY" "TOSHRINK" "TOCUT" "TOSEW" "|" "DONE(x)"))
   )
 
   (org-use-effective-time t)
@@ -287,6 +288,7 @@
   :custom
   (+org-capture-todo-file "~/.emacs.d/.private/org/todo.org")
   (+org-capture-notes-file "~/.emacs.d/.private/org/notes.org")
+  (+org-capture-routine-file "~/.emacs.d/.private/org/routine.org")
   (org-capture-templates '(("t" "Todo" entry
                             (file+headline +org-capture-todo-file "Inbox")
                             "* TODO %?" :prepend t :kill-buffer t)
@@ -296,6 +298,9 @@
                            ("w" "Waiting" entry
                             (file+headline +org-capture-todo-file "Inbox")
                             "* WAITING %?" :prepend t :kill-buffer t)
+                           ("r" "Routine" entry
+                            (file+headline +org-capture-routine-file "Daily")
+                            "* %^{Type?|TODO|NEXT|WAITING|DELEGATED} %^{Content?} :routine:\nSCHEDULED: %t\n%a" :pretend t :kill-buffer t)
                            ("o" "Email Note" entry
                             (file+headline +org-capture-notes-file "Inbox")
                             "* NOTE %u %^{Content?} :email:\n%a" :prepend t :kill-buffer t)
