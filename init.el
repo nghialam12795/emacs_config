@@ -68,6 +68,7 @@
 (require 'setup_ui)
 (require 'setup_ido)
 (require 'setup_hydra)
+(require 'setup_ledger)
 
 ;; --------------------------------------------------------
 ;; Coding Setup
