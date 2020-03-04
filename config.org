@@ -1,0 +1,5 @@
+#+AUTHOR: Nghia Lam
+#+TITLE: PENMACS Configuration
+
+* About
+This is my configuration for the GNUs Emacs, which I call it PENMACS (Penguin x Emacs).

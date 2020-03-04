@@ -320,7 +320,7 @@
 (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
 
 ;; Setup Dashboard
-(defcustom e_logo (expand-file-name "res/banner/penmacs_ascii.png" user-emacs-directory)
+(defcustom e_logo (expand-file-name "res/banner/penmacs_ascii_alter_2.png" user-emacs-directory)
   "Set up custom logo for the dashboard."
   :type 'string
 )
@@ -347,7 +347,7 @@
         ;;                  )
         dashboard-items nil
         dashboard-set-footer t
-        dashboard-footer (concat "Let the work flow into you, " user-full-name)
+        dashboard-footer-messages '(" P E N G U I N  x  E M A C S")
         dashboard-footer-icon (all-the-icons-faicon "heart"
                                                     :height 1.1
                                                     :v-adjust -0.05
