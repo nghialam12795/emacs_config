@@ -11,6 +11,37 @@
   - [[#setting-default][Setting Default]]
   - [[#file-management][File Management]]
 - [[#package-initialize][Package Initialize]]
+- [[#advanced-config][Advanced Config]]
+  - [[#autorevert][Autorevert]]
+  - [[#calendar][Calendar]]
+  - [[#counsel][Counsel]]
+  - [[#dired][Dired]]
+  - [[#fast-scroll][Fast Scroll]]
+  - [[#editor-support][Editor Support]]
+  - [[#lsp-mode][LSP Mode]]
+  - [[#git][Git]]
+  - [[#ido][Ido]]
+  - [[#ibuffer][Ibuffer]]
+  - [[#ivy][Ivy]]
+  - [[#hydra][Hydra]]
+  - [[#paren][Paren]]
+  - [[#pdf-reader][PDF Reader]]
+  - [[#projectile][Projectile]]
+  - [[#terminal][Terminal]]
+  - [[#utilities][Utilities]]
+  - [[#weather-forecast][Weather Forecast]]
+  - [[#whitespace][Whitespace]]
+- [[#language-support][Language Support]]
+  - [[#c][C++]]
+  - [[#cmake][CMake]]
+  - [[#css][CSS]]
+  - [[#elisp][Elisp]]
+  - [[#json][Json]]
+  - [[#latex][Latex]]
+  - [[#markdown][Markdown]]
+  - [[#python][Python]]
+- [[#user-interface][User Interface]]
+- [[#org-mode][Org Mode]]
 
 * About
 This is my configuration for the GNUs Emacs, which I call it PENMACS (Penguin x Emacs). WARNING: It's really long.
@@ -294,3 +325,296 @@ Here goes our monster =use-package=
   :config
   (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
 #+end_src
+
+* Advanced Config
+In editor war, the winner is not Emacs or Vim, it's your configuration with these two.
+Now let's turn this Emacs into a real monster.
+
+** Autorevert
+Automatically reload files was modified by external program.
+#+begin_src emacs-lisp :tangle yes
+(use-package autorevert
+  :ensure nil
+  :diminish
+  :hook (after-init . global-auto-revert-mode))
+#+end_src
+
+** Calendar
+I usually let emacs fullscreen and open all the times, so I need to see the calendar inside Emacs.
+#+begin_src emacs-lisp :tangle yes
+(use-package calfw
+  :commands cfw:open-calendar-buffer
+  :bind ("<C-f11>" . open-calendar)
+  :init
+  (use-package calfw-org
+    :commands (cfw:open-org-calendar cfw:org-create-source))
+
+  (use-package calfw-ical
+    :commands (cfw:open-ical-calendar cfw:ical-create-source))
+
+  (defun open-calendar ()
+    "Open calendar."
+    (interactive)
+    (unless (ignore-errors
+              (cfw:open-calendar-buffer
+               :contents-sources
+               (list
+                (when org-agenda-files
+                  (cfw:org-create-source "YellowGreen"))
+                (when (bound-and-true-p centaur-ical)
+                  (cfw:ical-create-source "gcal" centaur-ical "IndianRed")))))
+      (cfw:open-calendar-buffer))))
+#+end_src
+
+** Counsel
+
+
+** Dired
+Emacs is also a file explorer alternative.
+#+begin_src emacs-lisp :tangle yes
+(use-package dired
+  :ensure nil
+  :preface
+  (defun penguin/dired-directories-first ()
+    "Sort dired listings with directories first before adding marks."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2)
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+      (set-buffer-modified-p nil)))
+  :hook
+  (dired-mode . dired-hide-details-mode)
+  :custom
+  (dired-auto-revert-buffer t)
+  (dired-dwim-target t)
+  (dired-hide-details-hide-symlink-targets nil)
+  (dired-listing-switches "-alh")
+  (dired-ls-F-marks-symlinks nil)
+  (dired-recursive-copies 'always)
+  :config
+  (advice-add 'dired-readin :after #'penguin/dired-directories-first))
+(use-package dired-subtree
+  :bind (:map dired-mode-map
+              ("<backtab>" . dired-subtree-cycle)
+              ("<tab>" . dired-subtree-toggle)))
+(use-package dired-git-info
+  :ensure t
+  :after dired
+  :config
+  (setq dgi-commit-message-format "%h\t%s\t%cr")
+  :bind (:map dired-mode-map
+              (")" . dired-git-info-mode)))
+#+end_src
+
+** Fast Scroll
+Scrolling through a large buffer cause my MacOS laggy. This package can prevent that.
+#+begin_src emacs-lisp :tangle yes
+(use-package fast-scroll
+  :ensure t
+  :diminish fast-scroll-mode
+  :config
+  (fast-scroll-config)
+  (fast-scroll-mode 1))
+#+end_src
+
+** Editor Support
+*** Autocomplete
+*** Docsets
+*** Linter
+*** Snippet
+*** Utilities
+** LSP Mode
+** Git
+** Ido
+** Ibuffer
+Changing buffer never feel better than before.
+#+begin_src emacs-lisp :tangle yes
+(use-package ibuffer
+  :ensure nil
+  :functions (all-the-icons-icon-for-file
+              all-the-icons-icon-for-mode
+              all-the-icons-auto-mode-match?
+              all-the-icons-faicon
+              my-ibuffer-find-file)
+  :commands (ibuffer-find-file
+             ibuffer-current-buffer)
+  :bind ("C-x C-b" . ibuffer)
+  :init (setq ibuffer-filter-group-name-face '(:inherit (font-lock-string-face bold)))
+  :config
+  (setq ibuffer-saved-filter-groups
+        '(("Main"
+           ("Directories" (mode . dired-mode))
+           ("Org" (mode . org-mode))
+           ("Programming" (or
+                           (mode . c-mode)
+                           (mode . conf-mode)
+                           (mode . css-mode)
+                           (mode . emacs-lisp-mode)
+                           (mode . html-mode)
+                           (mode . mhtml-mode)
+                           (mode . python-mode)
+                           (mode . ruby-mode)
+                           (mode . scss-mode)
+                           (mode . shell-script-mode)
+                           (mode . yaml-mode)))
+           ("Markdown" (mode . markdown-mode))
+           ("Magit" (or
+                     (mode . magit-blame-mode)
+                     (mode . magit-cherry-mode)
+                     (mode . magit-diff-mode)
+                     (mode . magit-log-mode)
+                     (mode . magit-process-mode)
+                     (mode . magit-status-mode)))
+           ("Apps" (or
+                    (mode . bongo-playlist-mode)
+                    (mode . mu4e-compose-mode)
+                    (mode . mu4e-headers-mode)
+                    (mode . mu4e-main-mode)
+                    (mode . elfeed-search-mode)
+                    (mode . elfeed-show-mode)
+                    (mode . mu4e-view-mode)))
+           ("Emacs" (or
+                     (name . "^\\*Help\\*$")
+                     (name . "^\\*Custom.*")
+                     (name . "^\\*Org Agenda\\*$")
+                     (name . "^\\*info\\*$")
+                     (name . "^\\*scratch\\*$")
+                     (name . "^\\*Backtrace\\*$")
+                     (name . "^\\*Messages\\*$"))))))
+  ;; Display buffer icons on GUI
+  (when (and (display-graphic-p)
+             (require 'all-the-icons nil t))
+    ;; For alignment, the size of the name field should be the width of an icon
+    (define-ibuffer-column icon (:name "  ")
+      (let ((icon (if (and (buffer-file-name)
+                           (all-the-icons-auto-mode-match?))
+                      (all-the-icons-icon-for-file (file-name-nondirectory (buffer-file-name)) :v-adjust -0.05)
+                    (all-the-icons-icon-for-mode major-mode :v-adjust -0.05))))
+        (if (symbolp icon)
+            (setq icon (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver :height 0.8 :v-adjust 0.0))
+          icon)))
+    (setq ibuffer-formats `((mark modified read-only ,(if emacs/>=26p 'locked "")
+                                  ;; Here you may adjust by replacing :right with :center or :left
+                                  ;; According to taste, if you want the icon further from the name
+                                  " " (icon 2 2 :left :elide)
+                                  ,(propertize " " 'display `(space :align-to 8))
+                                  (name 18 18 :left :elide)
+                                  " " (size 9 -1 :right)
+                                  " " (mode 16 16 :left :elide) " " filename-and-process)
+                            (mark " " (name 16 -1) " " filename))))
+  (with-eval-after-load 'counsel
+    (defun my-ibuffer-find-file ()
+      (interactive)
+      (let ((default-directory (let ((buf (ibuffer-current-buffer)))
+                                 (if (buffer-live-p buf)
+                                     (with-current-buffer buf
+                                       default-directory)
+                                   default-directory))))
+        (counsel-find-file default-directory)))
+    (advice-add #'ibuffer-find-file :override #'my-ibuffer-find-file))
+  ;; Group ibuffer's list by project root
+  (use-package ibuffer-projectile
+    :functions all-the-icons-octicon ibuffer-do-sort-by-alphabetic
+    :hook ((ibuffer . (lambda ()
+                        (ibuffer-projectile-set-filter-groups)
+                        (unless (eq ibuffer-sorting-mode 'alphabetic)
+                          (ibuffer-do-sort-by-alphabetic)))))
+    :config
+    (setq ibuffer-projectile-prefix
+          (if (display-graphic-p)
+              (concat
+               (all-the-icons-octicon "file-directory"
+                                      :face ibuffer-filter-group-name-face
+                                      :v-adjust -0.05
+                                      :height 1.25)
+               " ")
+            "Project: ")))
+  :hook
+  (ibuffer-mode . (lambda ()
+                    (ibuffer-switch-to-saved-filter-groups "Main"))))
+(use-package ibuffer-vc
+  :defer t
+  :ensure t
+  :config
+  (define-ibuffer-column icon
+    (:name "Icon" :inline t)
+    (all-the-icons-ivy--icon-for-mode major-mode))
+  :custom
+  (ibuffer-formats
+   '((mark modified read-only vc-status-mini " "
+           (name 18 18 :left :elide)
+           " "
+           (size 9 -1 :right)
+           " "
+           (mode 16 16 :left :elide)
+           " "
+           filename-and-process)) "include vc status info")
+  :hook
+  (ibuffer . (lambda ()
+               (ibuffer-vc-set-filter-groups-by-vc-root)
+               (unless (eq ibuffer-sorting-mode 'alphabetic)
+                 (ibuffer-do-sort-by-alphabetic)
+               )
+             )))
+#+end_src
+
+** Ivy
+** Hydra
+** Paren
+Automatic paren
+#+begin_src emacs-lisp :tangle yes
+(use-package elec-pair
+  :ensure nil
+  :hook (after-init . electric-pair-mode)
+  :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit))
+#+end_src
+
+** PDF Reader
+** Projectile
+** Terminal
+** Utilities
+MacOS path seems broken when yank a url from shell, let's fix that error
+#+begin_src emacs-lisp :tangle yes
+(when sys/macos
+  (use-package exec-path-from-shell
+    :ensure t
+    :demand t
+    :init
+    (setq exec-path-from-shell-check-startup-files nil)
+    :config
+    ;; (exec-path-from-shell-copy-env "PYTHONPATH")
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize))))
+#+end_src
+
+** Weather Forecast
+Like I said before, I rarely turn Emacs off so I just need this to figure out what is going on outside.
+#+begin_src emacs-lisp :tangle yes
+(use-package wttrin
+  :ensure t
+  :commands (wttrin)
+  :init
+  (setq wttrin-default-cities '("Hochiminh")))
+#+end_src
+
+** Whitespace
+Those whitespace at the end are annoying, let's get rid of them.
+#+begin_src emacs-lisp :tangle yes
+(use-package simple
+  :ensure nil
+  :hook (before-save . delete-trailing-whitespace))
+#+end_src
+
+* Language Support
+** C++
+** CMake
+** CSS
+** Elisp
+** Json
+** Latex
+** Markdown
+** Python
+
+* User Interface
+
+* Org Mode
