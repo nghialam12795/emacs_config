@@ -23,5 +23,6 @@ projectile-bookmarks.eld
 .lsp-session-v1
 .mc-lists.el
 .persistent-scratch
+config.el
 user.el
 recentf

@@ -35,85 +35,30 @@
 ;; to skip the mtime checks on every *.elc file.
 (setq load-prefer-newer noninteractive)
 
+;; Make startup faster by reducing the frequency of garbage
+;; collection.
+(setq gc-cons-threshold (* 50 1000 1000))
+
 ;; Package archives
 (setq package-user-dir "~/.emacs.d/.local/packages")
 (package-initialize)
 (setq package-archives
       '(("gnu"   . "http://elpa.gnu.org/packages/")
-        ("melpa" . "http://melpa.org/packages/"))
-)
+        ("melpa" . "http://melpa.org/packages/")))
 
 ;; Load path
 (defun update-load-path (&rest _)
   "Update `load-path'."
-  (push (expand-file-name "lisp" user-emacs-directory) load-path)
-  (push (expand-file-name "site_lisp" user-emacs-directory) load-path)
-)
+  (push (expand-file-name "external" user-emacs-directory) load-path))
+
 (update-load-path)
 
-;; Setting Interface
-(require 'setup_misc)
-(require 'setup_base)
-(require 'setup_package)
-(require 'setup_ui)
-(require 'setup_ido)
-(require 'setup_hydra)
-(require 'setup_ledger)
+;; Load config file
+(if (file-exists-p (expand-file-name "config.el" user-emacs-directory))
+    (load-file (expand-file-name "config.el" user-emacs-directory))
+  (org-babel-load-file (expand-file-name "config.org" user-emacs-directory)))
 
-;; --------------------------------------------------------
-;; Coding Setup
-;; --------------------------------------------------------
-
-;; ###### Emacs Util ##### ;;
-(require 'setup_web)
-(require 'setup_reader)
-(require 'setup_term)
-(require 'setup_keyboard)
-(require 'setup_ivy)
-(require 'setup_projectile)
-(require 'setup_git)
-(require 'setup_company)
-(require 'setup_org)
-(require 'setup_docsets)
-(require 'setup_yasnippet)
-
-;; ##### Emacs Lisp ###### ;;
-(require 'setup_lisp)
-;; END Lisp --------
-
-
-;; ######### C++ ######### ;;
-(require 'setup_lspmode)
-(require 'setup_flycheck)
-(require 'setup_cmake)
-(require 'setup_ccls)
-
-;; Style guide
-(require 'setup_clangformat)
-
-;; END C++ --------
-
-
-;; ######## Python ######## ;;
-(require 'setup_python)
-;; END Python --------
-
-
-;; ######## Json ######### ;;
-(require 'setup_json)
-;; END Json --------
-
-
-;; ####### Markdown ####### ;;
-(require 'setup_markdown)
-;; END Markdown -------
-
-;; ######## Latex ######### ;;
-(require 'setup_latex)
-;; END Latex ---------
-
-;; ####### MISC LANG ####### ;;
-(require 'setup_otherlang)
-;; END MISC -----------
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
 
 ;;; init.el ends here

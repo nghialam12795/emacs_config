@@ -9,6 +9,7 @@
   - [[#system-information][System Information]]
   - [[#personal-information][Personal Information]]
   - [[#setting-default][Setting Default]]
+  - [[#sync-source-file][Sync Source File]]
   - [[#file-management][File Management]]
 - [[#package-initialize][Package Initialize]]
 - [[#advanced-config][Advanced Config]]
@@ -250,6 +251,53 @@ Other personal settings will be written to user.el
 
 (if (file-exists-p custom-file)
     (load custom-file))
+#+end_src
+
+** Sync Source File
+I’m using a large =.org= file to maintain my GNU Emacs configuration. However, at launch, it will load the =config.el= source file for a faster loading.
+The code below, executes =org-babel-tangle= asynchronously when =config.org= is saved.
+#+begin_src emacs-lisp :tangle yes
+  (use-package async)
+
+  (defvar *config-file* (expand-file-name "config.org" user-emacs-directory)
+    "The configuration file.")
+
+  (defvar *config-last-change* (nth 5 (file-attributes *config-file*))
+    "Last modification time of the configuration file.")
+
+  (defvar *show-async-tangle-results* nil
+    "Keeps *emacs* async buffers around for later inspection.")
+
+  (defun penguin/config-updated ()
+    "Checks if the configuration file has been updated since the last time."
+    (time-less-p *config-last-change*
+                 (nth 5 (file-attributes *config-file*))))
+
+  (defun penguin/config-tangle ()
+    "Tangles the org file asynchronously."
+    (when (penguin/config-updated)
+      (setq *config-last-change*
+            (nth 5 (file-attributes *config-file*)))
+      (penguin/async-babel-tangle *config-file*)))
+
+  (defun penguin/async-babel-tangle (org-file)
+    "Tangles the org file asynchronously."
+    (let ((init-tangle-start-time (current-time))
+          (file (buffer-file-name))
+          (async-quiet-switch "-q"))
+      (async-start
+       `(lambda ()
+          (require 'org)
+          (org-babel-tangle-file ,org-file))
+       (unless *show-async-tangle-results*
+         `(lambda (result)
+            (if result
+                (message "SUCCESS: %s successfully tangled (%.2fs)."
+                         ,org-file
+                         (float-time (time-subtract (current-time)
+                                                    ',init-tangle-start-time)))
+              (message "ERROR: %s as tangle failed." ,org-file)))))))
+
 #+end_src
 
 ** File Management
@@ -625,6 +673,14 @@ You'd need to install the docsets you want with =dash-doc-install-docsets= comma
 (setq counsel-dash-ignored-docsets nil)
 #+end_src
 
+*** Editor Config
+[[https://editorconfig.org][EditorConfig]] helps maintain consistent coding styles for multiple developers working on the same project across various editors and IDEs.
+#+begin_src emacs-lisp :tangle yes
+  (use-package editorconfig
+    :defer 0.3
+    :config (editorconfig-mode 1))
+#+end_src
+
 *** LSP Mode
 In order to be able to use different LSP (Language Server Protocol) server according to the programming language that we want to use, we need a client for LSP. That’s where lsp-mode comes in!
 #+begin_src emacs-lisp :tangle yes
@@ -678,7 +734,7 @@ In order to be able to use different LSP (Language Server Protocol) server accor
                 lsp-ui-peek-enable t
                 lsp-ui-peek-peek-height 20
                 lsp-ui-peek-list-width 50
-                lsp-ui-peek-fontify 'on-demand ;; never, on-demand, or always)
+                lsp-ui-peek-fontify 'on-demand ) ;; never, on-demand, or always
     :config
     (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
     ;; `C-g'to close doc
@@ -852,7 +908,8 @@ But it's quick 😁.
         (kill-append (buffer-substring beg end) (< end beg))
       (kill-new (buffer-substring beg end))))
   (beginning-of-line 2)
-  (yank) ;; Can be duplicated more with `C-y')
+  (yank)) ;; Can be duplicated more with `C-y'
+
 (global-set-key (kbd "C-c C-d") 'penguin/quick-dup-line)
 #+end_src
 
@@ -1526,9 +1583,7 @@ TODO
      ("d s" lsp-ui-doc-include-signature "signature" :toggle t)
      ("d t" (setq lsp-ui-doc-position 'top) "top" :toggle (eq lsp-ui-doc-position 'top))
      ("d b" (setq lsp-ui-doc-position 'bottom) "bottom" :toggle (eq lsp-ui-doc-position 'bottom))
-     ("d p" (setq lsp-ui-doc-position 'at-point) "at point" :toggle (eq lsp-ui-doc-position 'at-point))
-     ;; ("d f" (setq lsp-ui-doc-alignment 'frame) "align frame" :toggle (eq lsp-ui-doc-alignment 'frame))
-     ;; ("d w" (setq lsp-ui-doc-alignment 'window) "align window" :toggle (eq lsp-ui-doc-alignment 'window)))
+     ("d p" (setq lsp-ui-doc-position 'at-point) "at point" :toggle (eq lsp-ui-doc-position 'at-point)))
     "Sideline"
     (("s e" lsp-ui-sideline-enable "enable" :toggle t)
      ("s h" lsp-ui-sideline-show-hover "hover" :toggle t)
@@ -1826,7 +1881,8 @@ I also need to enhance the experience with M-x itself, helm is good for that but
   (setq counsel-yank-pop-preselect-last t)
   (setq counsel-yank-pop-separator "\n—————————\n")
   (setq counsel-rg-base-command
-        "rg -SHn --no-heading --color never --no-follow --hidden %s")
+        "rg -SHn --no-heading --color never --no-follow --hidden %s"))
+
 (use-package counsel-projectile
   :after ivy
   :config
