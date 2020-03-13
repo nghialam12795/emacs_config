@@ -18,7 +18,7 @@
   - [[#fast-scroll][Fast Scroll]]
   - [[#editor-support][Editor Support]]
   - [[#eww][EWW]]
-  - [[#lsp-mode][LSP Mode]]
+  - [[#ledger][Ledger]]
   - [[#git][Git]]
   - [[#ibuffer][Ibuffer]]
   - [[#ivy][Ivy]]
@@ -35,12 +35,26 @@
   - [[#c][C++]]
   - [[#cmake][CMake]]
   - [[#css][CSS]]
+  - [[#csv][CSV]]
   - [[#elisp][Elisp]]
   - [[#json][Json]]
   - [[#latex][Latex]]
+  - [[#lua][Lua]]
   - [[#markdown][Markdown]]
   - [[#python][Python]]
+  - [[#xml][XML]]
+  - [[#yaml][YAML]]
 - [[#user-interface][User Interface]]
+  - [[#base][Base]]
+  - [[#dashboard][Dashboard]]
+  - [[#highlight][Highlight]]
+  - [[#icon][Icon]]
+  - [[#modeline][Modeline]]
+  - [[#m-x-ui-enhancement][M-x UI Enhancement]]
+  - [[#shackle][Shackle]]
+  - [[#treemacs][Treemacs]]
+  - [[#theme][Theme]]
+  - [[#winner][Winner]]
 - [[#org-mode][Org Mode]]
 
 * About
@@ -599,7 +613,136 @@ You'd need to install the docsets you want with =dash-doc-install-docsets= comma
 (setq counsel-dash-ignored-docsets nil)
 #+end_src
 
+*** LSP Mode
+In order to be able to use different LSP (Language Server Protocol) server according to the programming language that we want to use, we need a client for LSP. That’s where lsp-mode comes in!
+#+begin_src emacs-lisp :tangle yes
+  (use-package lsp-mode
+    :commands lsp
+    ;; reformat code and add missing (or remove old) imports
+    :hook ((before-save . lsp-format-buffer)
+           (before-save . lsp-organize-imports)
+           (lsp-mode . lsp-enable-which-key-integration))
+    :bind (("C-c d" . lsp-describe-thing-at-point)
+           ("C-c e n" . flymake-goto-next-error)
+           ("C-c e p" . flymake-goto-prev-error)
+           ("C-c e r" . lsp-find-references)
+           ("C-c e R" . lsp-rename)
+           ("C-c e i" . lsp-find-implementation)
+           ("C-c e t" . lsp-find-type-definition)))
+
+  (use-package lsp-ui
+    :custom-face
+    (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
+    (lsp-ui-sideline-code-action ((t (:inherit warning))))
+    :bind (("C-c u" . lsp-ui-imenu)
+           :map lsp-ui-mode-map
+           ("C-c h l" . hydra-lspui/body)
+           ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+           ([remap xref-find-references] . lsp-ui-peek-find-references))
+    :init (setq lsp-ui-doc-enable t
+                lsp-ui-doc-use-webkit nil
+                lsp-ui-doc-delay 0.2
+                lsp-ui-doc-include-signature t
+                lsp-ui-doc-position 'at-point
+                lsp-ui-doc-border (face-foreground 'default)
+                lsp-eldoc-enable-hover nil ; Disable eldoc displays in minibuffer
+
+                lsp-ui-flycheck-enable t
+              
+                lsp-ui-imenu-enable t
+                lsp-ui-imenu-kind-position 'top
+                lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
+                                      ,(face-foreground 'font-lock-string-face)
+                                      ,(face-foreground 'font-lock-constant-face)
+                                      ,(face-foreground 'font-lock-variable-name-face))
+
+                lsp-ui-sideline-enable nil
+                lsp-ui-sideline-ignore-duplicate t
+                lsp-ui-sideline-show-symbol t
+                lsp-ui-sideline-show-hover t
+                lsp-ui-sideline-show-diagnostics nil
+                lsp-ui-sideline-show-code-actions t
+
+                lsp-ui-peek-enable t
+                lsp-ui-peek-peek-height 20
+                lsp-ui-peek-list-width 50
+                lsp-ui-peek-fontify 'on-demand ;; never, on-demand, or always)
+    :config
+    (add-to-list 'lsp-ui-doc-frame-parameters '(right-fringe . 8))
+    ;; `C-g'to close doc
+    (advice-add #'keyboard-quit :before #'lsp-ui-doc-hide)
+    ;; Reset `lsp-ui-doc-background' after loading theme
+    (add-hook 'after-load-theme-hook
+              (lambda ()
+                (setq lsp-ui-doc-border (face-foreground 'default))
+                (set-face-background 'lsp-ui-doc-background
+                                     (face-background 'tooltip))))
+    ;; WORKAROUND Hide mode-line of the lsp-ui-imenu buffer
+    ;; @see https://github.com/emacs-lsp/lsp-ui/issues/243
+    (defun penguin/lsp-ui-imenu-hide-mode-line ()
+      "Hide the mode-line in lsp-ui-imenu."
+      (setq mode-line-format nil))
+    (advice-add #'lsp-ui-imenu :after #'penguin/lsp-ui-imenu-hide-mode-line))
+
+  (use-package company-lsp
+    ;; company-mode completion
+    :commands company-lsp)
+
+  (use-package lsp-treemacs
+    ;; project wide overview
+    :commands lsp-treemacs-errors-list)
+
+  (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+
+  (use-package dap-mode
+    :after lsp-mode
+    :config
+    (dap-mode t)
+    (dap-ui-mode t))
+  (add-hook 'prog-mode-hook #'lsp)
+#+end_src
+
 *** Linter
+Flycheck is a linters for showing errors directly within buffers.
+#+begin_src emacs-lisp :tangle yes
+  (use-package flycheck
+    :diminish
+    :hook (after-init . global-flycheck-mode)
+    :config
+    (setq flycheck-emacs-lisp-load-path 'inherit)
+
+    ;; Only check while saving and opening files
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+
+    ;; Set fringe style
+    (setq flycheck-indication-mode 'right-fringe)
+    (when (fboundp 'define-fringe-bitmap)
+      (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+        [16 48 112 240 112 48 16] nil nil 'center))
+
+    ;; Display Flycheck errors in GUI tooltips
+    (if (display-graphic-p)
+        (if emacs/>=26p
+            (use-package flycheck-posframe
+              :custom-face (flycheck-posframe-border-face ((t (:inherit default))))
+              :hook (flycheck-mode . flycheck-posframe-mode)
+              :init (setq flycheck-posframe-border-width 1
+                          flycheck-posframe-inhibit-functions
+                          '((lambda (&rest _) (bound-and-true-p company-backend)))))
+          (use-package flycheck-pos-tip
+            :defines flycheck-pos-tip-timeout
+            :hook (global-flycheck-mode . flycheck-pos-tip-mode)
+            :config (setq flycheck-pos-tip-timeout 30)))
+      (use-package flycheck-popup-tip
+        :hook (flycheck-mode . flycheck-popup-tip-mode))))
+
+  (use-package flymake
+    :commands flymake-mode)
+
+  (add-hook 'c++-mode-hook 'flycheck-mode)
+  (add-hook 'c-mode-hook 'flycheck-mode)
+#+end_src
+
 *** Move Text
 Not the best option for hotkey right now ...
 #+begin_src emacs-lisp :tangle yes
@@ -781,7 +924,39 @@ Working in Emacs is fun, but switching to safari or chrome to do searching stuff
                   'eww-display-html--override-shr-external-rendering-functions))))
 #+end_src
 
-** LSP Mode
+** Ledger
+**Ledger** is a system for finance management, which is pretty good management flow for someone carefree like me.
+#+begin_src emacs-lisp :tangle yes
+  (use-package ledger-mode
+    :mode ("\\.dat\\'"
+           "\\.ledger\\'")
+    :bind (:map ledger-mode-map
+                ("C-x C-s" . penguin/ledger-save))
+    :hook (ledger-mode . ledger-flymake-enable)
+    :preface
+    (defun penguin/ledger-save ()
+      "Automatically clean the ledger buffer at each save."
+      (interactive)
+      (ledger-mode-clean-buffer)
+      (save-buffer))
+    :custom
+    (ledger-clear-whole-transactions t)
+    (ledger-reconcile-default-commodity "EUR")
+    (ledger-reports
+     '(("account statement" "%(binary) reg --real [[ledger-mode-flags]] -f %(ledger-file) ^%(account)")
+       ("balance sheet" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) bal ^assets ^liabilities ^equity")
+       ("budget" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:budget")
+       ("budget goals" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget goals'")
+       ("budget obligations" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget obligations'")
+       ("budget debts" "%(binary) --empty -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^assets:bank ^assets:receivables ^assets:cash ^assets:'budget debts'")
+       ("cleared" "%(binary) cleared [[ledger-mode-flags]] -f %(ledger-file)")
+       ("equity" "%(binary) --real [[ledger-mode-flags]] -f %(ledger-file) equity")
+       ("income statement" "%(binary) --invert --real -S -T [[ledger-mode-flags]] -f %(ledger-file) bal ^income ^expenses -p \"this month\""))
+     (ledger-report-use-header-line nil)))
+
+  (use-package flycheck-ledger :after ledger-mode)
+#+end_src
+
 ** Git
 My setup for git is kinda complex as my habit of merging and braching seem too random. Hopefully, I will fix this sometimes ...
 Now, the first part is we need to have =magit=
@@ -1770,6 +1945,26 @@ I config my Emacs a lot, so it is helpful if I can restart Emacs quickly.
   :bind* (("C-x M-c" . restart-emacs)))
 #+end_src
 
+This functions is stayed here for reference purpose. Nothing in use right now.
+#+begin_src emacs-lisp :tangle yes
+  (defun penguin-emacs-reload-init-file ()
+    "Reload your init.el file without restarting Emacs."
+    (interactive)
+    (load-file "~/.emacs.d/init.el"))
+
+  (defun penguin-emacs-update-config ()
+    "Update Penguin Emacs configuration to the latest version."
+    (interactive)
+    (let ((dir (expand-file-name user-emacs-directory)))
+      (progn
+        (message "Updating Penguin Emacs configuration...")
+        (cd dir)
+        (shell-command "git pull")
+        (message "Load new Penguin Emacs configuration...")
+        (penguin-emacs-reload-init-file)
+        (message "Update finished."))))
+#+end_src
+
 ** Weather Forecast
 Like I said before, I rarely turn Emacs off so I just need this to figure out what is going on outside.
 #+begin_src emacs-lisp :tangle yes
@@ -1783,21 +1978,916 @@ Like I said before, I rarely turn Emacs off so I just need this to figure out wh
 ** Whitespace
 Those whitespace at the end are annoying, let's get rid of them.
 #+begin_src emacs-lisp :tangle yes
-(use-package simple
-  :ensure nil
-  :hook (before-save . delete-trailing-whitespace))
+  (use-package simple
+    :ensure nil
+    :hook (before-save . delete-trailing-whitespace))
 #+end_src
+
 
 * Language Support
 ** C++
+My main programming language for game development. In order to have a fast and stable environment, I use LSP as a client and LSP Server ccls as sever.
+To use =ccls=, we first need to install it with the package manager of our operating system. The instruction can be viewed [[https://github.com/MaskRay/ccls/wiki][here]].
+#+begin_src emacs-lisp :tangle yes
+  (use-package ccls
+    :after projectile
+    :ensure t
+    :custom
+    (ccls-args nil)
+    (ccls-executable (executable-find "ccls"))
+    (projectile-project-root-files-top-down-recurring
+     (append '("compile_commands.json" ".ccls")
+             projectile-project-root-files-top-down-recurring))
+    :config (push ".ccls-cache" projectile-globally-ignored-directories))
+
+  (use-package google-c-style
+    :hook
+    ((c-mode c++-mode) . google-set-c-style)
+    (c-mode-common . google-make-newline-indent))
+
+  (require 'lsp-clients)
+  (setq lsp-disabled-clients '(clangd)) ;; Disable unused clangd server
+  ;; (when sys/macos
+  ;;   (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd"))
+#+end_src
+
+To allow =ccls= to know the dependencies of your =.cpp= files with your =.h= files, it is important to provide an =compile.commands.json= file (or a =.ccls= file) at the root of your project.
+For this, nothing could be easier. If like me you use a =CMakeLists.txt= file for all your C++ projects, then you just need to install the cmake package on your operating system and to generate the =compile.commands.json= file, you have to do:
+#+begin_src shell :tangle yes
+  cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
+  ln -s Debug/compile_commands.json
+#+end_src
+
+For every files, I'd want to have a steady and clean code throughout the project. So I will use =clang-format= package to stay organized.
+#+begin_src emacs-lisp :tangle yes
+  (use-package clang-format)
+  (defun clang-format-on-save ()
+    "Format selected region to clangformat."
+    (add-hook 'before-save-hook #'clang-format-buffer nil 'local))
+  (add-hook 'c++-mode-hook 'clang-format-on-save)
+  (add-hook 'c-mode-hook 'clang-format-on-save)
+
+  ;; Addon - Clang format Google Style on C-f10
+  (require 'cc-mode)
+  (defun clang-format-region-google (s e)
+    "Format the selected region S & E."
+    (interactive
+     (if (use-region-p)
+         (list (region-beginning) (region-end))
+       (list (point) (point))))
+    (clang-format-region s e "Google"))
+
+  (define-key c-mode-base-map (kbd "C-<f10>") #'clang-format-region-google)
+#+end_src
+
+> This is just temperary. =clang-tidy= in CLion is much more helpful. (TODO)
+
 ** CMake
+My work requires me to go cross-platform with C++. So, =cmake= is a must.
+#+begin_src emacs-lisp :tangle yes
+  (use-package cmake-mode)
+  (setq auto-mode-alist
+        (append '(("CMakeLists\\.txt\\'" . cmake-mode))
+            '(("\\.cmake\\'" . cmake-mode))
+            auto-mode-alist))
+
+  (use-package cmake-font-lock
+    :after (cmake-mode)
+    :hook (cmake-mode . cmake-font-lock-activate))
+
+  (use-package cmake-ide
+    :after projectile
+    :hook (c++-mode . penguin/cmake-ide-find-project)
+    :preface
+    (defun penguin/cmake-ide-find-project ()
+      "Finds the directory of the project for cmake-ide."
+      (with-eval-after-load 'projectile
+        (setq cmake-ide-project-dir (projectile-project-root))
+        (setq cmake-ide-build-dir (concat cmake-ide-project-dir "build")))
+      (setq cmake-ide-compile-command
+            (concat "cd " cmake-ide-build-dir " && cmake .. && make"))
+      (cmake-ide-load-db))
+
+    (defun penguin/switch-to-compilation-window ()
+      "Switches to the *compilation* buffer after compilation."
+      (other-window 1))
+    :bind ([remap comment-region] . cmake-ide-compile)
+    :init (cmake-ide-setup)
+    :config (advice-add 'cmake-ide-compile :after #'penguin/switch-to-compilation-window))
+#+end_src
+
 ** CSS
+All these stuffs is for my habit of working around with themes of other softwares (especially open-source).
+#+begin_src emacs-lisp :tangle yes
+  (use-package css-mode
+    :ensure nil
+    :custom (css-indent-offset 2))
+
+  (use-package scss-mode
+    :ensure nil
+    :preface
+    (defun me/scss-set-comment-style ()
+      (setq-local comment-end "")
+      (setq-local comment-start "//"))
+    :mode ("\\.sass\\'" "\\.scss\\'")
+    :hook (scss-mode . me/scss-set-comment-style))
+#+end_src
+
+** CSV
+#+begin_src emacs-lisp :tangle yes
+  (use-package csv-mode
+    :config (setq-default csv-align-padding 2))
+#+end_src
+
 ** Elisp
+These whole configuration is written in emacs-lisp (Elisp), a programming language specific for developing Emacs. Its only issue for me is the brackets ..
+#+begin_src emacs-lisp :tangle yes
+  (use-package ielm
+    :ensure nil
+    :hook (ielm-mode . (lambda () (setq-local scroll-margin 0))))
+
+  (use-package elisp-mode :ensure nil :delight "ξ ")
+
+  (use-package eldoc
+    :delight
+    :hook (emacs-lisp-mode . eldoc-mode))
+#+end_src
+
 ** Json
+Json is really helpful most of the time. I'd like to have a nice package config for it.
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package json-mode
+    :delight "J "
+    :mode "\\.json\\'"
+    :hook (before-save . penguin/json-mode-before-save-hook)
+    :preface
+    (defun penguin/json-mode-before-save-hook ()
+      (when (eq major-mode 'json-mode)
+        (json-pretty-print-buffer)))
+    (defun penguin/json-array-of-numbers-on-one-line (encode array)
+      "Prints the arrays of numbers in one line."
+      (let* ((json-encoding-pretty-print
+              (and json-encoding-pretty-print
+                   (not (loop for x across array always (numberp x)))))
+             (json-encoding-separator (if json-encoding-pretty-print "," ", ")))
+        (funcall encode array)))
+    :config (advice-add 'json-encode-array :around #'penguin/json-array-of-numbers-on-one-line))
+#+end_src
+
 ** Latex
+I'd love to learn LaTex to manage my resume and CV, maybe for some fancy presentation someday. This package config is for the future, perhaps 😉.
+#+begin_src emacs-lisp :tangle yes
+  (use-package tex
+    :ensure auctex
+    :bind (:map TeX-mode-map
+                ("C-c C-o" . TeX-recenter-output-buffer)
+                ("C-c C-l" . TeX-next-error)
+                ("M-[" . outline-previous-heading)
+                ("M-]" . outline-next-heading))
+    :hook (LaTeX-mode . reftex-mode)
+    :preface
+    (defun penguin/switch-to-help-window (&optional ARG REPARSE)
+      "Switches to the *TeX Help* buffer after compilation."
+      (other-window 1))
+    :custom
+    (TeX-auto-save t)
+    (TeX-byte-compile t)
+    (TeX-clean-confirm nil)
+    (TeX-master 'dwim)
+    (TeX-parse-self t)
+    (TeX-PDF-mode t)
+    (TeX-source-correlate-mode t)
+    (TeX-view-program-selection '((output-pdf "PDF Tools")))
+    :config
+    (advice-add 'TeX-next-error :after #'penguin/switch-to-help-window)
+    (advice-add 'TeX-recenter-output-buffer :after #'penguin/switch-to-help-window)
+    (add-hook 'TeX-after-compilation-finished-functions 'TeX-revert-document-buffer))
+
+  (use-package bibtex
+    :after auctex
+    :hook (bibtex-mode . penguin/bibtex-fill-column)
+    :preface
+    (defun penguin/bibtex-fill-column ()
+      "Ensures that each entry does not exceed 120 characters."
+      (setq fill-column 120)))
+
+  (use-package company-auctex
+    :after (auctex company)
+    :config (company-auctex-init))
+
+  (use-package company-math :after (auctex company))
+
+  (use-package reftex
+    :after auctex
+    :custom
+    (reftex-plug-into-AUCTeX t)
+    (reftex-save-parse-info t)
+    (reftex-use-multiple-selection-buffers t))
+#+end_src
+
+** Lua
+Lua is a perfect programming language for me. It is sad that it's not get the love it's deserved, but I will use it as much as possible for my personal project.
+#+begin_src emacs-lisp :tangle yes
+  (use-package lua-mode
+    :delight "Λ "
+    :mode "\\.lua\\'"
+    :interpreter ("lua" . lua-mode))
+#+end_src
+
 ** Markdown
+> Writing documents is a boring jobs ... when without org-mode or Markdown.
+> - Quote by me.
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package markdown-mode
+    :ensure t
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
+#+end_src
+
 ** Python
+=lsp-mode= is not stable for Python (or at least for me).
+So I try =anaconda-mode= for backend, and =company-anaconda= for frontend suggestion when working with Python.
+
+#+begin_src emacs-lisp :tangle yes
+  (defvar python-pyenv-root nil
+    "The path to pyenv's root directory. This is automatically set when `python' is loaded.")
+  (defvar python-pyenv-versions nil
+    "Available versions of python in pyenv.")
+  (defvar-local python-current-version nil
+    "The current active pyenv version.")
+
+  (use-package python
+    :commands python-mode
+    :init
+    (setq python-enviroment-directory pcache-dir
+          python-indent-gues-indent-offset-verbose nil
+          python-shell-interpreter "python")
+    :config
+    (add-hook 'python-mode-hook #'flycheck-mode)
+    (when (executable-find "ipython")
+      (setq python-shell-interpreter "ipython"
+            python-shell-interpreter-args "-i --simple-prompt --no-color-info"
+            python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+            python-shell-prompt-block-regexp "\\.\\.\\.\\.: "
+            python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+            python-shell-completion-setup-code
+            "from IPython.core.completerlib import module_completion"
+            python-shell-completion-string-code
+            "';'.join(get_ipython().Completer.all_completions('''%s'''))\n"))
+
+    ;; Version Management
+    (defun penguin/python-add-ver-to-modeline ()
+      "Add version string to the major mode in the modeline."
+      (setq mode-name
+            (if python-current-version
+                (format "Python %s" python-current-version)
+              "Python")))
+    (add-hook 'python-mode-hook #'penguin/add-pythonver-to-modeline)
+
+    (if (not (executable-find "pyenv"))
+        (setq python-current-version (string-trim (shell-command-to-string "python --version 2>&1 | cut -d' ' -f2")))
+      (setq python-pyenv-root     (string-trim (shell-command-to-string "pyenv root"))
+            python-pyenv-versions (split-string (shell-command-to-string "pyenv versions --bare") "\n" t))
+    
+      (defun penguin/python-detect-pyenv-version ()
+        "Detect the pyenv version for the current project and set the relevant environment variables."
+        (when-let* ((version-str (shell-command-to-string "python --version 2>&1 | cut -d' ' -f2")))
+          (setq version-str (string-trim version-str)
+                python-current-version version-str)
+          (let ((pyenv-current-path (concat python-pyenv-root "/versions/" version-str)))
+            (when (file-directory-p pyenv-current-path)
+              (setq pythonic-environment pyenv-current-path)))
+          (when (member version-str python-pyenv-versions)
+            (setenv "PYENV_VERSION" version-str))))
+      (add-hook 'python-mode-hook #'penguin/python-detect-pyenv-version)))
+
+  (use-package anaconda-mode
+    :after python
+    :hook python-mode
+    :init
+    (setq anaconda-mode-installation-directory (concat petc-dir "anaconda/")
+          anaconda-mode-eldoc-as-single-line t)
+    :config
+    (add-hook 'anaconda-mode-hook #'anaconda-eldoc-mode))
+
+  (use-package company-anaconda
+    :after anaconda-mode)
+
+  (use-package pip-requirements
+    :mode ("requirements.txt$" . pip-requirements-mode))
+
+  (use-package nose
+    :commands nose-mode
+    :preface
+    (defvar nose-mode-map (make-sparse-keymap)))
+#+end_src
+
+** XML
+I hate XML. But my work still requires it sometimes...
+#+begin_src emacs-lisp :tangle yes
+  (use-package xml-mode
+    :ensure nil
+    :mode ("\\.wsdl\\'" "\\.xsd\\'"))
+#+end_src
+
+** YAML
+This one is different from its infamous brother. It is still lovable.
+#+begin_src emacs-lisp :tangle yes
+  (use-package yaml-mode
+    :delight "ψ "
+    :mode "\\.yml\\'"
+    :interpreter ("yml" . yml-mode))
+#+end_src
+
 
 * User Interface
+** Base
+First, I'd want to turn off some mouse interface. I'd rather using keyboard all the time.
+#+begin_src emacs-lisp :tangle yes
+  (custom-set-variables '(menu-bar-mode nil)
+                        '(scroll-bar-mode nil)
+                        '(tool-bar-mode nil)
+                        '(blink-cursor-mode nil))
+#+end_src
+
+*** Cursor
+Some basic settings for the mouse cursor.
+#+begin_src emacs-lisp :tangle yes
+  (setq-default cursor-in-non-selected-windows 'hollow)
+  (setq highlight-nonselected-windows nil)
+  (setq x-stretch-cursor nil)
+  (setq visible-cursor nil)
+#+end_src
+
+*** Font
+I really like Jetbrain font. To me, its a perfect font for an editor. Please setup the font in the =/res= folder to your OS first.
+#+begin_src emacs-lisp :tangle yes
+  (require 'font-lock)
+  (set-face-attribute 'default nil
+                      :font "JetBrains Mono"
+                      :height (cond (sys/macos 110)
+                                    (sys/win32 90)
+                                    (sys/linux 90)
+                                    (t 100)))
+#+end_src
+
+*** Frame Title
+Some config for a better frame title, which I rarely see...
+#+begin_src emacs-lisp :tangle yes
+  (setq frame-title-format '("" "%b - Penguin Emacs 🐧")
+        icon-title-format frame-title-format)
+#+end_src
+
+** Dashboard
+This one took me a lot of time. I try to customize my own dashboard, which looks like the doom dashboard somehow but I dont use =doom-emacs= 😝.
+Since I got problems with displaying =all-the-icons= within string on Windows, so I need to add more conditions.
+#+begin_src emacs-lisp :tangle yes
+  (defcustom e_logo (expand-file-name "res/banner/penmacs_ascii_alter_2.png" user-emacs-directory)
+    "Set up custom logo for the dashboard."
+    :type 'string)
+
+  (use-package dashboard
+    :bind (("<f4>" . open-dashboard)
+           :map dashboard-mode-map
+           ("SPC r" . penguin/browse-recents)
+           ("SPC p" . penguin/browse-projects)
+           ("SPC c" . penguin/browse-calendar)
+           ("SPC w" . penguin/browse-weather)
+           ("SPC m" . penguin/browse-gmail)
+           ("SPC s" . penguin/browse-slack)
+           ("SPC h" . penguin/browse-homepage)
+           ("<f4>" . quit-dashboard))
+    :ensure t
+    :config
+    (setq dashboard-startup-banner (or e_logo 'official)
+          dashboard-banner-logo-title (concat "v. " pemacs/version)
+          dashboard-set-navigator nil
+          dashboard-center-content t
+          ;; dashboard-items '((recents  . 5)
+          ;;                   (projects . 5)
+          ;;                   (agenda   . 5)
+          ;;                  )
+          dashboard-items nil
+          dashboard-set-footer t
+          dashboard-footer-messages '(" P E N G U I N  x  E M A C S")
+          dashboard-footer-icon (all-the-icons-faicon "heart"
+                                                      :height 1.1
+                                                      :v-adjust -0.05
+                                                      :face 'font-lock-keyword-face)
+          dashboard-set-heading-icons t
+          dashboard-set-file-icons t
+          show-week-agenda-p t)
+    ;; Insert custom item
+    (defface penguin/ultilities-face
+      '((t . (:height 1.2 :foreground "#ffaf00" :weight bold)))
+      "A face for ultilities.")
+    (defface penguin/title-face
+      '((t . (:height 1.5 :foreground "#ff4400")))
+      "A face for title.")
+    (defun dashboard-insert-custom (list-size)
+      (when (or sys/linux sys/macos)
+        ;; Working
+        (insert (if (display-graphic-p)
+                    (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+        (let ((items  " Working: \n\n"))
+          (put-text-property 0 (length items) 'face 'penguin/title-face
+                             items)
+          (insert items))
+        (let ((items  (concat "       Recently opened files                   (SPC r)  \n\n"
+                              "       Open Project                            (SPC p)  \n\n")))
+          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                             items)
+          (insert items))
+        ;; Ultilities
+        (insert (if (display-graphic-p)
+                    (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+        (let ((items  " Ultilities: \n\n"))
+          (put-text-property 0 (length items) 'face 'penguin/title-face
+                             items)
+          (insert items))
+        (let ((items  (concat "       Open Org Agenda                         (SPC c)  \n\n"
+                              "       View Weather forcast                    (SPC w)  \n\n"
+                              "       Reading Mails                           (SPC m)  \n\n"
+                              "       Online Slack                            (SPC s)  \n\n"
+                              "       Browse Github Homepage                  (SPC h)  ")))
+          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                             items)
+          (insert items)))
+    
+      (when sys/win32
+        ;; Working
+        (insert (if (display-graphic-p)
+                    (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+        (let ((items  " Working: \n\n"))
+          (put-text-property 0 (length items) 'face 'penguin/title-face
+                             items)
+          (insert items))
+        (let ((items  (concat "      📝 Recently opened files                   (SPC r)  \n\n"
+                              "      📚 Open Project                            (SPC p)  \n\n")))
+          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                             items)
+          (insert items))
+
+        ;; Ultilities
+        (insert (if (display-graphic-p)
+                    (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+        (let ((items  " Ultilities: \n\n"))
+          (put-text-property 0 (length items) 'face 'penguin/title-face
+                             items)
+          (insert items))
+        (let ((items  (concat "      🗓 Open Org Agenda                         (SPC c)  \n\n"
+                              "      ⛅ View Weather forcast                    (SPC w)  \n\n"
+                              "      📧 Reading Mails                           (SPC m)  \n\n"
+                              "      💬 Online Slack                            (SPC s)  \n\n"
+                              "      🌎 Browse Github Homepage                  (SPC h)  ")))
+          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                             items)
+          (insert items))))
+
+    (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+    (add-to-list 'dashboard-items '(custom) t)
+    (add-to-list 'dashboard-item-generators '(packages . dashboard-load-packages))
+
+    (defun open-dashboard ()
+      "Open the *dashboard* buffer and jump to the first widget."
+      (interactive)
+      (delete-other-windows)
+      ;; Refresh dashboard buffer
+      (if (get-buffer dashboard-buffer-name)
+      (kill-buffer dashboard-buffer-name))
+      (dashboard-insert-startupify-lists)
+      (switch-to-buffer dashboard-buffer-name))
+    (defun quit-dashboard ()
+      "Quit dashboard window."
+      (interactive)
+      (quit-window t)
+      (when (and dashboard-recover-layout-p
+             (bound-and-true-p winner-mode))
+        (winner-undo)
+        (setq dashboard-recover-layout-p nil)))
+    (defun penguin/browse-recents ()
+      "Open recent files."
+      (interactive)
+      (counsel-recentf))
+    (defun penguin/browse-projects ()
+      "Open projectiles."
+      (interactive)
+      (helm-projectile-switch-project))
+    (defun penguin/browse-calendar ()
+      "Open the org-agenda."
+      (interactive)
+      (open-dashboard)
+      (split-window-right)
+      (other-window 1)
+      (let ((org-agenda-window-setup 'current-window))
+        (org-agenda nil "n")))
+    (defun penguin/browse-weather ()
+      "Open the weather forcast."
+      (interactive)
+      (wttrin "Hochiminh"))
+    (defun penguin/browse-homepage ()
+      "Open my github homepage."
+      (interactive)
+      (lambda (&rest _) (browse-url my-homepage))))
+
+  (add-hook 'prog-mode-hook 'page-break-lines-mode) ;; Requirements for emacs dashboard packages
+  (dashboard-setup-startup-hook)
+#+end_src
+
+** Highlight
+Highlight current line.
+#+begin_src emacs-lisp :tangle yes
+  (use-package hl-line
+    ;; Highlights the current line
+    :hook ((prog-mode text-mode conf-mode) . hl-line-mode)
+    :config
+    (setq hl-line-sticky-flag nil
+          global-hl-line-sticky-flag nil))
+#+end_src
+
+Highlight symbol: Currently I am turn off this mode globally for performance issue.
+#+begin_src emacs-lisp :tangle yes
+  (use-package highlight-symbol
+    :ensure t
+    :bind (("C-M-n" . highlight-symbol-next)
+           ("C-M-p" . highlight-symbol-prev))
+    :config
+    (highlight-symbol-nav-mode))
+#+end_src
+
+Highlight matching parens
+#+begin_src emacs-lisp :tangle yes
+  (use-package paren
+    :ensure nil
+    :hook (after-init . show-paren-mode)
+    :init (setq show-paren-when-point-inside-paren t
+                show-paren-when-point-in-periphery t)
+    :config
+    (with-no-warnings
+      (defun display-line-overlay (pos str &optional face)
+        "Display line at POS as STR with FACE.
+  FACE defaults to inheriting from default and highlight."
+        (let ((ol (save-excursion
+                    (goto-char pos)
+                    (make-overlay (line-beginning-position)
+                                  (line-end-position)))))
+          (overlay-put ol 'display str)
+          (overlay-put ol 'face
+                       (or face '(:inherit highlight)))
+          ol))
+
+      (defvar-local show-paren--off-screen-overlay nil)
+      (defun show-paren-off-screen (&rest _args)
+        "Display matching line for off-screen paren."
+        (when (overlayp show-paren--off-screen-overlay)
+          (delete-overlay show-paren--off-screen-overlay))
+        ;; check if it's appropriate to show match info,
+        (when (and (overlay-buffer show-paren--overlay)
+                   (not (or cursor-in-echo-area
+                            executing-kbd-macro
+                            noninteractive
+                            (minibufferp)
+                            this-command))
+                   (and (not (bobp))
+                        (memq (char-syntax (char-before)) '(?\) ?\$)))
+                   (= 1 (logand 1 (- (point)
+                                     (save-excursion
+                                       (forward-char -1)
+                                       (skip-syntax-backward "/\\")
+                                       (point))))))
+          ;; rebind `minibuffer-message' called by
+          ;; `blink-matching-open' to handle the overlay display
+          (cl-letf (((symbol-function #'minibuffer-message)
+                     (lambda (msg &rest args)
+                       (let ((msg (apply #'format-message msg args)))
+                         (setq show-paren--off-screen-overlay
+                               (display-line-overlay
+                                (window-start) msg ))))))
+            (blink-matching-open))))
+      (advice-add #'show-paren-function :after #'show-paren-off-screen)))
+#+end_src
+
+** Icon
+Most UI package require =all-the-icons= setup. Please remember to run =all-the-icons-install-fonts= for the first time runner.
+#+begin_src emacs-lisp :tangle yes
+  (use-package all-the-icons
+    :config (setq all-the-icons-scale-factor 1.0))
+
+  (use-package all-the-icons-ivy
+    :hook (after-init . all-the-icons-ivy-setup))
+
+  (use-package all-the-icons-dired)
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+#+end_src
+
+** Modeline
+After trying a lot of packages, I think =moody= fit me most as it is simple but beautiful in a technical way.
+#+begin_src emacs-lisp :tangle yes
+  (use-package moody
+    :config
+    (let ((line (face-attribute 'mode-line :underline)))
+      (set-face-attribute 'mode-line          nil :overline   line)
+      (set-face-attribute 'mode-line-inactive nil :overline   line)
+      (set-face-attribute 'mode-line-inactive nil :underline  line)
+      (set-face-attribute 'mode-line          nil :box        nil)
+      (set-face-attribute 'mode-line-inactive nil :box        nil)
+      (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9")
+    )
+    (setq x-underline-at-descent-line t))
+
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
+
+  ;; A minor-mode menu for mode-line
+  (use-package minions
+    :hook (after-init . minions-mode)
+    :init (setq minions-mode-line-lighter "❤"))
+
+  (use-package time
+    :defer t
+    :custom
+    (display-time-default-load-average nil)
+    (display-time-24hr-format t)
+    :config
+    (display-time-mode t))
+#+end_src
+
+Maybe I want to change to =doom-modeline= someday because it looks minimalism, but now **moody** still can statisfy me 🤣.
+
+** M-x UI Enhancement
+I dont like postframe and I like my minibuffer to stay organized.
+#+begin_src emacs-lisp :tangle yes
+  (use-package fancy-narrow
+    :diminish
+    :hook (after-init . fancy-narrow-mode))
+
+  (setq resize-mini-windows 'grow-only
+        ;; But don't let the minibuffer grow beyond this size
+        max-mini-window-height 0.15)
+
+  ;; M-x history
+  (use-package smex
+    :ensure t
+    :config
+    (setq smex-save-file (concat pcache-dir ".smex-items"))
+    (smex-initialize))
+#+end_src
+
+** Shackle
+Some packages would popup many frames randomly. I would them to stay under my control 😛.
+#+begin_src emacs-lisp :tangle yes
+  (defvar shackle--popup-window-list nil) ; all popup windows
+  (defvar-local shackle--current-popup-window nil) ; current popup window
+  (put 'shackle--current-popup-window 'permanent-local t)
+
+  (use-package shackle
+    :functions org-switch-to-buffer-other-window
+    :commands shackle-display-buffer
+    :hook (after-init . shackle-mode)
+    :config
+    (eval-and-compile
+      (defun shackle-last-popup-buffer ()
+        "View last popup buffer."
+        (interactive)
+        (ignore-errors
+          (display-buffer shackle-last-buffer)))
+      (bind-key "C-h z" #'shackle-last-popup-buffer)
+
+      ;; Add keyword: `autoclose'
+      (defun shackle-display-buffer-hack (fn buffer alist plist)
+        (let ((window (funcall fn buffer alist plist)))
+          (setq shackle--current-popup-window window)
+
+          (when (plist-get plist :autoclose)
+            (push (cons window buffer) shackle--popup-window-list))
+          window))
+
+      (defun shackle-close-popup-window-hack (&rest _)
+        "Close current popup window via `C-g'."
+        (setq shackle--popup-window-list
+              (cl-loop for (window . buffer) in shackle--popup-window-list
+                       if (and (window-live-p window)
+                               (equal (window-buffer window) buffer))
+                       collect (cons window buffer)))
+        ;; `C-g' can deactivate region
+        (when (and (called-interactively-p 'interactive)
+                   (not (region-active-p)))
+          (let (window buffer)
+            (if (one-window-p)
+                (progn
+                  (setq window (selected-window))
+                  (when (equal (buffer-local-value 'shackle--current-popup-window
+                                                   (window-buffer window))
+                               window)
+                    (winner-undo)))
+              (setq window (caar shackle--popup-window-list))
+              (setq buffer (cdar shackle--popup-window-list))
+              (when (and (window-live-p window)
+                         (equal (window-buffer window) buffer))
+                (delete-window window)
+
+                (pop shackle--popup-window-list))))))
+
+      (advice-add #'keyboard-quit :before #'shackle-close-popup-window-hack)
+      (advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack))
+
+    ;; HACK: compatibility issuw with `org-switch-to-buffer-other-window'
+    (advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window)
+
+    ;; rules
+    (setq shackle-default-size 0.4
+          shackle-default-alignment 'below
+          shackle-default-rule nil
+          shackle-rules
+          '((("*Help*" "*Apropos*") :select t :size 0.3 :align 'below :autoclose t)
+            (("*compilation*" "*Compile-Log*") :select t :size 0.3 :align 'below :autoclose t)
+            ("*Completions*" :size 0.3 :align 'below :autoclose t)
+            ("*Pp Eval Output*" :size 15 :align 'below :autoclose t)
+            ("*Backtrace*" :select t :size 15 :align 'below)
+            (("*Warnings*" "*Messages*") :size 0.3 :align 'below :autoclose t)
+            ("^\\*.*Shell Command.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
+            ("\\*[Wo]*Man.*\\*" :regexp t :select t :align 'below :autoclose t)
+            ("*Calendar*" :select t :size 0.3 :align 'below)
+            (("*shell*" "*eshell*" "*ielm*") :popup t :align 'below)
+            ("^\\*vc-.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
+            ("*gud-debug*" :select t :size 0.4 :align 'below :autoclose t)
+            ("\\*ivy-occur .*\\*" :regexp t :select t :align 'below)
+            (" *undo-tree*" :select t)
+            ("*quickrun*" :select t :size 15 :align 'below)
+            ("*Finder*" :select t :size 0.3 :align 'below :autoclose t)
+            ("^\\*macro expansion\\**" :regexp t :size 0.4 :align 'below)
+            ("^\\*elfeed-entry" :regexp t :size 0.7 :align 'below :autoclose t)
+            ((" *Org todo*" "*Org Dashboard*" "*Org Select*") :select t :size 0.4 :align 'below :autoclose t)
+            (("*lsp-help*" "*lsp session*") :size 0.3 :align 'below :autoclose t)
+            (" *Install vterm" :size 0.35 :same t :align 'below)
+            (("*Paradox Report*" "*package update results*") :size 0.2 :align 'below :autoclose t)
+            ("*Package-Lint*" :size 0.4 :align 'below :autoclose t)
+            (("*Gofmt Errors*" "*Go Test*") :select t :size 0.3 :align 'below :autoclose t)
+            ("*How Do You*" :select t :size 0.5 :align 'below :autoclose t)
+
+            ("*ert*" :size 15 :align 'below :autoclose t)
+            (overseer-buffer-mode :size 15 :align 'below :autoclose t)
+
+            (" *Flycheck checkers*" :select t :size 0.4 :align 'below :autoclose t)
+            ((flycheck-error-list-mode flymake-diagnostics-buffer-mode)
+             :select t :size 0.3 :align 'below :autoclose t)
+          
+            ("*Ibuffer*" :select t :size 0.4 :align 'below :autoclose t)
+            (ibuffer-mode :select t :size 0.4 :align 'below :autoclose t)
+
+            ("*Org Agenda*" :select t :size 0.4 :align 'right :autoclose t)
+            (org-super-agenda-mode :select t :size 0.4 :align 'right :autoclose t)
+
+            (profiler-report-mode :select t :size 0.5 :align 'below)
+            ("*ELP Profiling Restuls*" :select t :size 0.5 :align 'below)
+
+            ((inferior-python-mode inf-ruby-mode swift-repl-mode) :size 0.4 :align 'below)
+            ("*prolog*" :size 0.4 :align 'below)
+
+            ("*anaconda-mode*" :noselect t :size 10 :autoclose t :autokill t)
+            (anaconda-mode :noselect t :size 10 :autoclose t :autokill t)
+
+            ("*nose-mode*" :noselect t :size 0.4)
+            (nose-mode :noselect t :size 0.4)
+
+            ((grep-mode rg-mode deadgrep-mode ag-mode pt-mode) :select t :align 'below)
+            (Buffer-menu-mode :select t :size 20 :align 'below :autoclose t)
+            (helpful-mode :select t :size 0.3 :align 'below :autoclose t)
+            ((process-menu-mode cargo-process-mode) :select t :size 0.3 :align 'below :autoclose t)
+            (list-environment-mode :select t :size 0.3 :align 'below :autoclose t)
+            (tabulated-list-mode :size 0.4 :align 'below))))
+#+end_src
+
+** Treemacs
+A side explorer for Emacs, it always nice to be more modern looking.
+#+begin_src emacs-lisp :tangle yes
+  (use-package treemacs
+    :ensure t
+    :defer t
+    :init
+    (with-eval-after-load 'winum
+      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+    :config
+    (progn
+      (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+            treemacs-deferred-git-apply-delay      0.5
+            treemacs-directory-name-transformer    #'identity
+            treemacs-display-in-side-window        t
+            treemacs-eldoc-display                 t
+            treemacs-file-event-delay              5000
+            treemacs-file-extension-regex          treemacs-last-period-regex-value
+            treemacs-file-follow-delay             0.2
+            treemacs-file-name-transformer         #'identity
+            treemacs-follow-after-init             t
+            treemacs-git-command-pipe              ""
+            treemacs-goto-tag-strategy             'refetch-index
+            treemacs-indentation                   2
+            treemacs-indentation-string            " "
+            treemacs-is-never-other-window         nil
+            treemacs-max-git-entries               500
+            treemacs-no-delete-other-windows       t
+            treemacs-missing-project-action        'ask
+            treemacs-project-follow-cleanup        nil
+            treemacs-persist-file                  (expand-file-name "treemacs-persist" pcache-dir)
+            treemacs-position                      'left
+            treemacs-recenter-distance             0.1
+            treemacs-recenter-after-file-follow    nil
+            treemacs-recenter-after-tag-follow     nil
+            treemacs-recenter-after-project-jump   'always
+            treemacs-recenter-after-project-expand 'on-distance
+            treemacs-show-cursor                   nil
+            treemacs-show-hidden-files             t
+            treemacs-silent-filewatch              nil
+            treemacs-silent-refresh                nil
+            treemacs-sorting                       'alphabetic-asc
+            treemacs-space-between-root-nodes      t
+            treemacs-tag-follow-cleanup            t
+            treemacs-tag-follow-delay              1.5
+            treemacs-no-png-images                 nil
+            treemacs-width                         30)
+
+      (treemacs-follow-mode t)
+      (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode t)
+      (pcase (cons (not (null (executable-find "git")))
+                   (not (null treemacs-python-executable)))
+        (`(t . t)
+         (treemacs-git-mode 'deferred))
+        (`(t . _)
+         (treemacs-git-mode 'simple))))
+    :bind
+    (:map global-map
+          ("M-0"       . treemacs-select-window)
+          ("C-x t 1"   . treemacs-delete-other-windows)
+          ("C-x t t"   . treemacs)
+          ("C-x t B"   . treemacs-bookmark)
+          ("C-x t C-t" . treemacs-find-file)
+          ("C-x t M-t" . treemacs-find-tag)))
+
+  (use-package treemacs-projectile
+    :after treemacs projectile)
+
+  (use-package treemacs-magit
+        :after magit
+        :commands treemacs-magit--schedule-update
+        :hook ((magit-post-commit
+                git-commit-post-finish
+                magit-post-stage
+                magit-post-unstage)
+               . treemacs-magit--schedule-update))
+
+  (doom-themes-treemacs-config)
+  ;; End `Treemacs'
+  (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
+#+end_src
+
+** Theme
+=doom-themes= are quite good-looking and have a variety of options to choose.
+#+begin_src emacs-lisp :tangle yes
+  (use-package doom-themes
+    :defines doom-themes-treemacs-theme
+    :config
+    (doom-themes-visual-bell-config)
+    (set-face-attribute 'doom-visual-bell nil
+                        :inherit 'mode-line
+                        :background (face-foreground 'error)
+                        :inverse-video 'unspecified)
+    (doom-themes-org-config)
+    (with-eval-after-load 'erc-goodies
+      (set-face-attribute 'erc-bold-face nil :bold nil))
+    (with-eval-after-load 'flycheck
+      (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
+      (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
+      (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
+    (with-eval-after-load 'isearch
+      (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
+      (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
+
+  ;; (use-package solaire-mode
+  ;;   :hook
+  ;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
+  ;;   (minibuffer-setup . solaire-mode-in-minibuffer)
+  ;;   :config
+  ;;   (solaire-mode-swap-bg))
+  ;; (solaire-global-mode +1)
+
+  (setq doom-themes-treemacs-theme "doom-colors")
+  (load-theme 'doom-molokai t)
+#+end_src
+
+** Winner
+Tracking windows layout in emacs.
+#+begin_src emacs-lisp :tangle yes
+  (use-package winner
+    :hook (after-init . winner-mode)
+    :bind (("<s-right>" . winner-redo)
+           ("<s-left>" . winner-undo)))
+#+end_src
+
 
 * Org Mode
