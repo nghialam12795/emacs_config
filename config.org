@@ -38,6 +38,7 @@
   - [[#csv][CSV]]
   - [[#elisp][Elisp]]
   - [[#json][Json]]
+  - [[#html][HTML]]
   - [[#latex][Latex]]
   - [[#lua][Lua]]
   - [[#markdown][Markdown]]
@@ -909,38 +910,38 @@ Setup keymap for my habit
 Working in Emacs is fun, but switching to safari or chrome to do searching stuff sometimes annoy me. As I dont like to use mouse much.
 =eww= is not perfect but it can solve my current nerve right now. I'd like to learning using qutebrowser someday as a replacement.
 #+begin_src emacs-lisp :tangle yes
-(use-package browse-url
-  :ensure nil
-  :custom
-  (browse-url-browser-function 'eww-browse-url)
-  ;; (browse-url-browser-function 'browse-url-generic)
-  ;; :config
-  ;; (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win32))
-  ;;       (sys/macos (setq browse-url-generic-program qutebrowser/macos))
-  ;;       (sys/linux (setq browse-url-generic-program "qutebrowser"))
+  ;; (use-package browse-url
+  ;;   :ensure nil
+  ;;   :custom
+  ;;   (browse-url-browser-function 'eww-browse-url)
+  ;;   ;; (browse-url-browser-function 'browse-url-generic)
+  ;;   ;; :config
+  ;;   ;; (cond (sys/win32 (setq browse-url-generic-program qutebrowser/win32))
+  ;;   ;;       (sys/macos (setq browse-url-generic-program qutebrowser/macos))
+  ;;   ;;       (sys/linux (setq browse-url-generic-program "qutebrowser"))
+  ;;   ;; )
   ;; )
-)
 
-(use-package shr
-  :commands (eww
-             eww-browse-url)
-  :config
-  (setq browse-url-browser-function 'eww-browse-url)
-  (setq shr-use-fonts nil)
-  (setq shr-use-colors nil)
-  (setq shr-max-image-proportion 0.2)
-  (setq shr-width (current-fill-column)))
+  (use-package shr
+    :commands (eww
+               eww-browse-url)
+    :config
+    (setq browse-url-browser-function 'eww-browse-url)
+    (setq shr-use-fonts nil)
+    (setq shr-use-colors nil)
+    (setq shr-max-image-proportion 0.2)
+    (setq shr-width (current-fill-column)))
 
-(use-package shr-tag-pre-highlight
-  :ensure t
-  :after shr
-  :config
-  (add-to-list 'shr-external-rendering-functions
-               '(pre . shr-tag-pre-highlight))
-  (when (version< emacs-version "26")
-    (with-eval-after-load 'eww
-      (advice-add 'eww-display-html :around
-                  'eww-display-html--override-shr-external-rendering-functions))))
+  (use-package shr-tag-pre-highlight
+    :ensure t
+    :after shr
+    :config
+    (add-to-list 'shr-external-rendering-functions
+                 '(pre . shr-tag-pre-highlight))
+    (when (version< emacs-version "26")
+      (with-eval-after-load 'eww
+        (advice-add 'eww-display-html :around
+                    'eww-display-html--override-shr-external-rendering-functions))))
 #+end_src
 
 ** Ledger
@@ -2151,6 +2152,18 @@ Json is really helpful most of the time. I'd like to have a nice package config 
         (funcall encode array)))
     :config (advice-add 'json-encode-array :around #'penguin/json-array-of-numbers-on-one-line))
 #+end_src
+
+** HTML
+In order to have a fast and stable environment, I recommend using **LSP** as a client for LSP servers and [[https://github.com/vscode-langservers/vscode-html-languageserver][vscode-html-languageserver]] as server.
+
+To use =vscode-html-languageserver= with GNU Emacs, you must first install it with the package manager of your operating system.
+
+Let’s configure =emmet-mode=, to produce HTML from CSS-like selector:
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package emmet-mode
+    :delight
+    :hook (css-mode sgml-mode web-mode))
+#+END_SRC
 
 ** Latex
 I'd love to learn LaTex to manage my resume and CV, maybe for some fancy presentation someday. This package config is for the future, perhaps 😉.
@@ -3518,6 +3531,7 @@ Compiler for other languages
   (use-package ob-shell :ensure nil :after org)
   (use-package ob-sql :ensure nil :after org)
 #+end_src
+
 ** Presentation
 A wise man has said - **org-mode like the sky, it's unlimited**. Once I work with org-mode, I felt in love with it immediately for its potiental.
 Making presentation is not really required for my work, but when it is, =org-mode= with =org-reveal= & =reveal.js= saved me a lot of times.
@@ -3527,7 +3541,7 @@ Making presentation is not really required for my work, but when it is, =org-mod
     :after org
     :custom
     (org-reveal-mathjax t)
-    (org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/"))
+    (org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
 
   (use-package htmlize)
 #+END_SRC
