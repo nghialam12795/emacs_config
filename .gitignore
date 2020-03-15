@@ -18,6 +18,7 @@ projectile-bookmarks.eld
 /.private
 /prescient-items
 /eshell
+/test
 /transient
 
 .lsp-session-v1

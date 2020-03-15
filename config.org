@@ -9,7 +9,6 @@
   - [[#system-information][System Information]]
   - [[#personal-information][Personal Information]]
   - [[#setting-default][Setting Default]]
-  - [[#sync-source-file][Sync Source File]]
   - [[#file-management][File Management]]
 - [[#package-initialize][Package Initialize]]
 - [[#advanced-config][Advanced Config]]
@@ -49,7 +48,6 @@
   - [[#base][Base]]
   - [[#dashboard][Dashboard]]
   - [[#highlight][Highlight]]
-  - [[#icon][Icon]]
   - [[#modeline][Modeline]]
   - [[#m-x-ui-enhancement][M-x UI Enhancement]]
   - [[#shackle][Shackle]]
@@ -57,6 +55,7 @@
   - [[#theme][Theme]]
   - [[#winner][Winner]]
 - [[#org-mode][Org Mode]]
+  - [[#sync-source-file][Sync Source File]]
   - [[#org][Org]]
   - [[#org-toc][Org TOC]]
   - [[#org-agenda][Org Agenda]]
@@ -65,6 +64,7 @@
   - [[#org-clock][Org Clock]]
   - [[#org-journal][Org Journal]]
   - [[#obx][Obx]]
+  - [[#presentation][Presentation]]
 
 * About
 This is my configuration for the GNUs Emacs, which I call it PENMACS (Penguin x Emacs). WARNING: It's really long.
@@ -77,7 +77,6 @@ My configuration is mostly inspired from:
 - [[https://github.com/sachac/.emacs.d][Sacha Chua]]
 
 You guys should check them out, they are both really talent. Especially, Sacha has a [[https://sachachua.com/blog/][blog]] about boosting Emacs in life.
-
 
 * Emacs Startup
 ** System Information
@@ -253,53 +252,6 @@ Other personal settings will be written to user.el
     (load custom-file))
 #+end_src
 
-** Sync Source File
-I’m using a large =.org= file to maintain my GNU Emacs configuration. However, at launch, it will load the =config.el= source file for a faster loading.
-The code below, executes =org-babel-tangle= asynchronously when =config.org= is saved.
-#+begin_src emacs-lisp :tangle yes
-  (use-package async)
-
-  (defvar *config-file* (expand-file-name "config.org" user-emacs-directory)
-    "The configuration file.")
-
-  (defvar *config-last-change* (nth 5 (file-attributes *config-file*))
-    "Last modification time of the configuration file.")
-
-  (defvar *show-async-tangle-results* nil
-    "Keeps *emacs* async buffers around for later inspection.")
-
-  (defun penguin/config-updated ()
-    "Checks if the configuration file has been updated since the last time."
-    (time-less-p *config-last-change*
-                 (nth 5 (file-attributes *config-file*))))
-
-  (defun penguin/config-tangle ()
-    "Tangles the org file asynchronously."
-    (when (penguin/config-updated)
-      (setq *config-last-change*
-            (nth 5 (file-attributes *config-file*)))
-      (penguin/async-babel-tangle *config-file*)))
-
-  (defun penguin/async-babel-tangle (org-file)
-    "Tangles the org file asynchronously."
-    (let ((init-tangle-start-time (current-time))
-          (file (buffer-file-name))
-          (async-quiet-switch "-q"))
-      (async-start
-       `(lambda ()
-          (require 'org)
-          (org-babel-tangle-file ,org-file))
-       (unless *show-async-tangle-results*
-         `(lambda (result)
-            (if result
-                (message "SUCCESS: %s successfully tangled (%.2fs)."
-                         ,org-file
-                         (float-time (time-subtract (current-time)
-                                                    ',init-tangle-start-time)))
-              (message "ERROR: %s as tangle failed." ,org-file)))))))
-
-#+end_src
-
 ** File Management
 I'd like to keep my folder as clean as possible. So I decide to move the auto-generated files around.
 
@@ -353,7 +305,6 @@ Use this for files that change often, like cache files.")
               package-user-dir             (concat plocal-dir "packages"))
 #+end_src
 
-
 * Package Initialize
 In order to install packages, use-package is a no-brainer for you.
 But first, we need to add some sources
@@ -404,7 +355,6 @@ Here goes our monster =use-package=
   :config
   (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
 #+end_src
-
 
 * Advanced Config
 In editor war, the winner is not Emacs or Vim, it's your configuration with these two.
@@ -716,7 +666,7 @@ In order to be able to use different LSP (Language Server Protocol) server accor
                 lsp-eldoc-enable-hover nil ; Disable eldoc displays in minibuffer
 
                 lsp-ui-flycheck-enable t
-              
+
                 lsp-ui-imenu-enable t
                 lsp-ui-imenu-kind-position 'top
                 lsp-ui-imenu-colors `(,(face-foreground 'font-lock-keyword-face)
@@ -2051,7 +2001,6 @@ Those whitespace at the end are annoying, let's get rid of them.
     :hook (before-save . delete-trailing-whitespace))
 #+end_src
 
-
 * Language Support
 ** C++
 My main programming language for game development. In order to have a fast and stable environment, I use LSP as a client and LSP Server ccls as sever.
@@ -2246,6 +2195,8 @@ I'd love to learn LaTex to manage my resume and CV, maybe for some fancy present
 
   (use-package company-math :after (auctex company))
 
+  (setq-default TeX-engine 'xetex)
+
   (use-package reftex
     :after auctex
     :custom
@@ -2321,7 +2272,7 @@ So I try =anaconda-mode= for backend, and =company-anaconda= for frontend sugges
         (setq python-current-version (string-trim (shell-command-to-string "python --version 2>&1 | cut -d' ' -f2")))
       (setq python-pyenv-root     (string-trim (shell-command-to-string "pyenv root"))
             python-pyenv-versions (split-string (shell-command-to-string "pyenv versions --bare") "\n" t))
-    
+
       (defun penguin/python-detect-pyenv-version ()
         "Detect the pyenv version for the current project and set the relevant environment variables."
         (when-let* ((version-str (shell-command-to-string "python --version 2>&1 | cut -d' ' -f2")))
@@ -2372,7 +2323,6 @@ This one is different from its infamous brother. It is still lovable.
     :interpreter ("yml" . yml-mode))
 #+end_src
 
-
 * User Interface
 ** Base
 First, I'd want to turn off some mouse interface. I'd rather using keyboard all the time.
@@ -2390,6 +2340,19 @@ Some basic settings for the mouse cursor.
   (setq highlight-nonselected-windows nil)
   (setq x-stretch-cursor nil)
   (setq visible-cursor nil)
+#+end_src
+
+*** Icon
+Most UI package require =all-the-icons= setup. Please remember to run =all-the-icons-install-fonts= for the first time runner.
+#+begin_src emacs-lisp :tangle yes
+  (use-package all-the-icons
+    :config (setq all-the-icons-scale-factor 1.0))
+
+  (use-package all-the-icons-ivy
+    :hook (after-init . all-the-icons-ivy-setup))
+
+  (use-package all-the-icons-dired)
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 #+end_src
 
 *** Font
@@ -2486,7 +2449,7 @@ Since I got problems with displaying =all-the-icons= within string on Windows, s
           (put-text-property 0 (length items) 'face 'penguin/ultilities-face
                              items)
           (insert items)))
-    
+
       (when sys/win32
         ;; Working
         (insert (if (display-graphic-p)
@@ -2640,36 +2603,22 @@ Highlight matching parens
       (advice-add #'show-paren-function :after #'show-paren-off-screen)))
 #+end_src
 
-** Icon
-Most UI package require =all-the-icons= setup. Please remember to run =all-the-icons-install-fonts= for the first time runner.
-#+begin_src emacs-lisp :tangle yes
-  (use-package all-the-icons
-    :config (setq all-the-icons-scale-factor 1.0))
-
-  (use-package all-the-icons-ivy
-    :hook (after-init . all-the-icons-ivy-setup))
-
-  (use-package all-the-icons-dired)
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-#+end_src
-
 ** Modeline
 After trying a lot of packages, I think =moody= fit me most as it is simple but beautiful in a technical way.
 #+begin_src emacs-lisp :tangle yes
-  (use-package moody
-    :config
-    (let ((line (face-attribute 'mode-line :underline)))
-      (set-face-attribute 'mode-line          nil :overline   line)
-      (set-face-attribute 'mode-line-inactive nil :overline   line)
-      (set-face-attribute 'mode-line-inactive nil :underline  line)
-      (set-face-attribute 'mode-line          nil :box        nil)
-      (set-face-attribute 'mode-line-inactive nil :box        nil)
-      (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9")
-    )
-    (setq x-underline-at-descent-line t))
+  ;; (use-package moody
+  ;;   :config
+  ;;   (let ((line (face-attribute 'mode-line :underline)))
+  ;;     (set-face-attribute 'mode-line          nil :overline   line)
+  ;;     (set-face-attribute 'mode-line-inactive nil :overline   line)
+  ;;     (set-face-attribute 'mode-line-inactive nil :underline  line)
+  ;;     (set-face-attribute 'mode-line          nil :box        nil)
+  ;;     (set-face-attribute 'mode-line-inactive nil :box        nil)
+  ;;     (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9"))
+  ;;   (setq x-underline-at-descent-line t))
 
-  (moody-replace-mode-line-buffer-identification)
-  (moody-replace-vc-mode)
+  ;; (moody-replace-mode-line-buffer-identification)
+  ;; (moody-replace-vc-mode)
 
   ;; A minor-mode menu for mode-line
   (use-package minions
@@ -2682,10 +2631,32 @@ After trying a lot of packages, I think =moody= fit me most as it is simple but 
     (display-time-default-load-average nil)
     (display-time-24hr-format t)
     :config
-    (display-time-mode t))
+    (display-time-mode t)
+    (display-battery-mode t))
 #+end_src
 
 Maybe I want to change to =doom-modeline= someday because it looks minimalism, but now **moody** still can statisfy me 🤣.
+This package is stay here for investigation purpose:
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1))
+
+  (setq doom-modeline-height 25)
+  (setq doom-modeline-bar-width 3)
+  (setq doom-modeline-window-width-limit fill-column)
+  (setq doom-modeline-project-detection 'project)
+  (setq doom-modeline-buffer-file-name-style 'auto)
+  (setq doom-modeline-icon (display-graphic-p))
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-buffer-state-icon t)
+  (setq doom-modeline-buffer-modification-icon t)
+  (setq doom-modeline-lsp t)
+  (setq doom-modeline-mu4e nil) ;; require mu4e-alert packages
+  (setq doom-modeline-gnus t)
+  (setq doom-modeline-gnus-timer 2)
+#+END_SRC
 
 ** M-x UI Enhancement
 I dont like postframe and I like my minibuffer to stay organized.
@@ -2804,7 +2775,7 @@ Some packages would popup many frames randomly. I would them to stay under my co
             (" *Flycheck checkers*" :select t :size 0.4 :align 'below :autoclose t)
             ((flycheck-error-list-mode flymake-diagnostics-buffer-mode)
              :select t :size 0.3 :align 'below :autoclose t)
-          
+
             ("*Ibuffer*" :select t :size 0.4 :align 'below :autoclose t)
             (ibuffer-mode :select t :size 0.4 :align 'below :autoclose t)
 
@@ -2908,8 +2879,6 @@ A side explorer for Emacs, it always nice to be more modern looking.
                 magit-post-stage
                 magit-post-unstage)
                . treemacs-magit--schedule-update))
-
-  (doom-themes-treemacs-config)
   ;; End `Treemacs'
   (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
 #+end_src
@@ -2936,17 +2905,27 @@ A side explorer for Emacs, it always nice to be more modern looking.
       (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
       (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
 
+  (doom-themes-treemacs-config)
+  (setq doom-themes-treemacs-theme "doom-colors")
+  ;; (load-theme 'doom-molokai t)
+#+end_src
+
+One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package spacemacs-theme
+    :defer t
+    :init (load-theme 'spacemacs-dark t))
+#+END_SRC
+
+For a more contrast looking, I use =solaire-mode=. Currently disable for conflicts with hline and other packages..
+#+BEGIN_SRC emacs-lisp :tangle yes
   ;; (use-package solaire-mode
   ;;   :hook
   ;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
   ;;   (minibuffer-setup . solaire-mode-in-minibuffer)
   ;;   :config
-  ;;   (solaire-mode-swap-bg))
-  ;; (solaire-global-mode +1)
-
-  (setq doom-themes-treemacs-theme "doom-colors")
-  (load-theme 'doom-molokai t)
-#+end_src
+  ;;   (solaire-global-mode +1))
+#+END_SRC
 
 ** Winner
 Tracking windows layout in emacs.
@@ -2957,8 +2936,54 @@ Tracking windows layout in emacs.
            ("<s-left>" . winner-undo)))
 #+end_src
 
-
 * Org Mode
+** Sync Source File
+I’m using a large =.org= file to maintain my GNU Emacs configuration. However, at launch, it will load the =config.el= source file for a faster loading.
+The code below, executes =org-babel-tangle= asynchronously when =config.org= is saved.
+#+begin_src emacs-lisp :tangle yes
+  (use-package async)
+
+  (defvar *config-file* (expand-file-name "config.org" user-emacs-directory)
+    "The configuration file.")
+
+  (defvar *config-last-change* (nth 5 (file-attributes *config-file*))
+    "Last modification time of the configuration file.")
+
+  (defvar *show-async-tangle-results* nil
+    "Keeps *emacs* async buffers around for later inspection.")
+
+  (defun penguin/config-updated ()
+    "Checks if the configuration file has been updated since the last time."
+    (time-less-p *config-last-change*
+                 (nth 5 (file-attributes *config-file*))))
+
+  (defun penguin/config-tangle ()
+    "Tangles the org file asynchronously."
+    (when (penguin/config-updated)
+      (setq *config-last-change*
+            (nth 5 (file-attributes *config-file*)))
+      (penguin/async-babel-tangle *config-file*)))
+
+  (defun penguin/async-babel-tangle (org-file)
+    "Tangles the org file asynchronously."
+    (let ((init-tangle-start-time (current-time))
+          (file (buffer-file-name))
+          (async-quiet-switch "-q"))
+      (async-start
+       `(lambda ()
+          (require 'org)
+          (org-babel-tangle-file ,org-file))
+       (unless *show-async-tangle-results*
+         `(lambda (result)
+            (if result
+                (message "SUCCESS: %s successfully tangled (%.2fs)."
+                         ,org-file
+                         (float-time (time-subtract (current-time)
+                                                    ',init-tangle-start-time)))
+              (message "ERROR: %s as tangle failed." ,org-file)))))))
+
+#+end_src
+
 ** Org
 When I knew about =org-mode=, I knew that Emacs will be my love forever.
 First, I need to setup some basic function for boosting =org-mode= potiental.
@@ -3159,7 +3184,8 @@ Now, the mighty **org-mode**
       "Returns function that ignores its arguments and invokes FNC."
       `(lambda (&rest _rest)
          (funcall ,fnc)))
-    :hook ((auto-save . org-save-all-org-buffers)
+    :hook ((after-save . penguin/config-tangle)
+           (auto-save . org-save-all-org-buffers)
            (org-mode . org-indent-mode))
     :custom
     ;; (org-archive-location "~/.emacs.d/.private/org/.archives/%s::")
@@ -3492,3 +3518,16 @@ Compiler for other languages
   (use-package ob-shell :ensure nil :after org)
   (use-package ob-sql :ensure nil :after org)
 #+end_src
+** Presentation
+A wise man has said - **org-mode like the sky, it's unlimited**. Once I work with org-mode, I felt in love with it immediately for its potiental.
+Making presentation is not really required for my work, but when it is, =org-mode= with =org-reveal= & =reveal.js= saved me a lot of times.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package org-re-reveal
+    :after org
+    :custom
+    (org-reveal-mathjax t)
+    (org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/"))
+
+  (use-package htmlize)
+#+END_SRC
