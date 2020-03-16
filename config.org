@@ -42,6 +42,7 @@
   - [[#latex][Latex]]
   - [[#lua][Lua]]
   - [[#markdown][Markdown]]
+  - [[#mermaid][Mermaid]]
   - [[#python][Python]]
   - [[#xml][XML]]
   - [[#yaml][YAML]]
@@ -2241,6 +2242,17 @@ Lua is a perfect programming language for me. It is sad that it's not get the lo
     :init (setq markdown-command "multimarkdown"))
 #+end_src
 
+** Mermaid
+I often use graph to demonstrate my thought of development process or to explain my workflow in presentation.
+*Mermaid* is my choice for doing that job between all the others.
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;; (use-package mermaid-mode
+  ;;   :ensure t
+  ;;   :config
+  ;;   (setq mermaid-mmdc-location "~/.emacs.d/.local/node_modules/.bin/mmdc"))
+#+END_SRC
+
 ** Python
 =lsp-mode= is not stable for Python (or at least for me).
 So I try =anaconda-mode= for backend, and =company-anaconda= for frontend suggestion when working with Python.
@@ -3527,6 +3539,12 @@ Compiler for other languages
   ;;   :after org
   ;;   :custom (org-plantuml-jar-path (expand-file-name (format "%s/plantuml.jar" xdg-lib))))
 
+  (use-package ob-mermaid
+    :ensure t
+    :after org
+    :config
+    (setq ob-mermaid-cli-path "~/.emacs.d/.local/node_modules/.bin/mmdc"))
+
   (use-package ob-python :ensure nil :after org)
   (use-package ob-ruby :ensure nil :after org)
   (use-package ob-shell :ensure nil :after org)
@@ -3534,8 +3552,17 @@ Compiler for other languages
 
   ;; ------------ Execute Code Sample ----------------
 
-  (org-babel-do-load-languages 'org-babel-load-languages '((C      . t)
-                                                           (python . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages '((C       . t)
+                                                           (python  . t)
+                                                           (mermaid . t)))
+
+  (defun penguin/org-confirm-babel-evaluate (lang body)
+    (not (or (string= lang "ditaa")
+             (string= lang "mermaid")
+             (string= lang "plantuml")
+             (string= lang "dot"))))
+
+  (setq org-confirm-babel-evaluate 'penguin/org-confirm-babel-evaluate)
 #+end_src
 
 ** Presentation
@@ -3550,4 +3577,6 @@ Making presentation is not really required for my work, but when it is, =org-mod
     (org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
 
   (use-package htmlize)
+
+  (require 'ox-reveal)
 #+END_SRC
