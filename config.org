@@ -2279,7 +2279,7 @@ So I try =anaconda-mode= for backend, and =company-anaconda= for frontend sugges
             (if python-current-version
                 (format "Python %s" python-current-version)
               "Python")))
-    (add-hook 'python-mode-hook #'penguin/add-pythonver-to-modeline)
+    (add-hook 'python-mode-hook #'penguin/python-add-ver-to-modeline)
 
     (if (not (executable-find "pyenv"))
         (setq python-current-version (string-trim (shell-command-to-string "python --version 2>&1 | cut -d' ' -f2")))
@@ -2652,8 +2652,7 @@ Maybe I want to change to =doom-modeline= someday because it looks minimalism, b
 This package is stay here for investigation purpose:
 #+BEGIN_SRC emacs-lisp :tangle yes
   (use-package doom-modeline
-    :ensure t
-    :init (doom-modeline-mode 1))
+    :ensure t)
 
   (setq doom-modeline-height 25)
   (setq doom-modeline-bar-width 3)
@@ -2669,7 +2668,9 @@ This package is stay here for investigation purpose:
   (setq doom-modeline-mu4e nil) ;; require mu4e-alert packages
   (setq doom-modeline-gnus t)
   (setq doom-modeline-gnus-timer 2)
+  (doom-modeline-mode)
 #+END_SRC
+
 
 ** M-x UI Enhancement
 I dont like postframe and I like my minibuffer to stay organized.
@@ -3530,6 +3531,11 @@ Compiler for other languages
   (use-package ob-ruby :ensure nil :after org)
   (use-package ob-shell :ensure nil :after org)
   (use-package ob-sql :ensure nil :after org)
+
+  ;; ------------ Execute Code Sample ----------------
+
+  (org-babel-do-load-languages 'org-babel-load-languages '((C      . t)
+                                                           (python . t)))
 #+end_src
 
 ** Presentation
@@ -3537,7 +3543,7 @@ A wise man has said - **org-mode like the sky, it's unlimited**. Once I work wit
 Making presentation is not really required for my work, but when it is, =org-mode= with =org-reveal= & =reveal.js= saved me a lot of times.
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package org-re-reveal
+  (use-package ox-reveal
     :after org
     :custom
     (org-reveal-mathjax t)
