@@ -15,7 +15,7 @@ This Emacs configuration is a collection of various Emacs Veteran with the aim o
 
 ### Welcome!
 
-My Emacs Configuration for my daily tasks. Please keep in mind that this configuration may not be suitable for some person.
+This my Emacs Configuration for my daily tasks. Please keep in mind that this configuration may not be suitable for some person.
 The package settings are grouped in a logical manner, and I've documented as detailed as possible what each code snippet does in my `config.org` file.
 
 If you are totally new to Emacs. I'd recommend to use [doom-emacs](https://github.com/hlissner/doom-emacs) instead of mine.
@@ -37,7 +37,7 @@ Git clone my configuration to your new `~/.emacs.d/` :
 git clone https://github.com/nghialam12795/emacs_config.git ~/.emacs.d
 
 # For Emacs 27
-git clone https://github.com/ianpan870102/yay-evil-emacs.git ~/.config/emacs/
+git clone https://github.com/nghialam12795/emacs_config.git ~/.config/emacs/
 ```
 
 ### "Rolling" Release
