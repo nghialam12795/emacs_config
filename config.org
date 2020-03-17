@@ -80,6 +80,7 @@ My configuration is mostly inspired from:
 
 You guys should check them out, they are both really talent. Especially, Sacha has a [[https://sachachua.com/blog/][blog]] about boosting Emacs in life.
 
+
 * Emacs Startup
 ** System Information
 Here I setup some info for my PENMACS. As my job requires me to work on all OS, you will see a lot of times I need to config for each of them differently.
@@ -307,6 +308,7 @@ Use this for files that change often, like cache files.")
               package-user-dir             (concat plocal-dir "packages"))
 #+end_src
 
+
 * Package Initialize
 In order to install packages, use-package is a no-brainer for you.
 But first, we need to add some sources
@@ -357,6 +359,7 @@ Here goes our monster =use-package=
   :config
   (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
 #+end_src
+
 
 * Advanced Config
 In editor war, the winner is not Emacs or Vim, it's your configuration with these two.
@@ -2003,6 +2006,7 @@ Those whitespace at the end are annoying, let's get rid of them.
     :hook (before-save . delete-trailing-whitespace))
 #+end_src
 
+
 * Language Support
 ** C++
 My main programming language for game development. In order to have a fast and stable environment, I use LSP as a client and LSP Server ccls as sever.
@@ -2032,7 +2036,7 @@ To use =ccls=, we first need to install it with the package manager of our opera
 
 To allow =ccls= to know the dependencies of your =.cpp= files with your =.h= files, it is important to provide an =compile.commands.json= file (or a =.ccls= file) at the root of your project.
 For this, nothing could be easier. If like me you use a =CMakeLists.txt= file for all your C++ projects, then you just need to install the cmake package on your operating system and to generate the =compile.commands.json= file, you have to do:
-#+begin_src shell :tangle yes
+#+begin_src
   cmake -H. -BDebug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=YES
   ln -s Debug/compile_commands.json
 #+end_src
@@ -2347,6 +2351,7 @@ This one is different from its infamous brother. It is still lovable.
     :mode "\\.yml\\'"
     :interpreter ("yml" . yml-mode))
 #+end_src
+
 
 * User Interface
 ** Base
@@ -2683,7 +2688,6 @@ This package is stay here for investigation purpose:
   (doom-modeline-mode)
 #+END_SRC
 
-
 ** M-x UI Enhancement
 I dont like postframe and I like my minibuffer to stay organized.
 #+begin_src emacs-lisp :tangle yes
@@ -2961,6 +2965,7 @@ Tracking windows layout in emacs.
     :bind (("<s-right>" . winner-redo)
            ("<s-left>" . winner-undo)))
 #+end_src
+
 
 * Org Mode
 ** Sync Source File
