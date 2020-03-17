@@ -255,6 +255,28 @@ Other personal settings will be written to user.el
     (load custom-file))
 #+end_src
 
+Gabarge collections settings for optimization.
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq gc-cons-threshold 16777216 ; 16 mb
+                    gc-cons-percentage 0.1)))
+#+END_SRC
+
+It may also be wise to raise =gc-cons-threshold= while the minibuffer is active, so the GC doesn't slow down expensive commands (or completion frameworks, like helm and ivy).
+Here is how we will do it:
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defun penguin-defer-gc-h ()
+    (setq gc-cons-threshold most-positive-fixnum))
+
+  (defun penguin-restore-gc-h ()
+    (run-at-time
+     1 nil (lambda () (setq gc-cons-threshold 16777216))))
+
+  (add-hook 'minibuffer-setup-hook #'penguin-defer-gc-h)
+  (add-hook 'minibuffer-exit-hook #'penguin-restore-gc-h)
+#+END_SRC
+
 ** File Management
 I'd like to keep my folder as clean as possible. So I decide to move the auto-generated files around.
 
@@ -313,11 +335,13 @@ Use this for files that change often, like cache files.")
 In order to install packages, use-package is a no-brainer for you.
 But first, we need to add some sources
 #+begin_src emacs-lisp :tangle yes
-(package-initialize)
-(setq package-archives '(("gnu"   . "http://elpa.gnu.org/packages/")
-("MELPA Stable" . "https://stable.melpa.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")
-                         ("org"   . "http://orgmode.org/elpa/")))
+  (setq package-user-dir "~/.emacs.d/.local/packages")
+
+  (package-initialize)
+  (setq package-archives '(("gnu"   . "http://elpa.gnu.org/packages/")
+                           ("MELPA Stable" . "https://stable.melpa.org/packages/")
+                           ("melpa" . "http://melpa.org/packages/")
+                           ("org"   . "http://orgmode.org/elpa/")))
 #+end_src
 
 Here goes our monster =use-package=
