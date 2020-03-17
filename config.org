@@ -315,8 +315,9 @@ But first, we need to add some sources
 #+begin_src emacs-lisp :tangle yes
 (package-initialize)
 (setq package-archives '(("gnu"   . "http://elpa.gnu.org/packages/")
+("MELPA Stable" . "https://stable.melpa.org/packages/")
                          ("melpa" . "http://melpa.org/packages/")
-                         ("org" . "http://orgmode.org/elpa/")))
+                         ("org"   . "http://orgmode.org/elpa/")))
 #+end_src
 
 Here goes our monster =use-package=
@@ -651,7 +652,22 @@ In order to be able to use different LSP (Language Server Protocol) server accor
            ("C-c e r" . lsp-find-references)
            ("C-c e R" . lsp-rename)
            ("C-c e i" . lsp-find-implementation)
-           ("C-c e t" . lsp-find-type-definition)))
+           ("C-c e t" . lsp-find-type-definition))
+    :config
+    (setq lsp-log-io nil)
+    (setq lsp-diagnostic-package :none)
+    (setq lsp-enable-links nil)
+    (setq lsp-restart 'auto-restart)
+    (setq lsp-client-packages '(lsp-clients))
+    (push "[/\\\\][^/\\\\]*\\.\\(json\\|html\\|jade\\)$" lsp-file-watch-ignored) ; json
+    (defvar lsp-on-touch-time 0)
+    (defadvice lsp-on-change (around lsp-on-change-hack activate)
+      ;; don't run `lsp-on-change' too frequently
+      (when (> (- (float-time (current-time))
+                  lsp-on-touch-time) 30) ;; 30 seconds
+        (setq lsp-on-touch-time (float-time (current-time)))
+        ad-do-it)))
+
 
   (use-package lsp-ui
     :custom-face
@@ -2916,27 +2932,27 @@ A side explorer for Emacs, it always nice to be more modern looking.
 ** Theme
 =doom-themes= are quite good-looking and have a variety of options to choose.
 #+begin_src emacs-lisp :tangle yes
-  (use-package doom-themes
-    :defines doom-themes-treemacs-theme
-    :config
-    (doom-themes-visual-bell-config)
-    (set-face-attribute 'doom-visual-bell nil
-                        :inherit 'mode-line
-                        :background (face-foreground 'error)
-                        :inverse-video 'unspecified)
-    (doom-themes-org-config)
-    (with-eval-after-load 'erc-goodies
-      (set-face-attribute 'erc-bold-face nil :bold nil))
-    (with-eval-after-load 'flycheck
-      (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
-      (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
-      (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
-    (with-eval-after-load 'isearch
-      (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
-      (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
+  ;; (use-package doom-themes
+  ;;   :defines doom-themes-treemacs-theme
+  ;;   :config
+  ;;   (doom-themes-visual-bell-config)
+  ;;   (set-face-attribute 'doom-visual-bell nil
+  ;;                       :inherit 'mode-line
+  ;;                       :background (face-foreground 'error)
+  ;;                       :inverse-video 'unspecified)
+  ;;   (doom-themes-org-config)
+  ;;   (with-eval-after-load 'erc-goodies
+  ;;     (set-face-attribute 'erc-bold-face nil :bold nil))
+  ;;   (with-eval-after-load 'flycheck
+  ;;     (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
+  ;;     (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
+  ;;     (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
+  ;;   (with-eval-after-load 'isearch
+  ;;     (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
+  ;;     (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
 
-  (doom-themes-treemacs-config)
-  (setq doom-themes-treemacs-theme "doom-colors")
+  ;; (doom-themes-treemacs-config)
+  ;; (setq doom-themes-treemacs-theme "doom-colors")
   ;; (load-theme 'doom-molokai t)
 #+end_src
 
@@ -2946,6 +2962,12 @@ One theme cannot satisfy me, I will let this here for investigation. =spacemacs-
     :defer t
     :init (load-theme 'spacemacs-dark t))
 #+END_SRC
+
+=kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs.
+#+begin_src emacs-lisp :tangle yes
+  (use-package kaolin-themes)
+  (kaolin-treemacs-theme)
+#+end_src
 
 For a more contrast looking, I use =solaire-mode=. Currently disable for conflicts with hline and other packages..
 #+BEGIN_SRC emacs-lisp :tangle yes
