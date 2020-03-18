@@ -37,6 +37,7 @@
   - [[#css][CSS]]
   - [[#csv][CSV]]
   - [[#elisp][Elisp]]
+  - [[#javascript][Javascript]]
   - [[#json][Json]]
   - [[#html][HTML]]
   - [[#latex][Latex]]
@@ -86,24 +87,26 @@ You guys should check them out, they are both really talent. Especially, Sacha h
 Here I setup some info for my PENMACS. As my job requires me to work on all OS, you will see a lot of times I need to config for each of them differently.
 
 #+begin_src emacs-lisp :tangle yes
-(defvar pemacs/version
-  "0.1.1"
-  "Penguin Emacs version.")
-(defconst my-homepage
-  "https://github.com/nghialam12795"
-  "My personal Github page.")
-(defconst sys/win32
-  (eq system-type 'windows-nt)
-  "Are we using a Window OS?")
-(defconst sys/linux
-  (eq system-type 'gnu/linux)
-  "Are we using a GNU/Linux OS?")
-(defconst sys/macos
-  (eq system-type 'darwin)
-  "Are we using a Mac OS?")
-(defconst emacs/>=26p
-  (>= emacs-major-version 26)
-  "Emacs is 26 or above.")
+  ;; -*- lexical-binding: t; -*-
+
+  (defvar pemacs/version
+    "0.1.1"
+    "Penguin Emacs version.")
+  (defconst my-homepage
+    "https://github.com/nghialam12795"
+    "My personal Github page.")
+  (defconst sys/win32
+    (eq system-type 'windows-nt)
+    "Are we using a Window OS?")
+  (defconst sys/linux
+    (eq system-type 'gnu/linux)
+    "Are we using a GNU/Linux OS?")
+  (defconst sys/macos
+    (eq system-type 'darwin)
+    "Are we using a Mac OS?")
+  (defconst emacs/>=26p
+    (>= emacs-major-version 26)
+    "Emacs is 26 or above.")
 #+end_src
 
 ** Personal Information
@@ -269,6 +272,24 @@ Here is how we will do it:
 
   (add-hook 'minibuffer-setup-hook #'penguin-defer-gc-h)
   (add-hook 'minibuffer-exit-hook #'penguin-restore-gc-h)
+#+END_SRC
+
+According to =doom-emacs='s author, Emacs consults =file-name-handle-alist= variable every time a file is read or library loaded, or when certain functions in the file API are used (like =expand-file-name= or =file-truename=).
+Emacs does to check if a special handler is needed to read that file, but none of them are (typically) necessary at startup, so we disable them (temporarily):
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (defvar penguin-file-name-handler-alist file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+
+  ;; ... your whole emacs config here ...
+
+  ;; Then restore it later:
+  (setq file-name-handler-alist penguin-file-name-handler-alist)
+
+  ;; Alternatively, restore it even later:
+  (add-hook 'emacs-startup-hook
+    (lambda ()
+      (setq file-name-handler-alist penguin-file-name-handler-alist)))
 #+END_SRC
 
 ** File Management
@@ -871,6 +892,66 @@ A good IDE always come with a good snippet configuration.
 (use-package ivy-yasnippet :after yasnippet)
 (use-package react-snippets :after yasnippet)
 #+end_src
+
+*** Undo Tree
+GNU Emacs’s undo system allows you to recover any past state of a buffer. To do this, Emacs treats “undo itself as another editing that can be undone”.
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package undo-tree
+    :delight
+    :bind ("C--" . undo-tree-redo)
+    :init (global-undo-tree-mode)
+    :custom
+    (undo-tree-visualizer-timestamps t)
+    (undo-tree-visualizer-diff t))
+#+END_SRC
+
+*** Web Mode
+An autonomous emacs major-mode for editing web templates.
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package web-mode
+    :delight "☸ "
+    :hook ((css-mode web-mode) . rainbow-mode)
+    :mode (("\\.blade\\.php\\'" . web-mode)
+           ("\\.html?\\'" . web-mode)
+           ("\\.jsx\\'" . web-mode)
+           ("\\.php$" . my/php-setup)
+           ("\\.tsx\\'" . web-mode))
+    :preface
+    (defun enable-minor-mode (my-pair)
+      "Enable minor mode if filename match the regexp."
+      (if (buffer-file-name)
+          (if (string-match (car my-pair) buffer-file-name)
+              (funcall (cdr my-pair)))))
+    :init
+    (add-hook 'web-mode-hook
+              (lambda ()
+                (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                  (tide-setup))))
+    :custom
+    (web-mode-attr-indent-offset 2)
+    (web-mode-block-padding 2)
+    (web-mode-css-indent-offset 2)
+    (web-mode-code-indent-offset 2)
+    (web-mode-comment-style 2)
+    (web-mode-enable-current-element-highlight t)
+    (web-mode-markup-indent-offset 2))
+
+  (add-hook 'web-mode-hook #'(lambda ()
+                               (enable-minor-mode
+                                '("\\.js?\\'" . prettier-js-mode))))
+
+  (add-hook 'web-mode-hook #'(lambda ()
+                               (enable-minor-mode
+                                '("\\.jsx?\\'" . prettier-js-mode))))
+
+  (add-hook 'web-mode-hook #'(lambda ()
+                               (enable-minor-mode
+                                '("\\.ts?\\'" . prettier-js-mode))))
+
+  (add-hook 'web-mode-hook #'(lambda ()
+                               (enable-minor-mode
+                                '("\\.tsx?\\'" . prettier-js-mode))))
+#+END_SRC
 
 *** Utilities
 =which-key= show me the guideline for every next hotkey of the combo.
@@ -2169,6 +2250,37 @@ These whole configuration is written in emacs-lisp (Elisp), a programming langua
     :hook (emacs-lisp-mode . eldoc-mode))
 #+end_src
 
+** Javascript
+I don't work with =Javascript= much. But when I need to do, I'd like to have a fast and stable environment for me. Nicolas Petton's [[https://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html][blog]] is the guidance for this config.
+
+I like to use [[https://prettier.io/][prettier]] to get my TypeScript code clean. To use it, don’t forget to install it with your package manager.
+#+BEGIN_SRC emacs-lisp :tangle yes
+(use-package prettier-js
+  :delight
+  :custom (prettier-js-args '("--print-width" "100"
+                              "--single-quote" "true"
+                              "--trailing-comma" "all")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (use-package js2-mode
+    :hook ((js2-mode . js2-imenu-extras-mode)
+           (js2-mode . prettier-js-mode))
+    :mode "\\.js\\'"
+    :custom (js-indent-level 2))
+
+  (use-package js2-refactor
+    :bind (:map js2-mode-map
+                ("C-k" . js2r-kill)
+                ("M-." . nil))
+    :hook ((js2-mode . js2-refactor-mode)
+           (js2-mode . (lambda ()
+                         (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
+    :config (js2r-add-keybindings-with-prefix "C-c C-r"))
+
+  (use-package xref-js2 :defer 5)
+#+END_SRC
+
 ** Json
 Json is really helpful most of the time. I'd like to have a nice package config for it.
 
@@ -2271,12 +2383,41 @@ Lua is a perfect programming language for me. It is sad that it's not get the lo
 
 #+begin_src emacs-lisp :tangle yes
   (use-package markdown-mode
-    :ensure t
-    :commands (markdown-mode gfm-mode)
-    :mode (("README\\.md\\'" . gfm-mode)
-           ("\\.md\\'" . markdown-mode)
-           ("\\.markdown\\'" . markdown-mode))
-    :init (setq markdown-command "multimarkdown"))
+    ;; :ensure-system-package (pandoc . "trizen -S pandoc")
+    :delight "μ "
+    :mode ("\\.markdown\\'" "\\.md\\'")
+    :custom (markdown-command "/usr/bin/pandoc"))
+
+  (use-package markdown-preview-mode
+    :after markdown-mode
+    :custom
+    (markdown-preview-javascript
+     (list (concat "https://github.com/highlightjs/highlight.js/"
+                   "9.15.6/highlight.min.js")
+           "<script>
+              $(document).on('mdContentChange', function() {
+                $('pre code').each(function(i, block)  {
+                  hljs.highlightBlock(block);
+                });
+              });
+            </script>"))
+    (markdown-preview-stylesheets
+     (list (concat "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/"
+                   "3.0.1/github-markdown.min.css")
+           (concat "https://github.com/highlightjs/highlight.js/"
+                   "9.15.6/styles/github.min.css")
+
+           "<style>
+              .markdown-body {
+                box-sizing: border-box;
+                min-width: 200px;
+                max-width: 980px;
+                margin: 0 auto;
+                padding: 45px;
+              }
+
+              @media (max-width: 767px) { .markdown-body { padding: 15px; } }
+            </style>")))
 #+end_src
 
 ** Mermaid
