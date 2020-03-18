@@ -241,18 +241,12 @@ Then pass DATA, CONTEXT & CALLER to the default handler."
 (setq command-error-function #'penguin-command-error-function)
 #+end_src
 
-Other personal settings will be written to user.el
+Other personal settings will be written to =config.el=
 #+begin_src emacs-lisp :tangle yes
-(setq custom-file (expand-file-name "~/.emacs.d/.local/user.el" user-emacs-directory))
-;; If user.el is not there, duplicate the template for it
-(let ((user-template-file
-       (expand-file-name "user_template.el" user-emacs-directory)))
-  (if (and (file-exists-p user-template-file)
-           (not (file-exists-p custom-file)))
-      (copy-file user-template-file custom-file)))
-
-(if (file-exists-p custom-file)
-    (load custom-file))
+  (setq-default
+   custom-file (expand-file-name (format "~/.emacs.d/.local/config.el" user-emacs-directory)))
+  (when (file-exists-p custom-file)
+    (load custom-file t))
 #+end_src
 
 Gabarge collections settings for optimization.
@@ -339,7 +333,6 @@ But first, we need to add some sources
 
   (package-initialize)
   (setq package-archives '(("gnu"   . "http://elpa.gnu.org/packages/")
-                           ("MELPA Stable" . "https://stable.melpa.org/packages/")
                            ("melpa" . "http://melpa.org/packages/")
                            ("org"   . "http://orgmode.org/elpa/")))
 #+end_src
