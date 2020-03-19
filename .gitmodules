@@ -1,0 +1,3 @@
+[submodule "penmacs_theme"]
+	path = penmacs_theme
+	url = https://github.com/nghialam12795/penmacs_theme.git

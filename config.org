@@ -90,7 +90,7 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
   ;; -*- lexical-binding: t; -*-
 
   (defvar pemacs/version
-    "0.1.1"
+    "1.0.0"
     "Penguin Emacs version.")
   (defconst my-homepage
     "https://github.com/nghialam12795"
@@ -3114,11 +3114,17 @@ A side explorer for Emacs, it always nice to be more modern looking.
   ;; (load-theme 'doom-molokai t)
 #+end_src
 
-One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**
+One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**.
+However, some of the color scheme seems too bright for me, so I forked it and tweak it myself [[https://github.com/nghialam12795/penmacs_theme][here]].
+
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (use-package spacemacs-theme
-    :defer t
-    :init (load-theme 'spacemacs-dark t))
+  ;; (use-package spacemacs-theme
+  ;;   :defer t
+  ;;   :init (load-theme 'spacemacs-dark t))
+
+  (push (expand-file-name "penmacs_theme" user-emacs-directory) load-path)
+  (require 'penmacs-common)
+  (load-theme 'penmacs-dark t)
 #+END_SRC
 
 =kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs.
