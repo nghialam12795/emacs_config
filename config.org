@@ -90,7 +90,7 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
   ;; -*- lexical-binding: t; -*-
 
   (defvar pemacs/version
-    "1.0.0"
+    "1.0.1"
     "Penguin Emacs version.")
   (defconst my-homepage
     "https://github.com/nghialam12795"
@@ -3546,7 +3546,7 @@ And its super brother
                                                                                  (all-the-icons-faicon "chain-broken" :v-adjust 0.01)
                                                                                "🔗")
                                                                              " Stuck Projects"))
-                                              (org-agenda-skip-function #'penguin/should-skip)
+                                              ;; (org-agenda-skip-function #'penguin/should-skip)
                                               (org-agenda-prefix-format penguin-org-deadline-prefix)
                                               (org-agenda-sorting-strategy nil)))
                                        (todo "NEXT"
