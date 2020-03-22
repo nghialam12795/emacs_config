@@ -681,9 +681,7 @@ In order to be able to use different LSP (Language Server Protocol) server accor
   (use-package lsp-mode
     :commands lsp
     ;; reformat code and add missing (or remove old) imports
-    :hook ((before-save . lsp-format-buffer)
-           (before-save . lsp-organize-imports)
-           (lsp-mode . lsp-enable-which-key-integration))
+    :hook ((c-mode c++-mode dart-mode java-mode python-mode xml-mode) . lsp)
     :bind (("C-c d" . lsp-describe-thing-at-point)
            ("C-c e n" . flymake-goto-next-error)
            ("C-c e p" . flymake-goto-prev-error)
@@ -692,6 +690,7 @@ In order to be able to use different LSP (Language Server Protocol) server accor
            ("C-c e i" . lsp-find-implementation)
            ("C-c e t" . lsp-find-type-definition))
     :config
+    (require 'lsp-clients)
     (setq lsp-log-io nil)
     (setq lsp-diagnostic-package :none)
     (setq lsp-enable-links nil)
@@ -708,6 +707,7 @@ In order to be able to use different LSP (Language Server Protocol) server accor
 
 
   (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
     :custom-face
     (lsp-ui-doc-background ((t (:background ,(face-background 'tooltip)))))
     (lsp-ui-sideline-code-action ((t (:inherit warning))))
@@ -763,7 +763,12 @@ In order to be able to use different LSP (Language Server Protocol) server accor
 
   (use-package company-lsp
     ;; company-mode completion
-    :commands company-lsp)
+    :commands company-lsp
+    :custom
+    (company-lsp-cache-candidates t) ;; auto, t(always using a cache), or nil
+    (company-lsp-async t)
+    (company-lsp-enable-snippet t)
+    (company-lsp-enable-recompletion t))
 
   (use-package lsp-treemacs
     ;; project wide overview
@@ -776,7 +781,6 @@ In order to be able to use different LSP (Language Server Protocol) server accor
     :config
     (dap-mode t)
     (dap-ui-mode t))
-  (add-hook 'prog-mode-hook #'lsp)
 #+end_src
 
 *** Linter
@@ -2132,20 +2136,20 @@ To use =ccls=, we first need to install it with the package manager of our opera
     :custom
     (ccls-args nil)
     (ccls-executable (executable-find "ccls"))
-    (projectile-project-root-files-top-down-recurring
-     (append '("compile_commands.json" ".ccls")
-             projectile-project-root-files-top-down-recurring))
-    :config (push ".ccls-cache" projectile-globally-ignored-directories))
+    (ccls-sem-highlight-method 'font-lock))
+
+  (add-hook 'hack-local-variables-hook
+            (lambda () (when (derived-mode-p 'c-mode 'c++-mode 'objc-mode 'cuda-mode)
+                         (require 'ccls)
+                         (lsp))))
+
+  (when sys/macos
+    (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd"))
 
   (use-package google-c-style
     :hook
     ((c-mode c++-mode) . google-set-c-style)
     (c-mode-common . google-make-newline-indent))
-
-  (require 'lsp-clients)
-  (setq lsp-disabled-clients '(clangd)) ;; Disable unused clangd server
-  ;; (when sys/macos
-  ;;   (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd"))
 #+end_src
 
 To allow =ccls= to know the dependencies of your =.cpp= files with your =.h= files, it is important to provide an =compile.commands.json= file (or a =.ccls= file) at the root of your project.
