@@ -6,6 +6,7 @@
 * Table of Content                                                      :TOC:
 - [[#about][About]]
 - [[#emacs-startup][Emacs Startup]]
+  - [[#file-header][File Header]]
   - [[#system-information][System Information]]
   - [[#personal-information][Personal Information]]
   - [[#setting-default][Setting Default]]
@@ -83,12 +84,23 @@ You guys should check them out, they are both really talent. Especially, Sacha h
 
 
 * Emacs Startup
+** File Header
+I include some info to the header file.
+#+BEGIN_SRC emacs-lisp :tangle yes
+  ;;; config.el --- PENMACS init file.            -*- lexical-binding: t; -*-
+  ;; Copyright (C) 2020 Nghia Lam
+
+  ;; Author: Nghia Lam <nghialam12795@gmail.com>
+
+  ;;; Commentary:
+
+  ;; PENMACS config file.  For cross-platform Emacs 26, Emacs 27.
+#+END_SRC
+
 ** System Information
 Here I setup some info for my PENMACS. As my job requires me to work on all OS, you will see a lot of times I need to config for each of them differently.
 
 #+begin_src emacs-lisp :tangle yes
-  ;; -*- lexical-binding: t; -*-
-
   (defvar pemacs/version
     "1.0.1"
     "Penguin Emacs version.")
@@ -117,90 +129,90 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
 
 ** Setting Default
 #+begin_src emacs-lisp :tangle yes
-(advice-add #'display-startup-echo-area-message :override #'ignore)
-(setq-default
-  ad-redefinition-action 'accept                   ; Silence warnings for redefinition
-  auto-window-vscroll nil                          ; Lighten vertical scroll
-  bidi-display-reordering 'left-to-right           ; For optimization
-  bidi-paragraph-direction 'left-to-right
-  blink-matching-paren nil                         ; Dont blink mathcing paren
-  confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
-  cursor-in-non-selected-windows nil               ; Hide the cursor in inactive windows
-  compilation-always-kill t                        ; Kill compilation process before starting another
-  compilation-ask-about-save nil                   ; Save all buffers on `compile'
-  compilation-scroll-output t
-  delete-by-moving-to-trash t                      ; Delete files to trash
-  display-time-default-load-average nil            ; Don't display load average
-  display-time-format "%H:%M"                      ; Format the time string
-  fill-column 80                                   ; Set width for automatic line breaks
-  fringe-indicator-alist
-    (delq (assq 'continuation
-                fringe-indicator-alist)
-          fringe-indicator-alist)                  ; Remove continuation arrow on the right frame
-  help-window-select t                             ; Focus new help windows when opened
-  indent-tabs-mode nil                             ; Stop using tabs to indent
-  idle-update-delay 1                              ; Slow down update ui a bit
-  inhibit-default-init t                           ; Default initialization
-  inhibit-startup-message t                        ; Do not show anythings unnecessary
-  initial-scratch-message nil                      ; Empty the initial *scratch* buffer
-  inhibit-startup-echo-area-message user-full-name ; Show User name
-  initial-major-mode 'fundamental-mode
-  jit-lock-defer-time nil                          ; Font lock optimization
-  jit-lock-stealth-nice 0.1
-  jit-lock-stealth-time 0.2
-  jit-lock-stealth-verbose nil
-  ;; mode-line-format nil                             ; Disable mode line format when startup
-  mouse-yank-at-point t                            ; Yank at point rather than pointer
-  ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
-  recenter-positions '(5 top bottom)               ; Set re-centering positions
-  ffap-machine-p-known 'reject                     ; Dont ping thing that look like domain
-  frame-inhibit-implied-resize t                   ; Frame optimization
-  highlight-nonselected-windows nil                ; Remove highlight on nonselected windows
-  hscroll-margin 2                                 ; Horizontal scroll
-  hscroll-step 1                                   ; Horizontal step
-  fast-but-imprecise-scrolling t                   ; Fast scrolling
-  recenter-positions '(top middle bottom)          ; Setup recenter
-  scroll-conservatively most-positive-fixnum       ; Always scroll by one line
-  scroll-margin 0                                  ; Add a margin when scrolling vertically
-  scroll-preserve-screen-position t                ; Reduce cursor lag a bit
-  mouse-wheel-scroll-amount '(5 ((shift) . 2))     ; Shift Mouse wheel
-  mouse-wheel-progressive-speed nil                ; don't accelerate scrolling
-  select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
-  sentence-end-double-space nil                    ; End a sentence after a dot and a space
-  show-help-function nil                           ; Disable help messages
-  show-trailing-whitespace nil                     ; Display trailing whitespaces
-  split-height-threshold nil                       ; Disable vertical window splitting
-  split-width-threshold nil                        ; Disable horizontal window splitting
-  use-file-dialog nil                              ; Disable use file dialog
-  use-dialog-box nil                               ; Disable use dialog box
-  uniquify-buffer-name-style 'forward              ; Uniquify buffer names
-  visible-bell 1                                   ; Turn off annoying sound
-  window-combination-resize t                      ; Resize windows proportionally
-  x-stretch-cursor t)                              ; Stretch cursor to the glyph width
-(cd "~/")                                          ; Move to the user directory
-(delete-selection-mode 1)                          ; Replace region when inserting text
-(display-time-mode 1)                              ; Enable time in the mode-line
-(fringe-mode 0)                                    ; Disable fringes
-(fset 'yes-or-no-p 'y-or-n-p)                      ; Replace yes/no prompts with y/n
-(global-subword-mode 1)                            ; Iterate through CamelCase words
-(mouse-avoidance-mode 'banish)                     ; Avoid collision of mouse with point
-(put 'downcase-region 'disabled nil)               ; Enable downcase-region
-(put 'upcase-region 'disabled nil)                 ; Enable upcase-region
-(prefer-coding-system 'utf-8-unix)
-(set-locale-environment "en_US.UTF-8")
-(set-default-coding-systems 'utf-8-unix)
-(set-selection-coding-system 'utf-8-unix)
-(set-buffer-file-coding-system 'utf-8-unix)
-(set-clipboard-coding-system 'utf-8)               ; included by set-selection-coding-system
-(set-keyboard-coding-system 'utf-8)                ; configured by prefer-coding-system
-(set-terminal-coding-system 'utf-8)                ; configured by prefer-coding-system
-(setq buffer-file-coding-system 'utf-8)            ; utf-8-unix
-(setq save-buffer-coding-system 'utf-8-unix)       ; nil
-(setq process-coding-system-alist
-      (cons '("grep" utf-8 . utf-8) process-coding-system-alist))
-(unless sys/macos (setq command-line-ns-option-alist nil))
-(unless sys/linux (setq command-line-x-option-alist nil))
-(toggle-frame-maximized)                           ; Toggle maximized
+  (advice-add #'display-startup-echo-area-message :override #'ignore)
+  (setq-default lexical-binding t
+                ad-redefinition-action 'accept                   ; Silence warnings for redefinition
+                auto-window-vscroll nil                          ; Lighten vertical scroll
+                bidi-display-reordering 'left-to-right           ; For optimization
+                bidi-paragraph-direction 'left-to-right
+                blink-matching-paren nil                         ; Dont blink mathcing paren
+                confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
+                cursor-in-non-selected-windows nil               ; Hide the cursor in inactive windows
+                compilation-always-kill t                        ; Kill compilation process before starting another
+                compilation-ask-about-save nil                   ; Save all buffers on `compile'
+                compilation-scroll-output t
+                delete-by-moving-to-trash t                      ; Delete files to trash
+                display-time-default-load-average nil            ; Don't display load average
+                display-time-format "%H:%M"                      ; Format the time string
+                fill-column 80                                   ; Set width for automatic line breaks
+                fringe-indicator-alist
+                (delq (assq 'continuation
+                            fringe-indicator-alist)
+                      fringe-indicator-alist)                    ; Remove continuation arrow on the right frame
+                help-window-select t                             ; Focus new help windows when opened
+                indent-tabs-mode nil                             ; Stop using tabs to indent
+                idle-update-delay 1                              ; Slow down update ui a bit
+                inhibit-default-init t                           ; Default initialization
+                inhibit-startup-message t                        ; Do not show anythings unnecessary
+                initial-scratch-message nil                      ; Empty the initial *scratch* buffer
+                inhibit-startup-echo-area-message user-full-name ; Show User name
+                initial-major-mode 'fundamental-mode
+                jit-lock-defer-time nil                          ; Font lock optimization
+                jit-lock-stealth-nice 0.1
+                jit-lock-stealth-time 0.2
+                jit-lock-stealth-verbose nil
+                ;; mode-line-format nil                             ; Disable mode line format when startup
+                mouse-yank-at-point t                            ; Yank at point rather than pointer
+                ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
+                recenter-positions '(5 top bottom)               ; Set re-centering positions
+                ffap-machine-p-known 'reject                     ; Dont ping thing that look like domain
+                frame-inhibit-implied-resize t                   ; Frame optimization
+                highlight-nonselected-windows nil                ; Remove highlight on nonselected windows
+                hscroll-margin 2                                 ; Horizontal scroll
+                hscroll-step 1                                   ; Horizontal step
+                fast-but-imprecise-scrolling t                   ; Fast scrolling
+                recenter-positions '(top middle bottom)          ; Setup recenter
+                scroll-conservatively most-positive-fixnum       ; Always scroll by one line
+                scroll-margin 0                                  ; Add a margin when scrolling vertically
+                scroll-preserve-screen-position t                ; Reduce cursor lag a bit
+                mouse-wheel-scroll-amount '(5 ((shift) . 2))     ; Shift Mouse wheel
+                mouse-wheel-progressive-speed nil                ; don't accelerate scrolling
+                select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
+                sentence-end-double-space nil                    ; End a sentence after a dot and a space
+                show-help-function nil                           ; Disable help messages
+                show-trailing-whitespace nil                     ; Display trailing whitespaces
+                split-height-threshold nil                       ; Disable vertical window splitting
+                split-width-threshold nil                        ; Disable horizontal window splitting
+                use-file-dialog nil                              ; Disable use file dialog
+                use-dialog-box nil                               ; Disable use dialog box
+                uniquify-buffer-name-style 'forward              ; Uniquify buffer names
+                visible-bell 1                                   ; Turn off annoying sound
+                window-combination-resize t                      ; Resize windows proportionally
+                x-stretch-cursor t)                              ; Stretch cursor to the glyph width
+  (cd "~/")                                                      ; Move to the user directory
+  (delete-selection-mode 1)                                      ; Replace region when inserting text
+  (display-time-mode 1)                                          ; Enable time in the mode-line
+  (fringe-mode 0)                                                ; Disable fringes
+  (fset 'yes-or-no-p 'y-or-n-p)                                  ; Replace yes/no prompts with y/n
+  (global-subword-mode 1)                                        ; Iterate through CamelCase words
+  (mouse-avoidance-mode 'banish)                                 ; Avoid collision of mouse with point
+  (put 'downcase-region 'disabled nil)                           ; Enable downcase-region
+  (put 'upcase-region 'disabled nil)                             ; Enable upcase-region
+  (prefer-coding-system 'utf-8-unix)
+  (set-locale-environment "en_US.UTF-8")
+  (set-default-coding-systems 'utf-8-unix)
+  (set-selection-coding-system 'utf-8-unix)
+  (set-buffer-file-coding-system 'utf-8-unix)
+  (set-clipboard-coding-system 'utf-8)                           ; included by set-selection-coding-system
+  (set-keyboard-coding-system 'utf-8)                            ; configured by prefer-coding-system
+  (set-terminal-coding-system 'utf-8)                            ; configured by prefer-coding-system
+  (setq buffer-file-coding-system 'utf-8)                        ; utf-8-unix
+  (setq save-buffer-coding-system 'utf-8-unix)                   ; nil
+  (setq process-coding-system-alist
+        (cons '("grep" utf-8 . utf-8) process-coding-system-alist))
+  (unless sys/macos (setq command-line-ns-option-alist nil))
+  (unless sys/linux (setq command-line-x-option-alist nil))
+  (toggle-frame-maximized)                                       ; Toggle maximized
 
 #+end_src
 
@@ -358,45 +370,77 @@ But first, we need to add some sources
                            ("org"   . "http://orgmode.org/elpa/")))
 #+end_src
 
-Here goes our monster =use-package=
+I'd like to use =straight.el= package as my package manager for a better boostrap.
+#+BEGIN_SRC emacs-lisp :tangle yes
+  (setq straight-recipes-gnu-elpa-use-mirror    t
+        straight-repository-branch              "develop"
+        straight-vc-git-default-clone-depth     1
+        straight-enable-use-package-integration nil
+        straight-check-for-modifications        '(find-when-checking))
+
+  (defvar bootstrap-version)
+
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+END_SRC
+
+As the same time, I use =use-package= to manage packages' loading.
 #+begin_src emacs-lisp :tangle yes
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+  (straight-use-package 'use-package)
+  (eval-and-compile
+    (setq use-package-always-ensure t)
+    (setq use-package-always-defer t)
+    (setq use-package-always-demand nil)
+    (setq use-package-expand-minimally t)
+    (setq use-package-enable-imenu-support t))
 
-(eval-and-compile
-  (setq use-package-always-ensure t)
-  (setq use-package-always-defer t)
-  (setq use-package-always-demand nil)
-  (setq use-package-expand-minimally t)
-  (setq use-package-enable-imenu-support t))
+  (eval-when-compile
+    (require 'use-package))
 
-(eval-when-compile
-  (require 'use-package))
+  (straight-use-package 'gcmh)
+  (use-package gcmh
+    :demand t
+    :init
+    (setq gcmh-verbose             t
+          gcmh-lows-cons-threshold #x800000
+          gcmh-high-cons-threshold most-positive-fixnum
+          gcmh-idle-delay          3600)
+    :config
+    (gcmh-mode))
 
-(use-package gcmh
-  :ensure t
-  :init
-  (gcmh-mode 1))
+  ;; For benchmark startup time then optimize it.
+  (straight-use-package 'benchmark-init)
+  (use-package benchmark-init
+    :demand t
+    :hook ((after-init . benchmark-init/deactivate)))
 
-(use-package quelpa
-  :ensure t
-  :defer t
-  :custom
-  (quelpa-update-melpa-p nil "Don't update the MELPA git repo."))
+  (use-package quelpa
+    :ensure t
+    :defer t
+    :custom
+    (quelpa-update-melpa-p nil "Don't update the MELPA git repo."))
 
-(use-package quelpa-use-package :ensure t)
+  (use-package quelpa-use-package :ensure t)
 
-;; Package Manager
-(use-package paradox
-  :custom
-  (paradox-column-width-package 27)
-  (paradox-column-width-version 13)
-  (paradox-execute-asynchronously t)
-  (paradox-github-token t)
-  (paradox-hide-wiki-packages t)
-  :config
-  (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
+  ;; Package Manager
+  (use-package paradox
+    :custom
+    (paradox-column-width-package 27)
+    (paradox-column-width-version 13)
+    (paradox-execute-asynchronously t)
+    (paradox-github-token t)
+    (paradox-hide-wiki-packages t)
+    :config
+    (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
 #+end_src
 
 
@@ -3162,6 +3206,7 @@ Tracking windows layout in emacs.
 I’m using a large =.org= file to maintain my GNU Emacs configuration. However, at launch, it will load the =config.el= source file for a faster loading.
 The code below, executes =org-babel-tangle= asynchronously when =config.org= is saved.
 #+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'async)
   (use-package async)
 
   (defvar *config-file* (expand-file-name "config.org" user-emacs-directory)
@@ -3372,6 +3417,7 @@ First, I need to setup some basic function for boosting =org-mode= potiental.
 
 Now, the mighty **org-mode**
 #+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'org-plus-contrib)
   (use-package org
     :ensure t
     :delight "Θ "
@@ -3482,6 +3528,7 @@ Now, the mighty **org-mode**
 ** Org TOC
 We can use =toc-org= package to generate a table of content.
 #+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'toc-org)
   (use-package toc-org
     :after org
     :hook (org-mode . toc-org-enable))
@@ -3600,6 +3647,7 @@ And its super brother
 ** Org Bullet
 For a better visual
 #+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'org-bullets)
   (use-package org-bullets
     :hook (org-mode . org-bullets-mode)
     :custom
