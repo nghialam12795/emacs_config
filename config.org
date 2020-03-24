@@ -966,7 +966,14 @@ A good IDE always come with a good snippet configuration.
   (straight-use-package 'yasnippet)
   (use-package yasnippet
     :delight yas-minor-mode " υ"
-    :hook (yas-minor-mode . penguin/disable-yas-if-no-snippets)
+    :hook ((yas-minor-mode . penguin/disable-yas-if-no-snippets)
+           (prog-mode      . yas-minor-mode)
+           (yas-minor-mode . (lambda ()
+                               (add-to-list
+                                'yas-snippet-dirs
+                                (concat user-emacs-directory ".private/snippets")))))
+    :bind (:map yas-minor-mode-map
+                ("C-'" . yas-expand))
     :config (yas-global-mode)
     :preface
     (defun penguin/disable-yas-if-no-snippets ()
