@@ -2700,6 +2700,26 @@ First, I'd want to turn off some mouse interface. I'd rather using keyboard all 
                         '(blink-cursor-mode nil))
 #+end_src
 
+*** Buffer
+Its always better to have some margin in a buffer.
+
+#+begin_src emacs-lisp :tangle yes
+  (setq left-margin-width 12)
+  (setq right-margin-width 12)
+#+end_src
+
+Set the divider to be more visible.
+
+#+begin_src emacs-lisp :tangle yes
+  (setq window-divider-default-places t
+        window-divider-default-bottom-width 1
+        window-divider-default-right-width 1)
+
+  (set-face-background 'vertical-border "gray")
+  (set-face-foreground 'vertical-border (face-background 'vertical-border))
+  (add-hook 'window-setup-hook #'window-divider-mode)
+#+end_src
+
 *** Cursor
 Some basic settings for the mouse cursor.
 #+begin_src emacs-lisp :tangle yes
@@ -2707,6 +2727,15 @@ Some basic settings for the mouse cursor.
   (setq highlight-nonselected-windows nil)
   (setq x-stretch-cursor nil)
   (setq visible-cursor nil)
+#+end_src
+
+For not losing cursor anymore
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'beacon)
+  (use-package beacon
+    :init (setq beacon-size  10
+                beacon-color "#f85e9f")
+    :hook ((after-init . beacon-mode)))
 #+end_src
 
 *** Icon
@@ -2940,6 +2969,27 @@ Highlight matching parens
                                 (window-start) msg ))))))
             (blink-matching-open))))
       (advice-add #'show-paren-function :after #'show-paren-off-screen)))
+#+end_src
+
+Dimmer package for highlight current working buffer
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'dimmer)
+  (use-package dimmer
+    :custom
+    (dimmer-fraction 0.3)
+    (dimmer-exclusion-regexp-list
+     '(".*Minibuf.*"
+       ".*helm-projectile.*"
+       ".*which-key.*"
+       ".*NeoTree.*"
+       ".*Messages.*"
+       ".*Async.*"
+       ".*Warnings.*"
+       ".*LV.*"
+       ".*Ilist.*")))
+  (dimmer-configure-which-key)
+  (dimmer-configure-helm)
+  (dimmer-mode)
 #+end_src
 
 ** Modeline
@@ -3232,28 +3282,29 @@ A side explorer for Emacs, it always nice to be more modern looking.
 ** Theme
 =doom-themes= are quite good-looking and have a variety of options to choose.
 #+begin_src emacs-lisp :tangle yes
-  ;; (use-package doom-themes
-  ;;   :defines doom-themes-treemacs-theme
-  ;;   :config
-  ;;   (doom-themes-visual-bell-config)
-  ;;   (set-face-attribute 'doom-visual-bell nil
-  ;;                       :inherit 'mode-line
-  ;;                       :background (face-foreground 'error)
-  ;;                       :inverse-video 'unspecified)
-  ;;   (doom-themes-org-config)
-  ;;   (with-eval-after-load 'erc-goodies
-  ;;     (set-face-attribute 'erc-bold-face nil :bold nil))
-  ;;   (with-eval-after-load 'flycheck
-  ;;     (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
-  ;;     (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
-  ;;     (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
-  ;;   (with-eval-after-load 'isearch
-  ;;     (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
-  ;;     (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
+  (straight-use-package 'doom-themes)
+  (use-package doom-themes
+    :defines doom-themes-treemacs-theme
+    :config
+    (doom-themes-visual-bell-config)
+    (set-face-attribute 'doom-visual-bell nil
+                        :inherit 'mode-line
+                        :background (face-foreground 'error)
+                        :inverse-video 'unspecified)
+    (doom-themes-org-config)
+    (with-eval-after-load 'erc-goodies
+      (set-face-attribute 'erc-bold-face nil :bold nil))
+    (with-eval-after-load 'flycheck
+      (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
+      (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
+      (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
+    (with-eval-after-load 'isearch
+      (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
+      (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
 
   ;; (doom-themes-treemacs-config)
   ;; (setq doom-themes-treemacs-theme "doom-colors")
-  ;; (load-theme 'doom-molokai t)
+  (load-theme 'doom-monokai-classic t)
 #+end_src
 
 One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**.
@@ -3266,7 +3317,7 @@ However, some of the color scheme seems too bright for me, so I forked it and tw
 
   (push (expand-file-name "penmacs_theme" user-emacs-directory) load-path)
   (require 'penmacs-common)
-  (load-theme 'penmacs-dark t)
+  ;; (load-theme 'penmacs-dark t)
 #+END_SRC
 
 =kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs.
