@@ -38,6 +38,7 @@
   - [[#css][CSS]]
   - [[#csv][CSV]]
   - [[#elisp][Elisp]]
+  - [[#fountain][Fountain]]
   - [[#javascript][Javascript]]
   - [[#json][Json]]
   - [[#html][HTML]]
@@ -116,6 +117,15 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
   (defconst sys/macos
     (eq system-type 'darwin)
     "Are we using a Mac OS?")
+  (defconst sys/mac-x-p
+    (and (display-graphic-p) sys/macos)
+    "Are we running under X on a Mac system?")
+  (defconst sys/mac-cocoa-p
+    (featurep 'cocoa)
+    "Are we running with Cocoa on a Mac system?")
+  (defconst sys/macport
+    (eq system-type 'mac)
+    "Are we using the Emacs macport?")
   (defconst emacs/>=26p
     (>= emacs-major-version 26)
     "Emacs is 26 or above.")
@@ -218,26 +228,27 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
 
 Some specific OS tweak:
 #+begin_src emacs-lisp :tangle yes
-(when sys/macos
-  (setq mac-redisplay-dont-reset-vscroll t
-        mac-mouse-wheel-smooth-scroll nil
-        ns-pop-up-frames nil
-        initial-frame-alist (append '((ns-transparent-titlebar . t)
-                                      (ns-appearance . dark)
-                                     )
-                            )
+  (when sys/macport
+    (setq mac-redisplay-dont-reset-vscroll t
+          mac-mouse-wheel-smooth-scroll nil
+          ns-pop-up-frames nil
+          initial-frame-alist (append '((ns-transparent-titlebar . t)
+                                        (ns-appearance . dark)
+                                       )
+                              )
+    )
+    (and (or (daemonp)
+             (display-graphic-p))
+         (require 'ns-auto-titlebar nil t)
+         (ns-auto-titlebar-mode +1)
+    )
+    (setq mac-command-modifier 'meta) ; make cmd key do Meta
+    (setq mac-option-modifier 'super) ; make opt key do Super
+    (setq mac-control-modifier 'control) ; make Control key do Control
+    (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
   )
-  (and (or (daemonp)
-           (display-graphic-p))
-       (require 'ns-auto-titlebar nil t)
-       (ns-auto-titlebar-mode +1)
-  )
-  (setq mac-command-modifier 'meta) ; make cmd key do Meta
-  (setq mac-option-modifier 'super) ; make opt key do Super
-  (setq mac-control-modifier 'control) ; make Control key do Control
-  (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
-)
 #+end_src
+
 #+begin_src emacs-lisp :tangle yes
 (when sys/win32
   (set-selection-coding-system 'utf-16-le)) ; For fixing broken symbol render in Windows. Any ideas why it happened?
@@ -2391,6 +2402,12 @@ These whole configuration is written in emacs-lisp (Elisp), a programming langua
     :hook (emacs-lisp-mode . eldoc-mode))
 #+end_src
 
+** Fountain
+=fountain-mode= support the fountain syntax, a minimal and better approach for screen-writing.
+#+begin_src emacs-lisp :tangle yes
+  (require 'fountain-mode)
+#+end_src
+
 ** Javascript
 I don't work with =Javascript= much. But when I need to do, I'd like to have a fast and stable environment for me. Nicolas Petton's [[https://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html][blog]] is the guidance for this config.
 
@@ -2700,26 +2717,6 @@ First, I'd want to turn off some mouse interface. I'd rather using keyboard all 
                         '(blink-cursor-mode nil))
 #+end_src
 
-*** Buffer
-Its always better to have some margin in a buffer.
-
-#+begin_src emacs-lisp :tangle yes
-  (setq left-margin-width 12)
-  (setq right-margin-width 12)
-#+end_src
-
-Set the divider to be more visible.
-
-#+begin_src emacs-lisp :tangle yes
-  (setq window-divider-default-places t
-        window-divider-default-bottom-width 1
-        window-divider-default-right-width 1)
-
-  (set-face-background 'vertical-border "gray")
-  (set-face-foreground 'vertical-border (face-background 'vertical-border))
-  (add-hook 'window-setup-hook #'window-divider-mode)
-#+end_src
-
 *** Cursor
 Some basic settings for the mouse cursor.
 #+begin_src emacs-lisp :tangle yes
@@ -2824,8 +2821,8 @@ Since I got problems with displaying =all-the-icons= within string on Windows, s
         (put-text-property 0 (length items) 'face 'penguin/title-face
                            items)
         (insert items))
-      (let ((items  (concat "      ✍ Recently opened files                   (SPC r)  \n\n"
-                            "      ☎ Open Project                            (SPC p)  \n\n")))
+      (let ((items  (concat "      Recently opened files                   (SPC r)  \n\n"
+                            "      Open Project                            (SPC p)  \n\n")))
         (put-text-property 0 (length items) 'face 'penguin/ultilities-face
                            items)
         (insert items))
@@ -2836,11 +2833,11 @@ Since I got problems with displaying =all-the-icons= within string on Windows, s
         (put-text-property 0 (length items) 'face 'penguin/title-face
                            items)
         (insert items))
-      (let ((items  (concat "      ♲ Open Org Agenda                         (SPC c)  \n\n"
-                            "      ☂ View Weather forcast                    (SPC w)  \n\n"
-                            "      ✉ Reading Mails                           (SPC m)  \n\n"
-                            "      ★ Online Slack                            (SPC s)  \n\n"
-                            "      ☞ Browse Github Homepage                  (SPC h)  ")))
+      (let ((items  (concat "      Open Org Agenda                         (SPC c)  \n\n"
+                            "      View Weather forcast                    (SPC w)  \n\n"
+                            "      Reading Mails                           (SPC m)  \n\n"
+                            "      Online Slack                            (SPC s)  \n\n"
+                            "      Browse Github Homepage                  (SPC h)  ")))
         (put-text-property 0 (length items) 'face 'penguin/ultilities-face
                            items)
         (insert items)))
@@ -2995,6 +2992,7 @@ Dimmer package for highlight current working buffer
 ** Modeline
 After trying a lot of packages, I think =moody= fit me most as it is simple but beautiful in a technical way.
 #+begin_src emacs-lisp :tangle yes
+  ;; (straight-use-package 'moody)
   ;; (use-package moody
   ;;   :config
   ;;   (let ((line (face-attribute 'mode-line :underline)))
@@ -3304,7 +3302,7 @@ A side explorer for Emacs, it always nice to be more modern looking.
 
   ;; (doom-themes-treemacs-config)
   ;; (setq doom-themes-treemacs-theme "doom-colors")
-  (load-theme 'doom-monokai-classic t)
+  (load-theme 'doom-one t)
 #+end_src
 
 One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**.
@@ -3320,7 +3318,7 @@ However, some of the color scheme seems too bright for me, so I forked it and tw
   ;; (load-theme 'penmacs-dark t)
 #+END_SRC
 
-=kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs.
+=kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs for =treemacs=.
 #+begin_src emacs-lisp :tangle yes
   (straight-use-package 'kaolin-themes)
   (kaolin-treemacs-theme)
@@ -3335,6 +3333,19 @@ For a more contrast looking, I use =solaire-mode=. Currently disable for conflic
   ;;   :config
   ;;   (solaire-global-mode +1))
 #+END_SRC
+
+Set the divider to be more visible.
+
+#+begin_src emacs-lisp :tangle yes
+  (setq window-divider-default-places t
+        window-divider-default-bottom-width 1
+        window-divider-default-right-width 1)
+
+  (set-face-background 'vertical-border "gray")
+  (set-face-foreground 'vertical-border (face-background 'vertical-border))
+  (add-hook 'window-setup-hook #'window-divider-mode)
+#+end_src
+
 
 ** Winner
 Tracking windows layout in emacs.
@@ -3738,25 +3749,25 @@ And its super brother
   (setq org-agenda-custom-commands '(("n" "Agenda"
                                       ((agenda "")
                                        (todo ""
-                                             ((org-agenda-overriding-header "⚠ Stuck Projects")
+                                             ((org-agenda-overriding-header "Stuck Projects")
                                               ;; (org-agenda-skip-function #'penguin/should-skip)
                                               (org-agenda-prefix-format penguin-org-deadline-prefix)
                                               (org-agenda-sorting-strategy nil)))
                                        (todo "NEXT"
-                                             ((org-agenda-overriding-header "➽ Next Tasks")
+                                             ((org-agenda-overriding-header "Next Tasks")
                                               (org-agenda-sorting-strategy '(priority-down category-up))))
                                        (todo "TODO"
                                              ((org-agenda-files '("~/.emacs.d/.private/org/todo.org" "~/.emacs.d/.private/org/notes.org"))
                                               (org-agenda-sorting-strategy '(priority-down category-up))
-                                              (org-agenda-overriding-header "☑ Tasks")))
+                                              (org-agenda-overriding-header "Tasks")))
                                        (todo "WAITING|DELEGATED"
-                                             ((org-agenda-overriding-header "☁ Waiting/Delegated")
+                                             ((org-agenda-overriding-header "Waiting/Delegated")
                                               (org-agenda-sorting-strategy '(priority-down category-up))))
                                        (todo "LATER"
                                              ((org-agenda-sorting-strategy '(priority-down category-up))
-                                              (org-agenda-overriding-header "★ Later")))
+                                              (org-agenda-overriding-header "Later")))
                                        (todo "NOTE"
-                                             ((org-agenda-overriding-header "✎ Notes")
+                                             ((org-agenda-overriding-header "Notes")
                                               (org-agenda-max-entries 10)
                                               (org-agenda-sorting-strategy '(tsia-down)))))
                                       nil)))
