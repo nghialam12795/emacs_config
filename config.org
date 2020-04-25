@@ -35,9 +35,11 @@
 - [[#language-support][Language Support]]
   - [[#c][C++]]
   - [[#cmake][CMake]]
+  - [[#c-1][C#]]
   - [[#css][CSS]]
   - [[#csv][CSV]]
   - [[#elisp][Elisp]]
+  - [[#fountain][Fountain]]
   - [[#javascript][Javascript]]
   - [[#json][Json]]
   - [[#html][HTML]]
@@ -116,6 +118,15 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
   (defconst sys/macos
     (eq system-type 'darwin)
     "Are we using a Mac OS?")
+  (defconst sys/mac-x-p
+    (and (display-graphic-p) sys/macos)
+    "Are we running under X on a Mac system?")
+  (defconst sys/mac-cocoa-p
+    (featurep 'cocoa)
+    "Are we running with Cocoa on a Mac system?")
+  (defconst sys/macport
+    (eq system-type 'mac)
+    "Are we using the Emacs macport?")
   (defconst emacs/>=26p
     (>= emacs-major-version 26)
     "Emacs is 26 or above.")
@@ -218,26 +229,27 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
 
 Some specific OS tweak:
 #+begin_src emacs-lisp :tangle yes
-(when sys/macos
-  (setq mac-redisplay-dont-reset-vscroll t
-        mac-mouse-wheel-smooth-scroll nil
-        ns-pop-up-frames nil
-        initial-frame-alist (append '((ns-transparent-titlebar . t)
-                                      (ns-appearance . dark)
-                                     )
-                            )
+  (when sys/macport
+    (setq mac-redisplay-dont-reset-vscroll t
+          mac-mouse-wheel-smooth-scroll nil
+          ns-pop-up-frames nil
+          initial-frame-alist (append '((ns-transparent-titlebar . t)
+                                        (ns-appearance . dark)
+                                       )
+                              )
+    )
+    (and (or (daemonp)
+             (display-graphic-p))
+         (require 'ns-auto-titlebar nil t)
+         (ns-auto-titlebar-mode +1)
+    )
+    (setq mac-command-modifier 'meta) ; make cmd key do Meta
+    (setq mac-option-modifier 'super) ; make opt key do Super
+    (setq mac-control-modifier 'control) ; make Control key do Control
+    (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
   )
-  (and (or (daemonp)
-           (display-graphic-p))
-       (require 'ns-auto-titlebar nil t)
-       (ns-auto-titlebar-mode +1)
-  )
-  (setq mac-command-modifier 'meta) ; make cmd key do Meta
-  (setq mac-option-modifier 'super) ; make opt key do Super
-  (setq mac-control-modifier 'control) ; make Control key do Control
-  (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
-)
 #+end_src
+
 #+begin_src emacs-lisp :tangle yes
 (when sys/win32
   (set-selection-coding-system 'utf-16-le)) ; For fixing broken symbol render in Windows. Any ideas why it happened?
@@ -2348,6 +2360,34 @@ My work requires me to go cross-platform with C++. So, =cmake= is a must.
     :config (advice-add 'cmake-ide-compile :after #'penguin/switch-to-compilation-window))
 #+end_src
 
+** C#
+Since I need to use Unity for lots of side projects. This =ominisharp= package is a life saver
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'omnisharp)
+
+  (eval-after-load
+    'company
+    '(add-to-list 'company-backends #'company-omnisharp))
+
+  (defun penguin/csharp-mode-setup ()
+    (omnisharp-mode)
+    (company-mode)
+    (flycheck-mode)
+
+    (setq indent-tabs-mode nil)
+    (setq c-syntactic-indentation t)
+    (c-set-style "ellemtel")
+    (setq c-basic-offset 4)
+    (setq truncate-lines t)
+    (setq tab-width 4)
+    ;; (setq evil-shift-width 4)
+
+    (local-set-key (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
+    (local-set-key (kbd "C-c C-c") 'recompile))
+
+  (add-hook 'csharp-mode-hook 'penguin/csharp-mode-setup t)
+#+end_src
+
 ** CSS
 All these stuffs is for my habit of working around with themes of other softwares (especially open-source).
 #+begin_src emacs-lisp :tangle yes
@@ -2389,6 +2429,12 @@ These whole configuration is written in emacs-lisp (Elisp), a programming langua
   (use-package eldoc
     :delight
     :hook (emacs-lisp-mode . eldoc-mode))
+#+end_src
+
+** Fountain
+=fountain-mode= support the fountain syntax, a minimal and better approach for screen-writing.
+#+begin_src emacs-lisp :tangle yes
+  (require 'fountain-mode)
 #+end_src
 
 ** Javascript
@@ -2709,6 +2755,15 @@ Some basic settings for the mouse cursor.
   (setq visible-cursor nil)
 #+end_src
 
+For not losing cursor anymore
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'beacon)
+  (use-package beacon
+    :init (setq beacon-size  10
+                beacon-color "#f85e9f")
+    :hook ((after-init . beacon-mode)))
+#+end_src
+
 *** Icon
 Most UI package require =all-the-icons= setup. Please remember to run =all-the-icons-install-fonts= for the first time runner.
 #+begin_src emacs-lisp :tangle yes
@@ -2776,11 +2831,7 @@ Since I got problems with displaying =all-the-icons= within string on Windows, s
           ;;                  )
           dashboard-items nil
           dashboard-set-footer t
-          dashboard-footer-messages '(" P E N G U I N  x  E M A C S")
-          dashboard-footer-icon (all-the-icons-faicon "heart"
-                                                      :height 1.1
-                                                      :v-adjust -0.05
-                                                      :face 'font-lock-keyword-face)
+          dashboard-footer-messages '(" P E N G U I N  ❤  E M A C S")
           dashboard-set-heading-icons t
           dashboard-set-file-icons t
           show-week-agenda-p t)
@@ -2792,64 +2843,33 @@ Since I got problems with displaying =all-the-icons= within string on Windows, s
       '((t . (:height 1.5 :foreground "#ff4400")))
       "A face for title.")
     (defun dashboard-insert-custom (list-size)
-      (when (or sys/linux sys/macos)
-        ;; Working
-        (insert (if (display-graphic-p)
-                    (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-        (let ((items  " Working: \n\n"))
-          (put-text-property 0 (length items) 'face 'penguin/title-face
-                             items)
-          (insert items))
-        (let ((items  (concat "       Recently opened files                   (SPC r)  \n\n"
-                              "       Open Project                            (SPC p)  \n\n")))
-          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
-                             items)
-          (insert items))
-        ;; Ultilities
-        (insert (if (display-graphic-p)
-                    (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-        (let ((items  " Ultilities: \n\n"))
-          (put-text-property 0 (length items) 'face 'penguin/title-face
-                             items)
-          (insert items))
-        (let ((items  (concat "       Open Org Agenda                         (SPC c)  \n\n"
-                              "       View Weather forcast                    (SPC w)  \n\n"
-                              "       Reading Mails                           (SPC m)  \n\n"
-                              "       Online Slack                            (SPC s)  \n\n"
-                              "       Browse Github Homepage                  (SPC h)  ")))
-          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
-                             items)
-          (insert items)))
-
-      (when sys/win32
-        ;; Working
-        (insert (if (display-graphic-p)
-                    (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-        (let ((items  " Working: \n\n"))
-          (put-text-property 0 (length items) 'face 'penguin/title-face
-                             items)
-          (insert items))
-        (let ((items  (concat "      📝 Recently opened files                   (SPC r)  \n\n"
-                              "      📚 Open Project                            (SPC p)  \n\n")))
-          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
-                             items)
-          (insert items))
-
-        ;; Ultilities
-        (insert (if (display-graphic-p)
-                    (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-        (let ((items  " Ultilities: \n\n"))
-          (put-text-property 0 (length items) 'face 'penguin/title-face
-                             items)
-          (insert items))
-        (let ((items  (concat "      🗓 Open Org Agenda                         (SPC c)  \n\n"
-                              "      ⛅ View Weather forcast                    (SPC w)  \n\n"
-                              "      📧 Reading Mails                           (SPC m)  \n\n"
-                              "      💬 Online Slack                            (SPC s)  \n\n"
-                              "      🌎 Browse Github Homepage                  (SPC h)  ")))
-          (put-text-property 0 (length items) 'face 'penguin/ultilities-face
-                             items)
-          (insert items))))
+      ;; Working
+      (insert (if (display-graphic-p)
+                  (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+      (let ((items  " Working: \n\n"))
+        (put-text-property 0 (length items) 'face 'penguin/title-face
+                           items)
+        (insert items))
+      (let ((items  (concat "      Recently opened files                   (SPC r)  \n\n"
+                            "      Open Project                            (SPC p)  \n\n")))
+        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                           items)
+        (insert items))
+      ;; Ultilities
+      (insert (if (display-graphic-p)
+                  (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
+      (let ((items  " Ultilities: \n\n"))
+        (put-text-property 0 (length items) 'face 'penguin/title-face
+                           items)
+        (insert items))
+      (let ((items  (concat "      Open Org Agenda                         (SPC c)  \n\n"
+                            "      View Weather forcast                    (SPC w)  \n\n"
+                            "      Reading Mails                           (SPC m)  \n\n"
+                            "      Online Slack                            (SPC s)  \n\n"
+                            "      Browse Github Homepage                  (SPC h)  ")))
+        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
+                           items)
+        (insert items)))
 
     (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
     (add-to-list 'dashboard-items '(custom) t)
@@ -2977,9 +2997,31 @@ Highlight matching parens
       (advice-add #'show-paren-function :after #'show-paren-off-screen)))
 #+end_src
 
+Dimmer package for highlight current working buffer
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'dimmer)
+  (use-package dimmer
+    :custom
+    (dimmer-fraction 0.3)
+    (dimmer-exclusion-regexp-list
+     '(".*Minibuf.*"
+       ".*helm-projectile.*"
+       ".*which-key.*"
+       ".*NeoTree.*"
+       ".*Messages.*"
+       ".*Async.*"
+       ".*Warnings.*"
+       ".*LV.*"
+       ".*Ilist.*")))
+  (dimmer-configure-which-key)
+  (dimmer-configure-helm)
+  (dimmer-mode)
+#+end_src
+
 ** Modeline
 After trying a lot of packages, I think =moody= fit me most as it is simple but beautiful in a technical way.
 #+begin_src emacs-lisp :tangle yes
+  ;; (straight-use-package 'moody)
   ;; (use-package moody
   ;;   :config
   ;;   (let ((line (face-attribute 'mode-line :underline)))
@@ -3267,28 +3309,29 @@ A side explorer for Emacs, it always nice to be more modern looking.
 ** Theme
 =doom-themes= are quite good-looking and have a variety of options to choose.
 #+begin_src emacs-lisp :tangle yes
-  ;; (use-package doom-themes
-  ;;   :defines doom-themes-treemacs-theme
-  ;;   :config
-  ;;   (doom-themes-visual-bell-config)
-  ;;   (set-face-attribute 'doom-visual-bell nil
-  ;;                       :inherit 'mode-line
-  ;;                       :background (face-foreground 'error)
-  ;;                       :inverse-video 'unspecified)
-  ;;   (doom-themes-org-config)
-  ;;   (with-eval-after-load 'erc-goodies
-  ;;     (set-face-attribute 'erc-bold-face nil :bold nil))
-  ;;   (with-eval-after-load 'flycheck
-  ;;     (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
-  ;;     (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
-  ;;     (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
-  ;;   (with-eval-after-load 'isearch
-  ;;     (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
-  ;;     (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
+  (straight-use-package 'doom-themes)
+  (use-package doom-themes
+    :defines doom-themes-treemacs-theme
+    :config
+    (doom-themes-visual-bell-config)
+    (set-face-attribute 'doom-visual-bell nil
+                        :inherit 'mode-line
+                        :background (face-foreground 'error)
+                        :inverse-video 'unspecified)
+    (doom-themes-org-config)
+    (with-eval-after-load 'erc-goodies
+      (set-face-attribute 'erc-bold-face nil :bold nil))
+    (with-eval-after-load 'flycheck
+      (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
+      (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
+      (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
+    (with-eval-after-load 'isearch
+      (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
+      (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
 
   ;; (doom-themes-treemacs-config)
   ;; (setq doom-themes-treemacs-theme "doom-colors")
-  ;; (load-theme 'doom-molokai t)
+  (load-theme 'doom-one t)
 #+end_src
 
 One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**.
@@ -3301,10 +3344,10 @@ However, some of the color scheme seems too bright for me, so I forked it and tw
 
   (push (expand-file-name "penmacs_theme" user-emacs-directory) load-path)
   (require 'penmacs-common)
-  (load-theme 'penmacs-dark t)
+  ;; (load-theme 'penmacs-dark t)
 #+END_SRC
 
-=kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs.
+=kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs for =treemacs=.
 #+begin_src emacs-lisp :tangle yes
   (straight-use-package 'kaolin-themes)
   (kaolin-treemacs-theme)
@@ -3319,6 +3362,19 @@ For a more contrast looking, I use =solaire-mode=. Currently disable for conflic
   ;;   :config
   ;;   (solaire-global-mode +1))
 #+END_SRC
+
+Set the divider to be more visible.
+
+#+begin_src emacs-lisp :tangle yes
+  (setq window-divider-default-places t
+        window-divider-default-bottom-width 1
+        window-divider-default-right-width 1)
+
+  (set-face-background 'vertical-border "gray")
+  (set-face-foreground 'vertical-border (face-background 'vertical-border))
+  (add-hook 'window-setup-hook #'window-divider-mode)
+#+end_src
+
 
 ** Winner
 Tracking windows layout in emacs.
@@ -3722,50 +3778,25 @@ And its super brother
   (setq org-agenda-custom-commands '(("n" "Agenda"
                                       ((agenda "")
                                        (todo ""
-                                             ((org-agenda-overriding-header (concat
-                                                                             (if (or sys/macos sys/linux)
-                                                                                 (all-the-icons-faicon "chain-broken" :v-adjust 0.01)
-                                                                               "🔗")
-                                                                             " Stuck Projects"))
+                                             ((org-agenda-overriding-header "Stuck Projects")
                                               ;; (org-agenda-skip-function #'penguin/should-skip)
                                               (org-agenda-prefix-format penguin-org-deadline-prefix)
                                               (org-agenda-sorting-strategy nil)))
                                        (todo "NEXT"
-                                             ((org-agenda-overriding-header (concat
-                                                                             (if (or sys/macos sys/linux)
-                                                                                 (all-the-icons-faicon "bolt" :v-adjust 0.01)
-                                                                               "⚡"
-                                                                             )
-                                                                             " Next Tasks"))
+                                             ((org-agenda-overriding-header "Next Tasks")
                                               (org-agenda-sorting-strategy '(priority-down category-up))))
                                        (todo "TODO"
                                              ((org-agenda-files '("~/.emacs.d/.private/org/todo.org" "~/.emacs.d/.private/org/notes.org"))
                                               (org-agenda-sorting-strategy '(priority-down category-up))
-                                              (org-agenda-overriding-header (concat
-                                                                             (if (or sys/linux sys/macos)
-                                                                                 (all-the-icons-faicon "check-square-o" :v-adjust 0.01)
-                                                                               "☑")
-                                                                             " Tasks"))))
+                                              (org-agenda-overriding-header "Tasks")))
                                        (todo "WAITING|DELEGATED"
-                                             ((org-agenda-overriding-header (concat
-                                                                             (if (or sys/linux sys/macos)
-                                                                                 (all-the-icons-faicon "hourglass" :v-adjust 0.01)
-                                                                               "⌛")
-                                                                             " Waiting/Delegated"))
+                                             ((org-agenda-overriding-header "Waiting/Delegated")
                                               (org-agenda-sorting-strategy '(priority-down category-up))))
                                        (todo "LATER"
                                              ((org-agenda-sorting-strategy '(priority-down category-up))
-                                              (org-agenda-overriding-header (concat
-                                                                             (if (or sys/linux sys/macos)
-                                                                                 (all-the-icons-faicon "thumb-tack" :v-adjust 0.01)
-                                                                               "💣")
-                                                                             " Later"))))
+                                              (org-agenda-overriding-header "Later")))
                                        (todo "NOTE"
-                                             ((org-agenda-overriding-header (concat
-                                                                             (if (or sys/macos sys/linux)
-                                                                                 (all-the-icons-faicon "sticky-note" :v-adjust 0.01)
-                                                                               "🗒")
-                                                                             " Notes"))
+                                             ((org-agenda-overriding-header "Notes")
                                               (org-agenda-max-entries 10)
                                               (org-agenda-sorting-strategy '(tsia-down)))))
                                       nil)))
