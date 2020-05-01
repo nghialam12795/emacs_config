@@ -1001,14 +1001,14 @@ A good IDE always come with a good snippet configuration.
 *** Undo Tree
 GNU Emacs’s undo system allows you to recover any past state of a buffer. To do this, Emacs treats “undo itself as another editing that can be undone”.
 #+BEGIN_SRC emacs-lisp :tangle yes
-  (straight-use-package 'undo-tree)
-  (use-package undo-tree
-    :delight
-    :bind ("C--" . undo-tree-redo)
-    :init (global-undo-tree-mode)
-    :custom
-    (undo-tree-visualizer-timestamps t)
-    (undo-tree-visualizer-diff t))
+  ;; (straight-use-package 'undo-tree)
+  ;; (use-package undo-tree
+  ;;   :delight
+  ;;   :bind ("C--" . undo-tree-redo)
+  ;;   :init (global-undo-tree-mode)
+  ;;   :custom
+  ;;   (undo-tree-visualizer-timestamps t)
+  ;;   (undo-tree-visualizer-diff t))
 #+END_SRC
 
 *** Web Mode
@@ -1100,6 +1100,18 @@ A more convinient =C-a=
     (beginning-of-line)
     (and (= origin (point))
          (back-to-indentation))))
+#+end_src
+
+Folding code is an convinient way of working with large functions
+#+begin_src emacs-lisp :tangle yes
+  (use-package hideshow
+    :hook ((prog-mode . hs-minor-mode)))
+
+  (defun toggle-fold ()
+    (interactive)
+    (save-excursion
+      (end-of-line)
+      (hs-toggle-hiding)))
 #+end_src
 
 Remove unnecessary keymap
@@ -2388,6 +2400,13 @@ Since I need to use Unity for lots of side projects. This =ominisharp= package i
   (add-hook 'csharp-mode-hook 'penguin/csharp-mode-setup t)
 #+end_src
 
+Also, a nice package come along with it to configure the shaders in Unity
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'shader-mode)
+  (use-package shader-mode
+    :mode ("\\.shader\\'"))
+#+end_src
+
 ** CSS
 All these stuffs is for my habit of working around with themes of other softwares (especially open-source).
 #+begin_src emacs-lisp :tangle yes
@@ -3331,7 +3350,7 @@ A side explorer for Emacs, it always nice to be more modern looking.
 
   ;; (doom-themes-treemacs-config)
   ;; (setq doom-themes-treemacs-theme "doom-colors")
-  (load-theme 'doom-one t)
+  ;; (load-theme 'doom-one t)
 #+end_src
 
 One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**.
@@ -3344,7 +3363,7 @@ However, some of the color scheme seems too bright for me, so I forked it and tw
 
   (push (expand-file-name "penmacs_theme" user-emacs-directory) load-path)
   (require 'penmacs-common)
-  ;; (load-theme 'penmacs-dark t)
+  (load-theme 'penmacs-dark t)
 #+END_SRC
 
 =kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs for =treemacs=.
@@ -3355,6 +3374,7 @@ However, some of the color scheme seems too bright for me, so I forked it and tw
 
 For a more contrast looking, I use =solaire-mode=. Currently disable for conflicts with hline and other packages..
 #+BEGIN_SRC emacs-lisp :tangle yes
+  ;; (straight-use-package 'solaire-mode)
   ;; (use-package solaire-mode
   ;;   :hook
   ;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
@@ -3374,7 +3394,6 @@ Set the divider to be more visible.
   (set-face-foreground 'vertical-border (face-background 'vertical-border))
   (add-hook 'window-setup-hook #'window-divider-mode)
 #+end_src
-
 
 ** Winner
 Tracking windows layout in emacs.
