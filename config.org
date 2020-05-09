@@ -3386,13 +3386,13 @@ For a more contrast looking, I use =solaire-mode=. Currently disable for conflic
 Set the divider to be more visible.
 
 #+begin_src emacs-lisp :tangle yes
-  (setq window-divider-default-places t
-        window-divider-default-bottom-width 1
-        window-divider-default-right-width 1)
+  ;; (setq window-divider-default-places t
+  ;;       window-divider-default-bottom-width 1
+  ;;       window-divider-default-right-width 1)
 
-  (set-face-background 'vertical-border "gray")
-  (set-face-foreground 'vertical-border (face-background 'vertical-border))
-  (add-hook 'window-setup-hook #'window-divider-mode)
+  ;; (set-face-background 'vertical-border "gray")
+  ;; (set-face-foreground 'vertical-border (face-background 'vertical-border))
+  ;; (add-hook 'window-setup-hook #'window-divider-mode)
 #+end_src
 
 ** Winner
