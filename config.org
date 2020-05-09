@@ -104,7 +104,7 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
 
 #+begin_src emacs-lisp :tangle yes
   (defvar pemacs/version
-    "1.0.1"
+    "1.1.0"
     "Penguin Emacs version.")
   (defconst my-homepage
     "https://github.com/nghialam12795"
@@ -229,20 +229,26 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
 
 Some specific OS tweak:
 #+begin_src emacs-lisp :tangle yes
-  (when sys/macport
+  (when sys/macos
     (setq mac-redisplay-dont-reset-vscroll t
           mac-mouse-wheel-smooth-scroll nil
           ns-pop-up-frames nil
           initial-frame-alist (append '((ns-transparent-titlebar . t)
                                         (ns-appearance . dark)
-                                       )
-                              )
-    )
+                                        )
+                                      )
+          )
     (and (or (daemonp)
              (display-graphic-p))
          (require 'ns-auto-titlebar nil t)
          (ns-auto-titlebar-mode +1)
-    )
+         )
+    ;; There's no point in hiding the menu bar on macOS, so let's not do it
+    (menu-bar-mode +1)
+
+    ;; Enable emoji, and stop the UI from freezing when trying to display them.
+    (when (fboundp 'set-fontset-font)
+      (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
     (setq mac-command-modifier 'meta) ; make cmd key do Meta
     (setq mac-option-modifier 'super) ; make opt key do Super
     (setq mac-control-modifier 'control) ; make Control key do Control
@@ -354,19 +360,26 @@ Use this for files that change often, like cache files.")
 
 *** Others
 #+begin_src emacs-lisp :tangle yes
-(setq-default abbrev-file-name             (concat plocal-dir "abbrev.el")
-              auto-save-list-file-name     (concat pcache-dir "autosave")
-              pcache-directory             (concat pcache-dir "pcache/")
-              recentf-save-file            (concat plocal-dir "recentf")
-              mc/list-file                 (concat petc-dir "mc-lists.el")
-              server-auth-dir              (concat pcache-dir "server/")
-              shared-game-score-directory  (concat petc-dir "shared-game-score/")
-              tramp-auto-save-directory    (concat pcache-dir "tramp-auto-save/")
-              tramp-backup-directory-alist backup-directory-alist
-              tramp-persistency-file-name  (concat pcache-dir "tramp-persistency.el")
-              url-cache-directory          (concat pcache-dir "url/")
-              url-configuration-directory  (concat petc-dir "url/")
-              package-user-dir             (concat plocal-dir "packages"))
+  (setq-default abbrev-file-name             (concat plocal-dir "abbrev.el")
+                auto-save-list-file-name     (concat pcache-dir "autosave")
+                pcache-directory             (concat pcache-dir "pcache/")
+                recentf-save-file            (concat plocal-dir "recentf")
+                mc/list-file                 (concat petc-dir "mc-lists.el")
+                server-auth-dir              (concat pcache-dir "server/")
+                shared-game-score-directory  (concat petc-dir "shared-game-score/")
+                tramp-auto-save-directory    (concat pcache-dir "tramp-auto-save/")
+                tramp-backup-directory-alist backup-directory-alist
+                tramp-persistency-file-name  (concat pcache-dir "tramp-persistency.el")
+                url-cache-directory          (concat pcache-dir "url/")
+                url-configuration-directory  (concat petc-dir "url/")
+                package-user-dir             (concat plocal-dir "packages"))
+
+  ;; meaningful names for buffers with the same name
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
 #+end_src
 
 
@@ -719,7 +732,7 @@ I also =company-box= that allow a company front-end with more compact UI.
           ("C-g" . minibuffer-keyboard-quit)))
 #+end_src
 
-*** COMMENT Docsets
+*** Docsets
 I use [[https://github.com/chubin/cheat.sh][cheat.sh]] as my quick cheatsheets and =counsel-dash= to browse the complete dash docsets.
 You'd need to install the docsets you want with =dash-doc-install-docsets= command. For me, I work mostly with *C++* so I just need it's docsets.
 #+begin_src emacs-lisp :tangle yes
@@ -750,6 +763,46 @@ You'd need to install the docsets you want with =dash-doc-install-docsets= comma
   (use-package editorconfig
     :defer 0.3
     :config (editorconfig-mode 1))
+#+end_src
+
+*** Evil Mode
+As the default keys chord of Emacs is not really good for your fingers, I will use the =evil-mode= to get the =vi= keychord from Vim.
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'evil)
+  (straight-use-package 'evil-leader)
+  (straight-use-package 'evil-surround)
+  (straight-use-package 'evil-indent-textobject)
+  (straight-use-package 'evil-org)
+  (use-package evil
+    :ensure t
+    :config
+
+    (use-package evil-leader
+      :ensure t
+      :config
+      (global-evil-leader-mode t)
+      (evil-leader/set-leader "<SPC>")
+      (l
+       evil-leader/set-key
+       "s s" 'swiper
+       "d x w" 'delete-trailing-whitespace))
+
+    (use-package evil-surround
+      :ensure t
+      :config (global-evil-surround-mode))
+
+    (use-package evil-indent-textobject
+      :ensure t)
+
+    (use-package evil-org
+      :ensure t
+      :config
+      (evil-org-set-key-theme
+       '(textobjects insert navigation additional shift todo heading))
+      (add-hook 'org-mode-hook (lambda () (evil-org-mode)))))
+
+  (evil-mode 1)
+
 #+end_src
 
 *** LSP Mode
@@ -2757,653 +2810,424 @@ This one is different from its infamous brother. It is still lovable.
 
 * User Interface
 ** Base
-First, I'd want to turn off some mouse interface. I'd rather using keyboard all the time.
+First, I'd want to turn off some mouse interface. I'd rather using keyboard all
+the time.
 #+begin_src emacs-lisp :tangle yes
-  (custom-set-variables '(menu-bar-mode nil)
-                        '(scroll-bar-mode nil)
-                        '(tool-bar-mode nil)
-                        '(blink-cursor-mode nil))
-#+end_src
+  (custom-set-variables '(menu-bar-mode nil) '(scroll-bar-mode nil)
+                        '(tool-bar-mode nil) '(blink-cursor-mode nil)) #+end_src
 
 *** Cursor
 Some basic settings for the mouse cursor.
 #+begin_src emacs-lisp :tangle yes
-  (setq-default cursor-in-non-selected-windows 'hollow)
-  (setq highlight-nonselected-windows nil)
-  (setq x-stretch-cursor nil)
-  (setq visible-cursor nil)
-#+end_src
+  (setq-default cursor-in-non-selected-windows 'hollow) (setq
+  highlight-nonselected-windows nil) (setq x-stretch-cursor nil) (setq
+  visible-cursor nil) #+end_src
 
 For not losing cursor anymore
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'beacon)
-  (use-package beacon
-    :init (setq beacon-size  10
-                beacon-color "#f85e9f")
-    :hook ((after-init . beacon-mode)))
-#+end_src
+  (straight-use-package 'beacon) (use-package beacon :init (setq beacon-size 10
+  beacon-color "#f85e9f") :hook ((after-init . beacon-mode))) #+end_src
 
 *** Icon
-Most UI package require =all-the-icons= setup. Please remember to run =all-the-icons-install-fonts= for the first time runner.
+Most UI package require =all-the-icons= setup. Please remember to run
+=all-the-icons-install-fonts= for the first time runner.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'all-the-icons)
-  (straight-use-package 'all-the-icons-ivy)
-  (straight-use-package 'all-the-icons-dired)
+  (straight-use-package 'all-the-icons) (straight-use-package
+  'all-the-icons-ivy) (straight-use-package 'all-the-icons-dired)
 
-  (use-package all-the-icons
-    :config (setq all-the-icons-scale-factor 1.0))
+  (use-package all-the-icons :config (setq all-the-icons-scale-factor 1.0))
 
-  (use-package all-the-icons-ivy
-    :hook (after-init . all-the-icons-ivy-setup))
+  (use-package all-the-icons-ivy :hook (after-init . all-the-icons-ivy-setup))
 
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-#+end_src
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode) #+end_src
 
 *** Font
-I really like Jetbrain font. To me, its a perfect font for an editor. Please setup the font in the =/res= folder to your OS first.
+I really like Jetbrain font. To me, its a perfect font for an editor. Please
+setup the font in the =/res= folder to your OS first.
 #+begin_src emacs-lisp :tangle yes
-  (require 'font-lock)
-  (set-face-attribute 'default nil
-                      :font "JetBrains Mono"
-                      :height (cond (sys/macos 110)
-                                    (sys/win32 90)
-                                    (sys/linux 90)
-                                    (t 100)))
-#+end_src
+  (require 'font-lock) (set-face-attribute 'default nil :font "JetBrains Mono"
+  :height (cond (sys/macos 110) (sys/win32 90) (sys/linux 90) (t 100)))
+  #+end_src
 
 *** Frame Title
 Some config for a better frame title, which I rarely see...
 #+begin_src emacs-lisp :tangle yes
-  (setq frame-title-format '("" "%b - Penguin Emacs 🐧")
-        icon-title-format frame-title-format)
-#+end_src
+  (setq frame-title-format '("" "%b - Penguin Emacs 🐧") icon-title-format
+        frame-title-format) #+end_src
 
 ** Dashboard
-This one took me a lot of time. I try to customize my own dashboard, which looks like the doom dashboard somehow but I dont use =doom-emacs= 😝.
-Since I got problems with displaying =all-the-icons= within string on Windows, so I need to add more conditions.
+This one took me a lot of time. I try to customize my own dashboard, which looks
+like the doom dashboard somehow but I dont use =doom-emacs= 😝. Since I got
+problems with displaying =all-the-icons= within string on Windows, so I need to
+add more conditions.
 #+begin_src emacs-lisp :tangle yes
-  (defcustom e_logo (expand-file-name "res/banner/penmacs_ascii_alter_2.png" user-emacs-directory)
-    "Set up custom logo for the dashboard."
-    :type 'string)
+  (defcustom e_logo (expand-file-name "res/banner/penmacs_ascii_alter_2.png"
+    user-emacs-directory) "Set up custom logo for the dashboard." :type 'string)
 
-  (straight-use-package 'dashboard)
-  (use-package dashboard
-    :bind (("<f4>" . open-dashboard)
-           :map dashboard-mode-map
-           ("SPC r" . penguin/browse-recents)
-           ("SPC p" . penguin/browse-projects)
-           ("SPC c" . penguin/browse-calendar)
-           ("SPC w" . penguin/browse-weather)
-           ("SPC m" . penguin/browse-gmail)
-           ("SPC s" . penguin/browse-slack)
-           ("SPC h" . penguin/browse-homepage)
-           ("<f4>" . quit-dashboard))
-    :ensure t
-    :config
-    (setq dashboard-startup-banner (or e_logo 'official)
-          dashboard-banner-logo-title (concat "v. " pemacs/version)
-          dashboard-set-navigator nil
-          dashboard-center-content t
-          ;; dashboard-items '((recents  . 5)
-          ;;                   (projects . 5)
-          ;;                   (agenda   . 5)
-          ;;                  )
-          dashboard-items nil
-          dashboard-set-footer t
-          dashboard-footer-messages '(" P E N G U I N  ❤  E M A C S")
-          dashboard-set-heading-icons t
-          dashboard-set-file-icons t
-          show-week-agenda-p t)
-    ;; Insert custom item
-    (defface penguin/ultilities-face
-      '((t . (:height 1.2 :foreground "#ffaf00" :weight bold)))
-      "A face for ultilities.")
-    (defface penguin/title-face
-      '((t . (:height 1.5 :foreground "#ff4400")))
-      "A face for title.")
-    (defun dashboard-insert-custom (list-size)
-      ;; Working
-      (insert (if (display-graphic-p)
-                  (all-the-icons-faicon "code" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-      (let ((items  " Working: \n\n"))
-        (put-text-property 0 (length items) 'face 'penguin/title-face
-                           items)
-        (insert items))
-      (let ((items  (concat "      Recently opened files                   (SPC r)  \n\n"
-                            "      Open Project                            (SPC p)  \n\n")))
-        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
-                           items)
-        (insert items))
-      ;; Ultilities
-      (insert (if (display-graphic-p)
-                  (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust -0.05 :face 'error) " "))
-      (let ((items  " Ultilities: \n\n"))
-        (put-text-property 0 (length items) 'face 'penguin/title-face
-                           items)
-        (insert items))
-      (let ((items  (concat "      Open Org Agenda                         (SPC c)  \n\n"
-                            "      View Weather forcast                    (SPC w)  \n\n"
-                            "      Reading Mails                           (SPC m)  \n\n"
-                            "      Online Slack                            (SPC s)  \n\n"
-                            "      Browse Github Homepage                  (SPC h)  ")))
-        (put-text-property 0 (length items) 'face 'penguin/ultilities-face
-                           items)
-        (insert items)))
+  (straight-use-package 'dashboard) (use-package dashboard :bind (("<f4>" .
+  open-dashboard) :map dashboard-mode-map ("SPC r" . penguin/browse-recents)
+  ("SPC p" . penguin/browse-projects) ("SPC c" . penguin/browse-calendar) ("SPC
+  w" . penguin/browse-weather) ("SPC m" . penguin/browse-gmail) ("SPC s" .
+  penguin/browse-slack) ("SPC h" . penguin/browse-homepage) ("<f4>" .
+  quit-dashboard)) :ensure t :config (setq dashboard-startup-banner (or e_logo
+  'official) dashboard-banner-logo-title (concat "v. " pemacs/version)
+  dashboard-set-navigator nil dashboard-center-content t ;; dashboard-items
+  '((recents . 5) ;; (projects . 5) ;; (agenda . 5) ;; ) dashboard-items nil
+  dashboard-set-footer t dashboard-footer-messages '(" P E N G U I N ❤ E M A C
+  S") dashboard-set-heading-icons t dashboard-set-file-icons t
+  show-week-agenda-p t) ;; Insert custom item (defface penguin/ultilities-face
+  '((t . (:height 1.2 :foreground "#ffaf00" :weight bold))) "A face for
+  ultilities.") (defface penguin/title-face '((t . (:height 1.5 :foreground
+  "#ff4400"))) "A face for title.") (defun dashboard-insert-custom (list-size)
+  ;; Working (insert (if (display-graphic-p) (all-the-icons-faicon "code"
+  :height 1.2 :v-adjust -0.05 :face 'error) " ")) (let ((items " Working:
+  \n\n")) (put-text-property 0 (length items) 'face 'penguin/title-face items)
+  (insert items)) (let ((items (concat " Recently opened files (SPC r) \n\n" "
+  Open Project (SPC p) \n\n"))) (put-text-property 0 (length items) 'face
+  'penguin/ultilities-face items) (insert items)) ;; Ultilities (insert (if
+  (display-graphic-p) (all-the-icons-faicon "list-ul" :height 1.2 :v-adjust
+  -0.05 :face 'error) " ")) (let ((items " Ultilities: \n\n"))
+  (put-text-property 0 (length items) 'face 'penguin/title-face items) (insert
+  items)) (let ((items (concat " Open Org Agenda (SPC c) \n\n" " View Weather
+  forcast (SPC w) \n\n" " Reading Mails (SPC m) \n\n" " Online Slack (SPC s)
+  \n\n" " Browse Github Homepage (SPC h) "))) (put-text-property 0 (length
+  items) 'face 'penguin/ultilities-face items) (insert items)))
 
-    (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
-    (add-to-list 'dashboard-items '(custom) t)
-    (add-to-list 'dashboard-item-generators '(packages . dashboard-load-packages))
+    (add-to-list 'dashboard-item-generators '(custom . dashboard-insert-custom))
+    (add-to-list 'dashboard-items '(custom) t) (add-to-list
+    'dashboard-item-generators '(packages . dashboard-load-packages))
 
-    (defun open-dashboard ()
-      "Open the *dashboard* buffer and jump to the first widget."
-      (interactive)
-      (delete-other-windows)
-      ;; Refresh dashboard buffer
-      (if (get-buffer dashboard-buffer-name)
-      (kill-buffer dashboard-buffer-name))
-      (dashboard-insert-startupify-lists)
-      (switch-to-buffer dashboard-buffer-name))
-    (defun quit-dashboard ()
-      "Quit dashboard window."
-      (interactive)
-      (quit-window t)
-      (when (and dashboard-recover-layout-p
-             (bound-and-true-p winner-mode))
-        (winner-undo)
-        (setq dashboard-recover-layout-p nil)))
-    (defun penguin/browse-recents ()
-      "Open recent files."
-      (interactive)
-      (counsel-recentf))
-    (defun penguin/browse-projects ()
-      "Open projectiles."
-      (interactive)
-      (helm-projectile-switch-project))
-    (defun penguin/browse-calendar ()
-      "Open the org-agenda."
-      (interactive)
-      (open-dashboard)
-      (split-window-right)
-      (other-window 1)
-      (let ((org-agenda-window-setup 'current-window))
-        (org-agenda nil "n")))
-    (defun penguin/browse-weather ()
-      "Open the weather forcast."
-      (interactive)
-      (wttrin "Hochiminh"))
-    (defun penguin/browse-homepage ()
-      "Open my github homepage."
-      (interactive)
+    (defun open-dashboard () "Open the *dashboard* buffer and jump to the first
+      widget." (interactive) (delete-other-windows) ;; Refresh dashboard buffer
+      (if (get-buffer dashboard-buffer-name) (kill-buffer
+      dashboard-buffer-name)) (dashboard-insert-startupify-lists)
+      (switch-to-buffer dashboard-buffer-name)) (defun quit-dashboard () "Quit
+      dashboard window." (interactive) (quit-window t) (when (and
+      dashboard-recover-layout-p (bound-and-true-p winner-mode)) (winner-undo)
+      (setq dashboard-recover-layout-p nil))) (defun penguin/browse-recents ()
+      "Open recent files." (interactive) (counsel-recentf)) (defun
+      penguin/browse-projects () "Open projectiles." (interactive)
+      (helm-projectile-switch-project)) (defun penguin/browse-calendar () "Open
+      the org-agenda." (interactive) (open-dashboard) (split-window-right)
+      (other-window 1) (let ((org-agenda-window-setup 'current-window))
+      (org-agenda nil "n"))) (defun penguin/browse-weather () "Open the weather
+      forcast." (interactive) (wttrin "Hochiminh")) (defun
+      penguin/browse-homepage () "Open my github homepage." (interactive)
       (lambda (&rest _) (browse-url my-homepage))))
 
-  (add-hook 'prog-mode-hook 'page-break-lines-mode) ;; Requirements for emacs dashboard packages
-  (dashboard-setup-startup-hook)
-#+end_src
+  (add-hook 'prog-mode-hook 'page-break-lines-mode) ;; Requirements for emacs
+  dashboard packages (dashboard-setup-startup-hook) #+end_src
 
 ** Highlight
 Highlight current line.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'hl-line)
-  (use-package hl-line
-    ;; Highlights the current line
-    :hook ((prog-mode text-mode conf-mode) . hl-line-mode)
-    :config
-    (setq hl-line-sticky-flag nil
-          global-hl-line-sticky-flag nil))
-#+end_src
+  (straight-use-package 'hl-line) (use-package hl-line ;; Highlights the current
+  line :hook ((prog-mode text-mode conf-mode) . hl-line-mode) :config (setq
+  hl-line-sticky-flag nil global-hl-line-sticky-flag nil)) #+end_src
 
-Highlight symbol: Currently I am turn off this mode globally for performance issue.
+Highlight symbol: Currently I am turn off this mode globally for performance
+issue.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'highlight-symbol)
-  (use-package highlight-symbol
-    :ensure t
-    :bind (("C-M-n" . highlight-symbol-next)
-           ("C-M-p" . highlight-symbol-prev))
-    :config
-    (highlight-symbol-nav-mode))
-#+end_src
+  (straight-use-package 'highlight-symbol) (use-package highlight-symbol :ensure
+  t :bind (("C-M-n" . highlight-symbol-next) ("C-M-p" . highlight-symbol-prev))
+  :config (highlight-symbol-nav-mode)) #+end_src
 
 Highlight matching parens
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'paren)
-  (use-package paren
-    :ensure nil
-    :hook (after-init . show-paren-mode)
-    :init (setq show-paren-when-point-inside-paren t
-                show-paren-when-point-in-periphery t)
-    :config
-    (with-no-warnings
-      (defun display-line-overlay (pos str &optional face)
-        "Display line at POS as STR with FACE.
-  FACE defaults to inheriting from default and highlight."
-        (let ((ol (save-excursion
-                    (goto-char pos)
-                    (make-overlay (line-beginning-position)
-                                  (line-end-position)))))
-          (overlay-put ol 'display str)
-          (overlay-put ol 'face
-                       (or face '(:inherit highlight)))
-          ol))
+  (straight-use-package 'paren) (use-package paren :ensure nil :hook (after-init
+  . show-paren-mode) :init (setq show-paren-when-point-inside-paren t
+  show-paren-when-point-in-periphery t) :config (with-no-warnings (defun
+  display-line-overlay (pos str &optional face) "Display line at POS as STR with
+  FACE. FACE defaults to inheriting from default and highlight." (let ((ol
+  (save-excursion (goto-char pos) (make-overlay (line-beginning-position)
+  (line-end-position))))) (overlay-put ol 'display str) (overlay-put ol 'face
+  (or face '(:inherit highlight))) ol))
 
-      (defvar-local show-paren--off-screen-overlay nil)
-      (defun show-paren-off-screen (&rest _args)
-        "Display matching line for off-screen paren."
-        (when (overlayp show-paren--off-screen-overlay)
-          (delete-overlay show-paren--off-screen-overlay))
-        ;; check if it's appropriate to show match info,
-        (when (and (overlay-buffer show-paren--overlay)
-                   (not (or cursor-in-echo-area
-                            executing-kbd-macro
-                            noninteractive
-                            (minibufferp)
-                            this-command))
-                   (and (not (bobp))
-                        (memq (char-syntax (char-before)) '(?\) ?\$)))
-                   (= 1 (logand 1 (- (point)
-                                     (save-excursion
-                                       (forward-char -1)
-                                       (skip-syntax-backward "/\\")
-                                       (point))))))
-          ;; rebind `minibuffer-message' called by
-          ;; `blink-matching-open' to handle the overlay display
-          (cl-letf (((symbol-function #'minibuffer-message)
-                     (lambda (msg &rest args)
-                       (let ((msg (apply #'format-message msg args)))
-                         (setq show-paren--off-screen-overlay
-                               (display-line-overlay
-                                (window-start) msg ))))))
-            (blink-matching-open))))
-      (advice-add #'show-paren-function :after #'show-paren-off-screen)))
-#+end_src
+      (defvar-local show-paren--off-screen-overlay nil) (defun
+      show-paren-off-screen (&rest _args) "Display matching line for off-screen
+      paren." (when (overlayp show-paren--off-screen-overlay) (delete-overlay
+      show-paren--off-screen-overlay)) ;; check if it's appropriate to show
+      match info, (when (and (overlay-buffer show-paren--overlay) (not (or
+      cursor-in-echo-area executing-kbd-macro noninteractive (minibufferp)
+      this-command)) (and (not (bobp)) (memq (char-syntax (char-before)) '(?\)
+      ?\$))) (= 1 (logand 1 (- (point) (save-excursion (forward-char -1)
+      (skip-syntax-backward "/\\") (point)))))) ;; rebind `minibuffer-message'
+      called by ;; `blink-matching-open' to handle the overlay display (cl-letf
+      (((symbol-function #'minibuffer-message) (lambda (msg &rest args) (let
+      ((msg (apply #'format-message msg args))) (setq
+      show-paren--off-screen-overlay (display-line-overlay (window-start) msg
+      )))))) (blink-matching-open)))) (advice-add #'show-paren-function :after
+      #'show-paren-off-screen))) #+end_src
 
 Dimmer package for highlight current working buffer
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'dimmer)
-  (use-package dimmer
-    :custom
-    (dimmer-fraction 0.3)
-    (dimmer-exclusion-regexp-list
-     '(".*Minibuf.*"
-       ".*helm-projectile.*"
-       ".*which-key.*"
-       ".*NeoTree.*"
-       ".*Messages.*"
-       ".*Async.*"
-       ".*Warnings.*"
-       ".*LV.*"
-       ".*Ilist.*")))
-  (dimmer-configure-which-key)
-  (dimmer-configure-helm)
-  (dimmer-mode)
-#+end_src
+  (straight-use-package 'dimmer) (use-package dimmer :custom (dimmer-fraction
+  0.3) (dimmer-exclusion-regexp-list '(".*Minibuf.*" ".*helm-projectile.*"
+  ".*which-key.*" ".*NeoTree.*" ".*Messages.*" ".*Async.*" ".*Warnings.*"
+  ".*LV.*" ".*Ilist.*"))) (dimmer-configure-which-key) (dimmer-configure-helm)
+  (dimmer-mode) #+end_src
 
 ** Modeline
-After trying a lot of packages, I think =moody= fit me most as it is simple but beautiful in a technical way.
+After trying a lot of packages, I think =moody= fit me most as it is simple but
+beautiful in a technical way.
 #+begin_src emacs-lisp :tangle yes
-  ;; (straight-use-package 'moody)
-  ;; (use-package moody
-  ;;   :config
-  ;;   (let ((line (face-attribute 'mode-line :underline)))
-  ;;     (set-face-attribute 'mode-line          nil :overline   line)
-  ;;     (set-face-attribute 'mode-line-inactive nil :overline   line)
-  ;;     (set-face-attribute 'mode-line-inactive nil :underline  line)
-  ;;     (set-face-attribute 'mode-line          nil :box        nil)
-  ;;     (set-face-attribute 'mode-line-inactive nil :box        nil)
-  ;;     (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9"))
-  ;;   (setq x-underline-at-descent-line t))
+  ;; (straight-use-package 'moody) (use-package moody :config (let ((line
+  ;; (face-attribute 'mode-line :underline))) (set-face-attribute 'mode-line nil
+  ;; :overline line) (set-face-attribute 'mode-line-inactive nil :overline line)
+  ;; (set-face-attribute 'mode-line-inactive nil :underline line)
+  ;; (set-face-attribute 'mode-line nil :box nil) (set-face-attribute
+  ;; 'mode-line-inactive nil :box nil) (set-face-attribute 'mode-line-inactive
+  ;; nil :background "#f9f2d9")) (setq x-underline-at-descent-line t))
 
-  ;; (moody-replace-mode-line-buffer-identification)
-  ;; (moody-replace-vc-mode)
+  ;; (moody-replace-mode-line-buffer-identification) (moody-replace-vc-mode)
 
-  ;; A minor-mode menu for mode-line
-  (straight-use-package 'minions)
-  (use-package minions
-    :hook (after-init . minions-mode)
-    :init (setq minions-mode-line-lighter "❤"))
+  ;; A minor-mode menu for mode-line (straight-use-package 'minions)
+  (use-package minions :hook (after-init . minions-mode) :init (setq
+  minions-mode-line-lighter "❤"))
 
-  (straight-use-package 'time)
-  (use-package time
-    :defer t
-    :custom
-    (display-time-default-load-average nil)
-    (display-time-24hr-format t)
-    :config
-    (display-time-mode t)
-    (display-battery-mode t))
-#+end_src
+  (straight-use-package 'time) (use-package time :defer t :custom
+  (display-time-default-load-average nil) (display-time-24hr-format t) :config
+  (display-time-mode t) (display-battery-mode t)) #+end_src
 
-Maybe I want to change to =doom-modeline= someday because it looks minimalism, but now **moody** still can statisfy me 🤣.
-This package is stay here for investigation purpose:
+Maybe I want to change to =doom-modeline= someday because it looks minimalism,
+but now **moody** still can statisfy me 🤣. This package is stay here for
+investigation purpose:
 #+BEGIN_SRC emacs-lisp :tangle yes
   (straight-use-package 'doom-modeline)
 
-  (setq doom-modeline-height 25)
-  (setq doom-modeline-bar-width 3)
-  (setq doom-modeline-window-width-limit fill-column)
-  (setq doom-modeline-project-detection 'project)
-  (setq doom-modeline-buffer-file-name-style 'auto)
-  (setq doom-modeline-icon (display-graphic-p))
-  (setq doom-modeline-major-mode-icon t)
-  (setq doom-modeline-major-mode-color-icon t)
-  (setq doom-modeline-buffer-state-icon t)
-  (setq doom-modeline-buffer-modification-icon t)
-  (setq doom-modeline-lsp t)
-  (setq doom-modeline-mu4e nil) ;; require mu4e-alert packages
-  (setq doom-modeline-gnus t)
-  (setq doom-modeline-gnus-timer 2)
-  (doom-modeline-mode)
-#+END_SRC
+  (setq doom-modeline-height 25) (setq doom-modeline-bar-width 3) (setq
+  doom-modeline-window-width-limit fill-column) (setq
+  doom-modeline-project-detection 'project) (setq
+  doom-modeline-buffer-file-name-style 'auto) (setq doom-modeline-icon
+  (display-graphic-p)) (setq doom-modeline-major-mode-icon t) (setq
+  doom-modeline-major-mode-color-icon t) (setq doom-modeline-buffer-state-icon
+  t) (setq doom-modeline-buffer-modification-icon t) (setq doom-modeline-lsp t)
+  (setq doom-modeline-mu4e nil) ;; require mu4e-alert packages (setq
+  doom-modeline-gnus t) (setq doom-modeline-gnus-timer 2) (doom-modeline-mode)
+  #+END_SRC
 
 ** M-x UI Enhancement
 I dont like postframe and I like my minibuffer to stay organized.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'fancy-narrow)
-  (use-package fancy-narrow
-    :diminish
-    :hook (after-init . fancy-narrow-mode))
+  (straight-use-package 'fancy-narrow) (use-package fancy-narrow :diminish :hook
+  (after-init . fancy-narrow-mode))
 
-  (setq resize-mini-windows 'grow-only
-        ;; But don't let the minibuffer grow beyond this size
-        max-mini-window-height 0.15)
+  (setq resize-mini-windows 'grow-only ;; But don't let the minibuffer grow
+  beyond this size max-mini-window-height 0.15)
 
-  ;; M-x history
-  (straight-use-package 'smex)
-  (use-package smex
-    :ensure t
-    :config
-    (setq smex-save-file (concat pcache-dir ".smex-items"))
-    (smex-initialize))
-#+end_src
+  ;; M-x history (straight-use-package 'smex) (use-package smex :ensure t
+  :config (setq smex-save-file (concat pcache-dir ".smex-items"))
+  (smex-initialize)) #+end_src
 
 ** Shackle
-Some packages would popup many frames randomly. I would them to stay under my control 😛.
+Some packages would popup many frames randomly. I would them to stay under my
+control 😛.
 #+begin_src emacs-lisp :tangle yes
-  (defvar shackle--popup-window-list nil) ; all popup windows
-  (defvar-local shackle--current-popup-window nil) ; current popup window
-  (put 'shackle--current-popup-window 'permanent-local t)
+  (defvar shackle--popup-window-list nil) ; all popup windows (defvar-local
+  shackle--current-popup-window nil) ; current popup window (put
+  'shackle--current-popup-window 'permanent-local t)
 
-  (straight-use-package 'shackle)
-  (use-package shackle
-    :functions org-switch-to-buffer-other-window
-    :commands shackle-display-buffer
-    :hook (after-init . shackle-mode)
-    :config
-    (eval-and-compile
-      (defun shackle-last-popup-buffer ()
-        "View last popup buffer."
-        (interactive)
-        (ignore-errors
-          (display-buffer shackle-last-buffer)))
-      (bind-key "C-h z" #'shackle-last-popup-buffer)
+  (straight-use-package 'shackle) (use-package shackle :functions
+  org-switch-to-buffer-other-window :commands shackle-display-buffer :hook
+  (after-init . shackle-mode) :config (eval-and-compile (defun
+  shackle-last-popup-buffer () "View last popup buffer." (interactive)
+  (ignore-errors (display-buffer shackle-last-buffer))) (bind-key "C-h z"
+  #'shackle-last-popup-buffer)
 
-      ;; Add keyword: `autoclose'
-      (defun shackle-display-buffer-hack (fn buffer alist plist)
-        (let ((window (funcall fn buffer alist plist)))
-          (setq shackle--current-popup-window window)
+      ;; Add keyword: `autoclose' (defun shackle-display-buffer-hack (fn buffer
+      alist plist) (let ((window (funcall fn buffer alist plist))) (setq
+      shackle--current-popup-window window)
 
-          (when (plist-get plist :autoclose)
-            (push (cons window buffer) shackle--popup-window-list))
-          window))
+          (when (plist-get plist :autoclose) (push (cons window buffer)
+            shackle--popup-window-list)) window))
 
-      (defun shackle-close-popup-window-hack (&rest _)
-        "Close current popup window via `C-g'."
-        (setq shackle--popup-window-list
-              (cl-loop for (window . buffer) in shackle--popup-window-list
-                       if (and (window-live-p window)
-                               (equal (window-buffer window) buffer))
-                       collect (cons window buffer)))
-        ;; `C-g' can deactivate region
-        (when (and (called-interactively-p 'interactive)
-                   (not (region-active-p)))
-          (let (window buffer)
-            (if (one-window-p)
-                (progn
-                  (setq window (selected-window))
-                  (when (equal (buffer-local-value 'shackle--current-popup-window
-                                                   (window-buffer window))
-                               window)
-                    (winner-undo)))
-              (setq window (caar shackle--popup-window-list))
-              (setq buffer (cdar shackle--popup-window-list))
-              (when (and (window-live-p window)
-                         (equal (window-buffer window) buffer))
-                (delete-window window)
+      (defun shackle-close-popup-window-hack (&rest _) "Close current popup
+        window via `C-g'." (setq shackle--popup-window-list (cl-loop for (window
+        . buffer) in shackle--popup-window-list if (and (window-live-p window)
+        (equal (window-buffer window) buffer)) collect (cons window buffer))) ;;
+        `C-g' can deactivate region (when (and (called-interactively-p
+        'interactive) (not (region-active-p))) (let (window buffer) (if
+        (one-window-p) (progn (setq window (selected-window)) (when (equal
+        (buffer-local-value 'shackle--current-popup-window (window-buffer
+        window)) window) (winner-undo))) (setq window (caar
+        shackle--popup-window-list)) (setq buffer (cdar
+        shackle--popup-window-list)) (when (and (window-live-p window) (equal
+        (window-buffer window) buffer)) (delete-window window)
 
                 (pop shackle--popup-window-list))))))
 
       (advice-add #'keyboard-quit :before #'shackle-close-popup-window-hack)
-      (advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack))
+      (advice-add #'shackle-display-buffer :around
+      #'shackle-display-buffer-hack))
 
     ;; HACK: compatibility issuw with `org-switch-to-buffer-other-window'
-    (advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window)
+    (advice-add #'org-switch-to-buffer-other-window :override
+    #'switch-to-buffer-other-window)
 
-    ;; rules
-    (setq shackle-default-size 0.4
-          shackle-default-alignment 'below
-          shackle-default-rule nil
-          shackle-rules
-          '((("*Help*" "*Apropos*") :select t :size 0.3 :align 'below :autoclose t)
-            (("*compilation*" "*Compile-Log*") :select t :size 0.3 :align 'below :autoclose t)
-            ("*Completions*" :size 0.3 :align 'below :autoclose t)
-            ("*Pp Eval Output*" :size 15 :align 'below :autoclose t)
-            ("*Backtrace*" :select t :size 15 :align 'below)
-            (("*Warnings*" "*Messages*") :size 0.3 :align 'below :autoclose t)
-            ("^\\*.*Shell Command.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
-            ("\\*[Wo]*Man.*\\*" :regexp t :select t :align 'below :autoclose t)
-            ("*Calendar*" :select t :size 0.3 :align 'below)
-            (("*shell*" "*eshell*" "*ielm*") :popup t :align 'below)
-            ("^\\*vc-.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
-            ("*gud-debug*" :select t :size 0.4 :align 'below :autoclose t)
-            ("\\*ivy-occur .*\\*" :regexp t :select t :align 'below)
-            (" *undo-tree*" :select t)
-            ("*quickrun*" :select t :size 15 :align 'below)
-            ("*Finder*" :select t :size 0.3 :align 'below :autoclose t)
-            ("^\\*macro expansion\\**" :regexp t :size 0.4 :align 'below)
-            ("^\\*elfeed-entry" :regexp t :size 0.7 :align 'below :autoclose t)
-            ((" *Org todo*" "*Org Dashboard*" "*Org Select*") :select t :size 0.4 :align 'below :autoclose t)
-            (("*lsp-help*" "*lsp session*") :size 0.3 :align 'below :autoclose t)
-            (" *Install vterm" :size 0.35 :same t :align 'below)
-            (("*Paradox Report*" "*package update results*") :size 0.2 :align 'below :autoclose t)
-            ("*Package-Lint*" :size 0.4 :align 'below :autoclose t)
-            (("*Gofmt Errors*" "*Go Test*") :select t :size 0.3 :align 'below :autoclose t)
-            ("*How Do You*" :select t :size 0.5 :align 'below :autoclose t)
+    ;; rules (setq shackle-default-size 0.4 shackle-default-alignment 'below
+    shackle-default-rule nil shackle-rules '((("*Help*" "*Apropos*") :select t
+    :size 0.3 :align 'below :autoclose t) (("*compilation*" "*Compile-Log*")
+    :select t :size 0.3 :align 'below :autoclose t) ("*Completions*" :size 0.3
+    :align 'below :autoclose t) ("*Pp Eval Output*" :size 15 :align 'below
+    :autoclose t) ("*Backtrace*" :select t :size 15 :align 'below)
+    (("*Warnings*" "*Messages*") :size 0.3 :align 'below :autoclose t)
+    ("^\\*.*Shell Command.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
+    ("\\*[Wo]*Man.*\\*" :regexp t :select t :align 'below :autoclose t)
+    ("*Calendar*" :select t :size 0.3 :align 'below) (("*shell*" "*eshell*"
+    "*ielm*") :popup t :align 'below) ("^\\*vc-.*\\*$" :regexp t :size 0.3
+    :align 'below :autoclose t) ("*gud-debug*" :select t :size 0.4 :align 'below
+    :autoclose t) ("\\*ivy-occur .*\\*" :regexp t :select t :align 'below) ("
+    *undo-tree*" :select t) ("*quickrun*" :select t :size 15 :align 'below)
+    ("*Finder*" :select t :size 0.3 :align 'below :autoclose t) ("^\\*macro
+    expansion\\**" :regexp t :size 0.4 :align 'below) ("^\\*elfeed-entry"
+    :regexp t :size 0.7 :align 'below :autoclose t) ((" *Org todo*" "*Org
+    Dashboard*" "*Org Select*") :select t :size 0.4 :align 'below :autoclose t)
+    (("*lsp-help*" "*lsp session*") :size 0.3 :align 'below :autoclose t) ("
+    *Install vterm" :size 0.35 :same t :align 'below) (("*Paradox Report*"
+    "*package update results*") :size 0.2 :align 'below :autoclose t)
+    ("*Package-Lint*" :size 0.4 :align 'below :autoclose t) (("*Gofmt Errors*"
+    "*Go Test*") :select t :size 0.3 :align 'below :autoclose t) ("*How Do You*"
+    :select t :size 0.5 :align 'below :autoclose t)
 
-            ("*ert*" :size 15 :align 'below :autoclose t)
-            (overseer-buffer-mode :size 15 :align 'below :autoclose t)
+            ("*ert*" :size 15 :align 'below :autoclose t) (overseer-buffer-mode
+            :size 15 :align 'below :autoclose t)
 
-            (" *Flycheck checkers*" :select t :size 0.4 :align 'below :autoclose t)
-            ((flycheck-error-list-mode flymake-diagnostics-buffer-mode)
-             :select t :size 0.3 :align 'below :autoclose t)
+            (" *Flycheck checkers*" :select t :size 0.4 :align 'below :autoclose
+            t) ((flycheck-error-list-mode flymake-diagnostics-buffer-mode)
+            :select t :size 0.3 :align 'below :autoclose t)
 
             ("*Ibuffer*" :select t :size 0.4 :align 'below :autoclose t)
             (ibuffer-mode :select t :size 0.4 :align 'below :autoclose t)
 
             ("*Org Agenda*" :select t :size 0.4 :align 'right :autoclose t)
-            (org-super-agenda-mode :select t :size 0.4 :align 'right :autoclose t)
+            (org-super-agenda-mode :select t :size 0.4 :align 'right :autoclose
+            t)
 
-            (profiler-report-mode :select t :size 0.5 :align 'below)
-            ("*ELP Profiling Restuls*" :select t :size 0.5 :align 'below)
+            (profiler-report-mode :select t :size 0.5 :align 'below) ("*ELP
+            Profiling Restuls*" :select t :size 0.5 :align 'below)
 
-            ((inferior-python-mode inf-ruby-mode swift-repl-mode) :size 0.4 :align 'below)
-            ("*prolog*" :size 0.4 :align 'below)
+            ((inferior-python-mode inf-ruby-mode swift-repl-mode) :size 0.4
+            :align 'below) ("*prolog*" :size 0.4 :align 'below)
 
             ("*anaconda-mode*" :noselect t :size 10 :autoclose t :autokill t)
             (anaconda-mode :noselect t :size 10 :autoclose t :autokill t)
 
-            ("*nose-mode*" :noselect t :size 0.4)
-            (nose-mode :noselect t :size 0.4)
+            ("*nose-mode*" :noselect t :size 0.4) (nose-mode :noselect t :size
+            0.4)
 
-            ((grep-mode rg-mode deadgrep-mode ag-mode pt-mode) :select t :align 'below)
-            (Buffer-menu-mode :select t :size 20 :align 'below :autoclose t)
-            (helpful-mode :select t :size 0.3 :align 'below :autoclose t)
-            ((process-menu-mode cargo-process-mode) :select t :size 0.3 :align 'below :autoclose t)
-            (list-environment-mode :select t :size 0.3 :align 'below :autoclose t)
-            (tabulated-list-mode :size 0.4 :align 'below))))
-#+end_src
+            ((grep-mode rg-mode deadgrep-mode ag-mode pt-mode) :select t :align
+            'below) (Buffer-menu-mode :select t :size 20 :align 'below
+            :autoclose t) (helpful-mode :select t :size 0.3 :align 'below
+            :autoclose t) ((process-menu-mode cargo-process-mode) :select t
+            :size 0.3 :align 'below :autoclose t) (list-environment-mode :select
+            t :size 0.3 :align 'below :autoclose t) (tabulated-list-mode :size
+            0.4 :align 'below)))) #+end_src
 
 ** Treemacs
 A side explorer for Emacs, it always nice to be more modern looking.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'treemacs)
-  (use-package treemacs
-    :ensure t
-    :defer t
-    :init
-    (with-eval-after-load 'winum
-      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-    :config
-    (progn
-      (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-            treemacs-deferred-git-apply-delay      0.5
-            treemacs-directory-name-transformer    #'identity
-            treemacs-display-in-side-window        t
-            treemacs-eldoc-display                 t
-            treemacs-file-event-delay              5000
-            treemacs-file-extension-regex          treemacs-last-period-regex-value
-            treemacs-file-follow-delay             0.2
-            treemacs-file-name-transformer         #'identity
-            treemacs-follow-after-init             t
-            treemacs-git-command-pipe              ""
-            treemacs-goto-tag-strategy             'refetch-index
-            treemacs-indentation                   2
-            treemacs-indentation-string            " "
-            treemacs-is-never-other-window         nil
-            treemacs-max-git-entries               500
-            treemacs-no-delete-other-windows       t
-            treemacs-missing-project-action        'ask
-            treemacs-project-follow-cleanup        nil
-            treemacs-persist-file                  (expand-file-name "treemacs-persist" pcache-dir)
-            treemacs-position                      'left
-            treemacs-recenter-distance             0.1
-            treemacs-recenter-after-file-follow    nil
-            treemacs-recenter-after-tag-follow     nil
-            treemacs-recenter-after-project-jump   'always
-            treemacs-recenter-after-project-expand 'on-distance
-            treemacs-show-cursor                   nil
-            treemacs-show-hidden-files             t
-            treemacs-silent-filewatch              nil
-            treemacs-silent-refresh                nil
-            treemacs-sorting                       'alphabetic-asc
-            treemacs-space-between-root-nodes      t
-            treemacs-tag-follow-cleanup            t
-            treemacs-tag-follow-delay              1.5
-            treemacs-no-png-images                 nil
-            treemacs-width                         30)
+  (straight-use-package 'treemacs) (use-package treemacs :ensure t :defer t
+  :init (with-eval-after-load 'winum (define-key winum-keymap (kbd "M-0")
+  #'treemacs-select-window)) :config (progn (setq treemacs-collapse-dirs (if
+  treemacs-python-executable 3 0) treemacs-deferred-git-apply-delay 0.5
+  treemacs-directory-name-transformer #'identity treemacs-display-in-side-window
+  t treemacs-eldoc-display t treemacs-file-event-delay 5000
+  treemacs-file-extension-regex treemacs-last-period-regex-value
+  treemacs-file-follow-delay 0.2 treemacs-file-name-transformer #'identity
+  treemacs-follow-after-init t treemacs-git-command-pipe ""
+  treemacs-goto-tag-strategy 'refetch-index treemacs-indentation 2
+  treemacs-indentation-string " " treemacs-is-never-other-window nil
+  treemacs-max-git-entries 500 treemacs-no-delete-other-windows t
+  treemacs-missing-project-action 'ask treemacs-project-follow-cleanup nil
+  treemacs-persist-file (expand-file-name "treemacs-persist" pcache-dir)
+  treemacs-position 'left treemacs-recenter-distance 0.1
+  treemacs-recenter-after-file-follow nil treemacs-recenter-after-tag-follow nil
+  treemacs-recenter-after-project-jump 'always
+  treemacs-recenter-after-project-expand 'on-distance treemacs-show-cursor nil
+  treemacs-show-hidden-files t treemacs-silent-filewatch nil
+  treemacs-silent-refresh nil treemacs-sorting 'alphabetic-asc
+  treemacs-space-between-root-nodes t treemacs-tag-follow-cleanup t
+  treemacs-tag-follow-delay 1.5 treemacs-no-png-images nil treemacs-width 30)
 
-      (treemacs-follow-mode t)
-      (treemacs-filewatch-mode t)
-      (treemacs-fringe-indicator-mode t)
-      (pcase (cons (not (null (executable-find "git")))
-                   (not (null treemacs-python-executable)))
-        (`(t . t)
-         (treemacs-git-mode 'deferred))
-        (`(t . _)
-         (treemacs-git-mode 'simple))))
-    :bind
-    (:map global-map
-          ("M-0"       . treemacs-select-window)
-          ("C-x t 1"   . treemacs-delete-other-windows)
-          ("C-x t t"   . treemacs)
-          ("C-x t B"   . treemacs-bookmark)
-          ("C-x t C-t" . treemacs-find-file)
-          ("C-x t M-t" . treemacs-find-tag)))
+      (treemacs-follow-mode t) (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode t) (pcase (cons (not (null
+      (executable-find "git"))) (not (null treemacs-python-executable))) (`(t .
+      t) (treemacs-git-mode 'deferred)) (`(t . _) (treemacs-git-mode 'simple))))
+      :bind (:map global-map ("M-0" . treemacs-select-window) ("C-x t 1" .
+      treemacs-delete-other-windows) ("C-x t t" . treemacs) ("C-x t B" .
+      treemacs-bookmark) ("C-x t C-t" . treemacs-find-file) ("C-x t M-t" .
+      treemacs-find-tag)))
 
-  (straight-use-package 'treemacs-projectile)
-  (use-package treemacs-projectile
-    :after treemacs projectile)
+  (straight-use-package 'treemacs-projectile) (use-package treemacs-projectile
+  :after treemacs projectile)
 
-  (straight-use-package 'treemacs-magit)
-  (use-package treemacs-magit
-        :after magit
-        :commands treemacs-magit--schedule-update
-        :hook ((magit-post-commit
-                git-commit-post-finish
-                magit-post-stage
-                magit-post-unstage)
-               . treemacs-magit--schedule-update))
-  ;; End `Treemacs'
-  (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
-#+end_src
+  (straight-use-package 'treemacs-magit) (use-package treemacs-magit :after
+  magit :commands treemacs-magit--schedule-update :hook ((magit-post-commit
+  git-commit-post-finish magit-post-stage magit-post-unstage) .
+  treemacs-magit--schedule-update)) ;; End `Treemacs' (setq
+  inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
+  #+end_src
 
 ** Theme
 =doom-themes= are quite good-looking and have a variety of options to choose.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'doom-themes)
-  (use-package doom-themes
-    :defines doom-themes-treemacs-theme
-    :config
-    (doom-themes-visual-bell-config)
-    (set-face-attribute 'doom-visual-bell nil
-                        :inherit 'mode-line
-                        :background (face-foreground 'error)
-                        :inverse-video 'unspecified)
-    (doom-themes-org-config)
-    (with-eval-after-load 'erc-goodies
-      (set-face-attribute 'erc-bold-face nil :bold nil))
-    (with-eval-after-load 'flycheck
-      (set-face-attribute 'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
-      (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color 'highlight) :style line))
-      (set-face-attribute 'flycheck-warning nil :underline `(:color ,(doom-color 'warning) :style line)))
-    (with-eval-after-load 'isearch
-      (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground (doom-color 'dark-blue))
-      (set-face-attribute 'lazy-highlight nil :foreground (doom-color 'blue))))
+  (straight-use-package 'doom-themes) (use-package doom-themes :defines
+  doom-themes-treemacs-theme :config (doom-themes-visual-bell-config)
+  (set-face-attribute 'doom-visual-bell nil :inherit 'mode-line :background
+  (face-foreground 'error) :inverse-video 'unspecified) (doom-themes-org-config)
+  (with-eval-after-load 'erc-goodies (set-face-attribute 'erc-bold-face nil
+  :bold nil)) (with-eval-after-load 'flycheck (set-face-attribute
+  'flycheck-error nil :underline `(:color ,(doom-color 'error) :style line))
+  (set-face-attribute 'flycheck-info nil :underline `(:color ,(doom-color
+  'highlight) :style line)) (set-face-attribute 'flycheck-warning nil :underline
+  `(:color ,(doom-color 'warning) :style line))) (with-eval-after-load 'isearch
+  (set-face-attribute 'isearch nil :background (doom-color 'blue) :foreground
+  (doom-color 'dark-blue)) (set-face-attribute 'lazy-highlight nil :foreground
+  (doom-color 'blue))))
 
-  ;; (doom-themes-treemacs-config)
-  ;; (setq doom-themes-treemacs-theme "doom-colors")
-  ;; (load-theme 'doom-one t)
-#+end_src
+  ;; (doom-themes-treemacs-config) (setq doom-themes-treemacs-theme
+  ;; "doom-colors") (load-theme 'doom-one t) #+end_src
 
-One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**.
-However, some of the color scheme seems too bright for me, so I forked it and tweak it myself [[https://github.com/nghialam12795/penmacs_theme][here]].
+One theme cannot satisfy me, I will let this here for investigation.
+=spacemacs-themes= seems really good with **org-mode**. However, some of the
+color scheme seems too bright for me, so I forked it and tweak it myself
+[[https://github.com/nghialam12795/penmacs_theme][here]].
 
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; (use-package spacemacs-theme
-  ;;   :defer t
-  ;;   :init (load-theme 'spacemacs-dark t))
+  ;; (use-package spacemacs-theme :defer t :init (load-theme 'spacemacs-dark t))
 
   (push (expand-file-name "penmacs_theme" user-emacs-directory) load-path)
-  (require 'penmacs-common)
-  (load-theme 'penmacs-dark t)
-#+END_SRC
+  (require 'penmacs-common) (load-theme 'penmacs-dark t) #+END_SRC
 
-=kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs for =treemacs=.
+=kaolin-themes= is pretty nice in its own way and it provides a predefined icons
+packs for =treemacs=.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'kaolin-themes)
-  (kaolin-treemacs-theme)
-#+end_src
+  (straight-use-package 'kaolin-themes) (kaolin-treemacs-theme) #+end_src
 
-For a more contrast looking, I use =solaire-mode=. Currently disable for conflicts with hline and other packages..
+For a more contrast looking, I use =solaire-mode=. Currently disable for
+conflicts with hline and other packages..
 #+BEGIN_SRC emacs-lisp :tangle yes
-  ;; (straight-use-package 'solaire-mode)
-  ;; (use-package solaire-mode
-  ;;   :hook
-  ;;   ((change-major-mode after-revert ediff-prepare-buffer) . turn-on-solaire-mode)
-  ;;   (minibuffer-setup . solaire-mode-in-minibuffer)
-  ;;   :config
-  ;;   (solaire-global-mode +1))
-#+END_SRC
+  ;; (straight-use-package 'solaire-mode) (use-package solaire-mode :hook
+  ;; ((change-major-mode after-revert ediff-prepare-buffer) .
+  ;; turn-on-solaire-mode) (minibuffer-setup . solaire-mode-in-minibuffer)
+  ;; :config (solaire-global-mode +1)) #+END_SRC
 
 Set the divider to be more visible.
 
 #+begin_src emacs-lisp :tangle yes
-  ;; (setq window-divider-default-places t
-  ;;       window-divider-default-bottom-width 1
+  ;; (setq window-divider-default-places t window-divider-default-bottom-width 1
   ;;       window-divider-default-right-width 1)
 
-  ;; (set-face-background 'vertical-border "gray")
-  ;; (set-face-foreground 'vertical-border (face-background 'vertical-border))
-  ;; (add-hook 'window-setup-hook #'window-divider-mode)
-#+end_src
+  ;; (set-face-background 'vertical-border "gray") (set-face-foreground
+  ;; 'vertical-border (face-background 'vertical-border)) (add-hook
+  ;; 'window-setup-hook #'window-divider-mode) #+end_src
 
 ** Winner
 Tracking windows layout in emacs.
 #+begin_src emacs-lisp :tangle yes
-  (straight-use-package 'winner)
-  (use-package winner
-    :hook (after-init . winner-mode)
-    :bind (("<s-right>" . winner-redo)
-           ("<s-left>" . winner-undo)))
-#+end_src
+  (straight-use-package 'winner) (use-package winner :hook (after-init .
+  winner-mode) :bind (("<s-right>" . winner-redo) ("<s-left>" . winner-undo)))
+  #+end_src
 
 
 * Org Mode
