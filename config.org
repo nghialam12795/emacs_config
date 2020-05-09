@@ -97,6 +97,7 @@ I include some info to the header file.
   ;;; Commentary:
 
   ;; PENMACS config file.  For cross-platform Emacs 26, Emacs 27.
+  (setq-default lexical-binding t)
 #+END_SRC
 
 ** System Information
@@ -104,7 +105,7 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
 
 #+begin_src emacs-lisp :tangle yes
   (defvar pemacs/version
-    "1.0.1"
+    "1.1.0"
     "Penguin Emacs version.")
   (defconst my-homepage
     "https://github.com/nghialam12795"
