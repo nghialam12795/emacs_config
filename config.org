@@ -719,7 +719,7 @@ I also =company-box= that allow a company front-end with more compact UI.
           ("C-g" . minibuffer-keyboard-quit)))
 #+end_src
 
-*** Docsets
+*** COMMENT Docsets
 I use [[https://github.com/chubin/cheat.sh][cheat.sh]] as my quick cheatsheets and =counsel-dash= to browse the complete dash docsets.
 You'd need to install the docsets you want with =dash-doc-install-docsets= command. For me, I work mostly with *C++* so I just need it's docsets.
 #+begin_src emacs-lisp :tangle yes
@@ -751,9 +751,6 @@ You'd need to install the docsets you want with =dash-doc-install-docsets= comma
     :defer 0.3
     :config (editorconfig-mode 1))
 #+end_src
-
-*** Evil Mode
-As the default keys chord of Emacs is not really good for your fingers, I will use the =evil-mode= to get the =vi= keychord from Vim.
 
 *** LSP Mode
 In order to be able to use different LSP (Language Server Protocol) server according to the programming language that we want to use, we need a client for LSP. That’s where lsp-mode comes in!
