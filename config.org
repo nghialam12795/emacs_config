@@ -765,6 +765,8 @@ As the default keys chord of Emacs is not really good for your fingers, I will u
   (straight-use-package 'evil-surround)
   (straight-use-package 'evil-indent-textobject)
   (straight-use-package 'evil-org)
+  (straight-use-package 'evil-escape)
+
   (use-package evil
     :ensure t
     :config
@@ -791,7 +793,17 @@ As the default keys chord of Emacs is not really good for your fingers, I will u
             '(textobjects insert navigation additional shift todo heading))
       (add-hook 'org-mode-hook (lambda () (evil-org-mode)))))
 
+  (use-package evil-escape
+    :after evil
+    :diminish evil-escape-mode
+    :ensure t
+    :config
+    (evil-escape-mode)
+    (setq evil-escape-key-sequence "jj")
+    (setq evil-escape-delay 0.3))
+
   (global-evil-leader-mode t)
+  (evil-escape-mode t)
   (evil-mode 1)
 #+end_src
 
