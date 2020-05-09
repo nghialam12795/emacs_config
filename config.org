@@ -225,11 +225,16 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
   (unless sys/linux (setq command-line-x-option-alist nil))
   (toggle-frame-maximized)                                       ; Toggle maximized
 
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)    ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
 #+end_src
 
 Some specific OS tweak:
 #+begin_src emacs-lisp :tangle yes
-  (when sys/macport
+  (when sys/macos
     (setq mac-redisplay-dont-reset-vscroll t
           mac-mouse-wheel-smooth-scroll nil
           ns-pop-up-frames nil
@@ -754,6 +759,41 @@ You'd need to install the docsets you want with =dash-doc-install-docsets= comma
 
 *** Evil Mode
 As the default keys chord of Emacs is not really good for your fingers, I will use the =evil-mode= to get the =vi= keychord from Vim.
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'evil)
+  (straight-use-package 'evil-leader)
+  (straight-use-package 'evil-surround)
+  (straight-use-package 'evil-indent-textobject)
+  (straight-use-package 'evil-org)
+  (use-package evil
+    :ensure t
+    :config
+
+    (use-package evil-leader
+      :ensure t
+      :config
+      (evil-leader/set-leader "<SPC>")
+      (evil-leader/set-key
+        "s s" 'swiper
+        "d x w" 'delete-trailing-whitespace))
+
+    (use-package evil-surround
+      :ensure t
+      :config (global-evil-surround-mode))
+
+    (use-package evil-indent-textobject
+      :ensure t)
+
+    (use-package evil-org
+      :ensure t
+      :config
+      (evil-org-set-key-theme
+            '(textobjects insert navigation additional shift todo heading))
+      (add-hook 'org-mode-hook (lambda () (evil-org-mode)))))
+
+  (global-evil-leader-mode t)
+  (evil-mode 1)
+#+end_src
 
 *** LSP Mode
 In order to be able to use different LSP (Language Server Protocol) server according to the programming language that we want to use, we need a client for LSP. That’s where lsp-mode comes in!
