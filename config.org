@@ -3364,6 +3364,11 @@ A side explorer for Emacs, it always nice to be more modern looking.
           ("C-x t C-t" . treemacs-find-file)
           ("C-x t M-t" . treemacs-find-tag)))
 
+  (straight-use-package 'treemacs-evil)
+  (use-package treemacs-evil
+    :after treemacs evil
+    :ensure t)
+
   (straight-use-package 'treemacs-projectile)
   (use-package treemacs-projectile
     :after treemacs projectile)
@@ -3379,6 +3384,11 @@ A side explorer for Emacs, it always nice to be more modern looking.
                . treemacs-magit--schedule-update))
   ;; End `Treemacs'
   (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
+  (with-eval-after-load 'treemacs
+    (defun treemacs-ignore-ext (file _)
+      (s-ends-with? ".meta" file))
+    (push #'treemacs-ignore-ext treemacs-ignored-file-predicates)
+    (add-to-list 'treemacs-pre-file-insert-predicates #'treemacs-is-file-git-ignored?))
 #+end_src
 
 ** Theme
