@@ -3405,9 +3405,11 @@ A side explorer for Emacs, it always nice to be more modern looking.
                . treemacs-magit--schedule-update))
   ;; End `Treemacs'
   (setq inhibit-compacting-font-caches t) ;; For fixing the lag with all-the-icons
+  ;; Add ignore files for treemacs
   (with-eval-after-load 'treemacs
     (defun treemacs-ignore-ext (file _)
-      (s-ends-with? ".meta" file))
+      (or (s-ends-with? ".pyc" file)
+          (s-ends-with? ".meta" file)))
     (push #'treemacs-ignore-ext treemacs-ignored-file-predicates)
     (add-to-list 'treemacs-pre-file-insert-predicates #'treemacs-is-file-git-ignored?))
 #+end_src
@@ -3457,6 +3459,11 @@ However, some of the color scheme seems too bright for me, so I forked it and tw
 #+begin_src emacs-lisp :tangle yes
   (straight-use-package 'kaolin-themes)
   (kaolin-treemacs-theme)
+#+end_src
+
+For now I would like to try other themes like dracula
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'dracula-theme)
 #+end_src
 
 For a more contrast looking, I use =solaire-mode=. Currently disable for conflicts with hline and other packages..
