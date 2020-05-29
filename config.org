@@ -203,7 +203,7 @@ Here I setup some info for my PENMACS. As my job requires me to work on all OS, 
   (cd "~/")                                                      ; Move to the user directory
   (delete-selection-mode 1)                                      ; Replace region when inserting text
   (display-time-mode 1)                                          ; Enable time in the mode-line
-  (fringe-mode 0)                                                ; Disable fringes
+  ;; (fringe-mode 4)                                                ; Setup fringe
   (fset 'yes-or-no-p 'y-or-n-p)                                  ; Replace yes/no prompts with y/n
   (global-subword-mode 1)                                        ; Iterate through CamelCase words
   (mouse-avoidance-mode 'banish)                                 ; Avoid collision of mouse with point
@@ -2386,7 +2386,7 @@ For every files, I'd want to have a steady and clean code throughout the project
   (define-key c-mode-base-map (kbd "C-<f10>") #'clang-format-region-google)
 #+end_src
 
-> This is just temperary. =clang-tidy= in CLion is much more helpful. (TODO)
+> This is just temporary. =clang-tidy= in CLion is much more helpful. (TODO)
 
 ** CMake
 My work requires me to go cross-platform with C++. So, =cmake= is a must.
@@ -3442,7 +3442,7 @@ A side explorer for Emacs, it always nice to be more modern looking.
   ;; (load-theme 'doom-one t)
 #+end_src
 
-One theme cannot satisfy me, I will let this here for investigation. =spacemacs-themes= seems really good with **org-mode**.
+One theme cannot satisfy me, I will let this here eor investigation. =spacemacs-themes= seems really good with **org-mode**.
 However, some of the color scheme seems too bright for me, so I forked it and tweak it myself [[https://github.com/nghialam12795/penmacs_theme][here]].
 
 #+BEGIN_SRC emacs-lisp :tangle yes
@@ -3453,6 +3453,10 @@ However, some of the color scheme seems too bright for me, so I forked it and tw
   (push (expand-file-name "penmacs_theme" user-emacs-directory) load-path)
   (require 'penmacs-common)
   (load-theme 'penmacs-dark t)
+  ;; Disable Org-mode header enlargement
+  (add-hook 'org-mode-hook (lambda ()
+                             (set-face-attribute 'org-level-1 nil :height 1)
+                             (set-face-attribute 'org-level-2 nil :height 1)))
 #+END_SRC
 
 =kaolin-themes= is pretty nice in its own way and it provides a predefined icons packs for =treemacs=.
