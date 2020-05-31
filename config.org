@@ -503,7 +503,7 @@ I usually let emacs fullscreen and open all the times, so I need to see the cale
                     (cfw:org-create-source "YellowGreen"))
                   (when (bound-and-true-p centaur-ical)
                     (cfw:ical-create-source "gcal" centaur-ical "IndianRed")))))
-        (cfw:open-calendar-buffer))))
+        (cfw:open-org-calendar))))
 #+end_src
 
 ** Dired
@@ -3410,8 +3410,8 @@ A side explorer for Emacs, it always nice to be more modern looking.
     (defun treemacs-ignore-ext (file _)
       (or (s-ends-with? ".pyc" file)
           (s-ends-with? ".meta" file)))
-    (push #'treemacs-ignore-ext treemacs-ignored-file-predicates)
-    (add-to-list 'treemacs-pre-file-insert-predicates #'treemacs-is-file-git-ignored?))
+    (push #'treemacs-ignore-ext treemacs-ignored-file-predicates))
+    ;; (add-to-list 'treemacs-pre-file-insert-predicates #'treemacs-is-file-git-ignored?))
 #+end_src
 
 ** Theme
@@ -3894,11 +3894,11 @@ And its super brother
   (setq penguin-org-deadline-prefix "%2i%-12(penguin-agenda-prefix)")
   (setq org-agenda-custom-commands '(("n" "Agenda"
                                       ((agenda "")
-                                       (todo ""
-                                             ((org-agenda-overriding-header "Stuck Projects")
-                                              ;; (org-agenda-skip-function #'penguin/should-skip)
-                                              (org-agenda-prefix-format penguin-org-deadline-prefix)
-                                              (org-agenda-sorting-strategy nil)))
+                                       ;; (todo ""
+                                       ;;       ((org-agenda-overriding-header "Stuck Projects")
+                                       ;;        ;; (org-agenda-skip-function #'penguin/should-skip)
+                                       ;;        (org-agenda-prefix-format penguin-org-deadline-prefix)
+                                       ;;        (org-agenda-sorting-strategy nil)))
                                        (todo "NEXT"
                                              ((org-agenda-overriding-header "Next Tasks")
                                               (org-agenda-sorting-strategy '(priority-down category-up))))
