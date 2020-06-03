@@ -2967,7 +2967,7 @@ A simple modeline by =elegant-emacs=
     (let* ((available-width (- (window-width) (length left) )))
       (format (format "%%s %%%ds" available-width) left right)))
 
-  (setq-default mode-line-format
+  (setq mode-line-format
        '((:eval
          (mode-line-render
          (format-mode-line (list
@@ -3330,11 +3330,6 @@ A Custom minimal experimental theme.
                         :foreground (face-background 'default)
                         :background (face-background 'default))
     (set-face 'mode-line-inactive 'mode-line)
-    (set-face-attribute 'mode-line-inactive nil
-                        :box nil
-                        :inherit 'mode-line)
-    (set-face-attribute 'mode-line-buffer-id nil
-                        :weight 'light)
 
     ;; ;; Mode line at bottom
     ;; (set-face 'header-line                                 'face-strong)
@@ -3731,7 +3726,7 @@ A Custom minimal experimental theme.
     (set-face 'mu4e-header-value-face                          'default)
     (set-face 'mu4e-highlight-face                         'face-popout)
     (set-face 'mu4e-link-face                             'face-salient)
-    ;; (set-face 'mu4e-modeline-face                           'face-faded)
+    (set-face 'mu4e-modeline-face                           'face-faded)
     (set-face 'mu4e-moved-face                              'face-faded)
     (set-face 'mu4e-ok-face                                 'face-faded)
     (set-face 'mu4e-region-code                             'face-faded)
