@@ -2781,7 +2781,7 @@ So I try =anaconda-mode= for backend, and =company-anaconda= for frontend sugges
   (use-package pip-requirements
     :mode ("requirements.txt$" . pip-requirements-mode))
 
-  (straight-use-package 'nose)
+  ;; (straight-use-package 'nose)
   (use-package nose
     :commands nose-mode
     :preface
@@ -2815,6 +2815,17 @@ First, I'd want to turn off some mouse interface. I'd rather using keyboard all 
                         '(scroll-bar-mode nil)
                         '(tool-bar-mode nil)
                         '(blink-cursor-mode nil))
+#+end_src
+
+No fringe but nice glyphs for truncated and wrapped lines
+#+begin_src emacs-lisp :tangle yes
+  (fringe-mode '(0 . 0))
+  (defface fallback '((t :family "JetBrains Mono"
+                         :inherit 'face-faded)) "Fallback")
+  (set-display-table-slot standard-display-table 'truncation
+                          (make-glyph-code ?… 'fallback))
+  (set-display-table-slot standard-display-table 'wrap
+                          (make-glyph-code ?↩ 'fallback))
 #+end_src
 
 *** Cursor
@@ -3148,27 +3159,65 @@ This package is stay here for investigation purpose:
 
 Testing for =simple-modeline=
 #+begin_src emacs-lisp :tangle yes
-  (require 'simple-modeline)
-  (simple-modeline-mode)
-  (custom-set-variables
-   '(simple-modeline-mode t)
-   '(simple-modeline-show-cursor-point nil)
-   '(simple-modeline-show-encoding nil)
-   '(simple-modeline-show-encoding-information nil)
-   '(simple-modeline-show-eol nil)
-   '(simple-modeline-show-minor-modes nil)
-   '(simple-modeline-show-eol-style nil)
-   '(simple-modeline-show-input-method t)
-   '(simple-modeline-show-misc-info t)
-   '(simple-modeline-show-modified t)
-   '(simple-modeline-show-percent-position nil)
-   '(simple-modeline-show-vc t))
+  ;; (require 'simple-modeline)
+  ;; (simple-modeline-mode)
+  ;; (custom-set-variables
+  ;;  '(simple-modeline-mode t)
+  ;;  '(simple-modeline-show-cursor-point nil)
+  ;;  '(simple-modeline-show-encoding nil)
+  ;;  '(simple-modeline-show-encoding-information nil)
+  ;;  '(simple-modeline-show-eol nil)
+  ;;  '(simple-modeline-show-minor-modes nil)
+  ;;  '(simple-modeline-show-eol-style nil)
+  ;;  '(simple-modeline-show-input-method t)
+  ;;  '(simple-modeline-show-misc-info t)
+  ;;  '(simple-modeline-show-modified t)
+  ;;  '(simple-modeline-show-percent-position nil)
+  ;;  '(simple-modeline-show-vc t))
 
-  ;; (custom-set-faces
-  ;;  '(mode-line ((t (:box t))))
-  ;;  '(mode-line-emphasis ((t (:inherit success :weight bold))))
-  ;;  '(mode-line-highlight ((t (:box 2))))
-  ;;  '(mode-line-inactive ((t (:box nil)))))
+  ;; ;; (custom-set-faces
+  ;; ;;  '(mode-line ((t (:box t))))
+  ;; ;;  '(mode-line-emphasis ((t (:inherit success :weight bold))))
+  ;; ;;  '(mode-line-highlight ((t (:box 2))))
+  ;; ;;  '(mode-line-inactive ((t (:box nil)))))
+#+end_src
+
+A simple modeline by =elegant-emacs=
+#+begin_src emacs-lisp :tangle yes
+  ;; Mode line (this might be slow because of the "☰" that requires substitution)
+  ;; This line below makes things a bit faster
+  (set-fontset-font "fontset-default"  '(#x2600 . #x26ff) "JetBrains Mono")
+
+  (define-key mode-line-major-mode-keymap [header-line]
+    (lookup-key mode-line-major-mode-keymap [mode-line]))
+
+  (defun mode-line-render (left right)
+    (let* ((available-width (- (window-width) (length left) )))
+      (format (format "%%s %%%ds" available-width) left right)))
+  (setq-default mode-line-format
+       '((:eval
+         (mode-line-render
+         (format-mode-line (list
+           (propertize "☰" 'face `(:inherit mode-line-buffer-id)
+                           'help-echo "Mode(s) menu"
+                           'mouse-face 'mode-line-highlight
+                           'local-map   mode-line-major-mode-keymap)
+           " %b "
+           (if (and buffer-file-name (buffer-modified-p))
+               (propertize "(modified)" 'face `(:inherit face-faded)))))
+         (format-mode-line
+          (propertize "%4l:%2c  " 'face `(:inherit face-faded)))))))
+
+
+  ;; Comment if you want to keep the modeline at the bottom
+  (setq-default header-line-format mode-line-format)
+  (setq-default mode-line-format'(""))
+
+
+  ;; Vertical window divider
+  (setq window-divider-default-right-width 3)
+  (setq window-divider-default-places 'right-only)
+  (window-divider-mode)
 #+end_src
 
 ** M-x UI Enhancement
