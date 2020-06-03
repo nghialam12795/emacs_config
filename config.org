@@ -2971,7 +2971,7 @@ A simple modeline by =elegant-emacs=
        '((:eval
          (mode-line-render
          (format-mode-line (list
-           (propertize "☰" 'face `(:inherit mode-line-buffer-id)
+           (propertize "File" 'face `(:inherit mode-line-buffer-id)
                            'help-echo "Mode(s) menu"
                            'mouse-face 'mode-line-highlight
                            'local-map   mode-line-major-mode-keymap)
@@ -2979,7 +2979,7 @@ A simple modeline by =elegant-emacs=
            (if (and buffer-file-name (buffer-modified-p))
                (propertize "(modified)" 'face `(:inherit face-faded)))))
          (format-mode-line
-          (propertize "%4l:%2c  " 'face `(:inherit face-faded)))))))
+          (propertize " %H%3M  " 'face `(:inherit face-popout)))))))
 
 
   ;; Comment if you want to keep the modeline at the bottom
