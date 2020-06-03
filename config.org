@@ -2937,7 +2937,7 @@ Dimmer package for highlight current working buffer
   (straight-use-package 'dimmer)
   (use-package dimmer
     :custom
-    (dimmer-fraction 0.7)
+    (dimmer-fraction 0.9)
     (dimmer-exclusion-regexp-list
      '(".*Minibuf.*"
        ".*helm.*"
@@ -2948,7 +2948,7 @@ Dimmer package for highlight current working buffer
        ".*Warnings.*"
        ".*LV.*"
        ".*Ilist.*")))
-  (dimmer-configure-which-key)
+  ;; (dimmer-configure-which-key)
   ;; (dimmer-configure-helm)
   (dimmer-mode)
 #+end_src
@@ -3215,10 +3215,6 @@ A side explorer for Emacs, it always nice to be more modern looking.
           ("C-x t C-t" . treemacs-find-file)
           ("C-x t M-t" . treemacs-find-tag)))
 
-  (straight-use-package 'treemacs-evil)
-  (use-package treemacs-evil
-    :after treemacs evil
-    :ensure t)
 
   (straight-use-package 'treemacs-projectile)
   (use-package treemacs-projectile
@@ -3270,6 +3266,10 @@ A Custom minimal experimental theme.
 
   ;; Do not show prefix when displaying the penguin group
   (setq custom-unlispify-remove-prefixes t)
+
+  (defface face-cursor nil
+    "Use for cursor only"
+    :group 'penguin)
 
   (defface face-critical nil
     "Critical face is for information that requires immediate action.
@@ -3355,9 +3355,8 @@ A Custom minimal experimental theme.
     ;;                            :color ,(face-background 'face-subtle)
     ;;                            :style nil))
 
-
     (set-face-attribute 'cursor nil
-                        :background (face-foreground 'default))
+                        :background (face-foreground 'face-cursor))
     (set-face-attribute 'window-divider nil
                         :foreground (face-background 'mode-line))
     (set-face-attribute 'window-divider-first-pixel nil
@@ -3434,8 +3433,31 @@ A Custom minimal experimental theme.
     (set-modeline-faces)
     (with-eval-after-load 'cus-edit (set-button-faces)))
 
+  ;; Dracula theme
+  (defun penguin-dracula ()
+    (setq frame-background-mode 'dark)
+    (set-background-color "#252a35")
+    (set-foreground-color "#bfbfbf")
+    (set-face-attribute 'face-cursor nil :foreground "#ff6e14"
+                        :weight 'regular)
+    (set-face-attribute 'default nil
+                        :foreground (face-foreground 'default)
+                        :background (face-background 'default))
+    (set-face-attribute 'face-critical nil :foreground "#385f38"
+                        :background "#ff5555")
+    (set-face-attribute 'face-popout nil :foreground "#f1fa8c")
+    (set-face-attribute 'face-strong nil :foreground "#caa9fa"
+                        :weight 'regular)
+    (set-face-attribute 'face-salient nil :foreground "#ff79c6"
+                        :weight 'light)
+    (set-face-attribute 'face-faded nil :foreground "#777767"
+                        :weight 'light)
+    (set-face-attribute 'face-subtle nil :background "#000000")
+    (set-modeline-faces)
+    (with-eval-after-load 'cus-edit (set-button-faces)))
+
   ;; Set theme
-  (penguin-dark)
+  (penguin-dracula)
 
   ;; Structural
   (set-face 'bold                                          'face-strong)
@@ -3446,7 +3468,7 @@ A Custom minimal experimental theme.
   (set-face 'fixed-pitch                                       'default)
   (set-face 'fixed-pitch-serif                                 'default)
   (set-face 'variable-pitch                                    'default)
-  (set-face 'cursor                                            'default)
+  (set-face 'cursor                                        'face-cursor)
 
   ;; Semantic
   (set-face 'shadow                                         'face-faded)
