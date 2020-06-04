@@ -2937,15 +2937,18 @@ Dimmer package for highlight current working buffer
   (straight-use-package 'dimmer)
   (use-package dimmer
     :custom
-    (dimmer-fraction 0.9)
+    (dimmer-fraction 0.5)
+    (dimmer-exclusion-predicates '(helm--alive-p window-minibuffer-p))
     (dimmer-exclusion-regexp-list
      '(".*Minibuf.*"
-       ".*helm.*"
-       ".*which-key.*"
+       "^\\*[h|H]elm.*"
+       "^.\\*which-key\\*$"
        ".*NeoTree.*"
-       ".*Messages.*"
+       ".*Treemacs.*"
+       "^.*Messages.*"
        ".*Async.*"
        ".*Warnings.*"
+       ".*transient.*"
        ".*LV.*"
        ".*Ilist.*")))
   ;; (dimmer-configure-which-key)
