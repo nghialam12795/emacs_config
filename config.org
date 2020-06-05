@@ -56,6 +56,7 @@
   - [[#modeline][Modeline]]
   - [[#m-x-ui-enhancement][M-x UI Enhancement]]
   - [[#shackle][Shackle]]
+  - [[#system-monitor][System Monitor]]
   - [[#treemacs][Treemacs]]
   - [[#theme][Theme]]
   - [[#winner][Winner]]
@@ -2982,7 +2983,7 @@ A simple modeline by =elegant-emacs=
            (if (and buffer-file-name (buffer-modified-p))
                (propertize "(modified)" 'face `(:inherit face-faded)))))
          (format-mode-line
-          (propertize " %H%3M  " 'face `(:inherit face-popout)))))))
+          (propertize "  %2H%3M  " 'face `(:inherit face-popout)))))))
 
 
   ;; Comment if you want to keep the modeline at the bottom
@@ -3149,6 +3150,46 @@ Some packages would popup many frames randomly. I would them to stay under my co
             ((process-menu-mode cargo-process-mode) :select t :size 0.3 :align 'below :autoclose t)
             (list-environment-mode :select t :size 0.3 :align 'below :autoclose t)
             (tabulated-list-mode :size 0.4 :align 'below))))
+#+end_src
+
+** System Monitor
+System monitor in bar
+#+begin_src emacs-lisp :tangle yes
+  (straight-use-package 'symon)
+  (use-package symon
+    :defer 2
+    :ensure t
+    :config
+    (setq symon-sparkline-type 'boxed)
+    (define-symon-monitor symon-current-date-time-monitor
+      :interval 5
+      :display (propertize
+                (format-time-string "%a %d %b %Y ")
+                'face 'font-lock-type-face))
+    (setq symon-monitors
+          (cond ((memq system-type '(gnu/linux cygwin))
+                 '(symon-current-date-time-monitor
+                   symon-linux-memory-monitor
+                   symon-linux-cpu-monitor
+                   symon-linux-network-rx-monitor
+                   symon-linux-network-tx-monitor
+                   symon-linux-battery-monitor))
+                ((memq system-type '(darwin))
+                 '(symon-current-date-time-monitor
+                   symon-darwin-memory-monitor
+                   symon-darwin-cpu-monitor
+                   symon-darwin-network-rx-monitor
+                   symon-darwin-network-tx-monitor
+                   symon-darwin-battery-monitor))
+                ((memq system-type '(windows-nt))
+                 '(symon-current-date-time-monitor
+                   symon-windows-memory-monitor
+                   symon-windows-cpu-monitor
+                   symon-windows-network-rx-monitor
+                   symon-windows-network-tx-monitor
+                   symon-windows-battery-monitor))))
+    (symon-mode)
+    )
 #+end_src
 
 ** Treemacs
