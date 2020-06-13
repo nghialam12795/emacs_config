@@ -401,6 +401,8 @@ I'd like to use =straight.el= package as my package manager for a better boostra
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+
+  (setq straight-use-package-by-default t)
 #+END_SRC
 
 As the same time, I use =use-package= to manage packages' loading.
@@ -2740,12 +2742,6 @@ So I try =anaconda-mode= for backend, and =company-anaconda= for frontend sugges
   (straight-use-package 'pip-requirements)
   (use-package pip-requirements
     :mode ("requirements.txt$" . pip-requirements-mode))
-
-  ;; (straight-use-package 'nose)
-  (use-package nose
-    :commands nose-mode
-    :preface
-    (defvar nose-mode-map (make-sparse-keymap)))
 #+end_src
 
 ** XML
@@ -3801,35 +3797,6 @@ A Custom minimal experimental theme.
     (set-face 'mu4e-view-body-face                             'default)
     (set-face 'mu4e-warning-face                            'face-faded))
 
-
-  ;; This is just for a little fun
-  (setq initial-scratch-message "\
-   _________________________________________________________
-  │ The best editor is the one you are most familiar with.  │
-  | The best programmer is the one who always keep learning.|
-  │ The best product is the one you created with love.      │
-   ---------------------------------------------------------
-     │
-     └─┐
-       │
-
-      ██████╗ ███████╗███╗   ██╗███╗   ███╗ █████╗  ██████╗███████╗
-      ██╔══██╗██╔════╝████╗  ██║████╗ ████║██╔══██╗██╔════╝██╔════╝
-      ██████╔╝█████╗  ██╔██╗ ██║██╔████╔██║███████║██║     ███████╗
-      ██╔═══╝ ██╔══╝  ██║╚██╗██║██║╚██╔╝██║██╔══██║██║     ╚════██║
-      ██║     ███████╗██║ ╚████║██║ ╚═╝ ██║██║  ██║╚██████╗███████║
-      ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝
-
-   ╒════════════════════════════════════════════════════════════════╕
-   │                       Quick Navigation                         │
-   ╞══════════════════╤═════════════════════════════════════════════╡
-   │                  │                                             │
-   ├──────────────────┼─────────────────────────────────────────────┤
-   │                  │                                             │
-   ├──────────────────┼─────────────────────────────────────────────┤
-   │                  │                                             │
-   ╘══════════════════╧═════════════════════════════════════════════╛
-  ")
 #+end_src
 
 ** Winner
@@ -4241,7 +4208,7 @@ And its super brother
                                              ((org-agenda-overriding-header "Next Tasks")
                                               (org-agenda-sorting-strategy '(priority-down category-up))))
                                        (todo "TODO"
-                                             ((org-agenda-files '("~/.emacs.d/.private/org/todo.org" "~/.emacs.d/.private/org/notes.org"))
+                                             ((org-agenda-files '("~/.emacs.d/.private/org/todo.org"))
                                               (org-agenda-sorting-strategy '(priority-down category-up))
                                               (org-agenda-overriding-header "Tasks")))
                                        (todo "WAITING|DELEGATED"
@@ -4350,27 +4317,27 @@ A package to speed up =org-mode=
 ** Org Journal
 Do I need to write diary????
 #+begin_src emacs-lisp :tangle yes
-(use-package org-journal
-  :after org
-  :bind (("C-c T" . org-journal-new-entry)
-         ("C-c Y" . journal-file-yesterday))
-  :preface
-  (defun get-journal-file-yesterday ()
-    "Gets filename for yesterday's journal entry."
-    (let* ((yesterday (time-subtract (current-time) (days-to-time 1)))
-           (daily-name (format-time-string "%Y%m%d" yesterday)))
-      (expand-file-name (concat org-journal-dir daily-name))))
-  (defun journal-file-yesterday ()
-    "Creates and load a file based on yesterday's date."
-    (interactive)
-    (find-file (get-journal-file-yesterday)))
-  :custom
-  (org-journal-date-format "%e %b %Y (%A)")
-  (org-journal-dir "~/.emacs.d/.private/org/journal/")
-  (org-journal-file-type 'weekly)
-  (org-journal-enable-encryption t)
-  (org-journal-file-format "%Y%m%d")
-  (org-journal-time-format ""))
+  ;; (use-package org-journal
+  ;;   :after org
+  ;;   :bind (("C-c T" . org-journal-new-entry)
+  ;;          ("C-c Y" . journal-file-yesterday))
+  ;;   :preface
+  ;;   (defun get-journal-file-yesterday ()
+  ;;     "Gets filename for yesterday's journal entry."
+  ;;     (let* ((yesterday (time-subtract (current-time) (days-to-time 1)))
+  ;;            (daily-name (format-time-string "%Y%m%d" yesterday)))
+  ;;       (expand-file-name (concat org-journal-dir daily-name))))
+  ;;   (defun journal-file-yesterday ()
+  ;;     "Creates and load a file based on yesterday's date."
+  ;;     (interactive)
+  ;;     (find-file (get-journal-file-yesterday)))
+  ;;   :custom
+  ;;   (org-journal-date-format "%e %b %Y (%A)")
+  ;;   (org-journal-dir "~/.emacs.d/.private/org/journal/")
+  ;;   (org-journal-file-type 'weekly)
+  ;;   (org-journal-enable-encryption t)
+  ;;   (org-journal-file-format "%Y%m%d")
+  ;;   (org-journal-time-format ""))
 #+end_src
 
 ** Obx
