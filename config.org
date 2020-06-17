@@ -4060,7 +4060,7 @@ Now, the mighty **org-mode**
       `(lambda (&rest _rest)
          (funcall ,fnc)))
     :hook ((after-save . penguin/config-tangle)
-           (auto-save . org-save-all-org-buffers)
+           ;; (auto-save . org-save-all-org-buffers)
            (org-mode . org-indent-mode))
     :custom
     ;; (org-archive-location "~/.emacs.d/.private/org/.archives/%s::")
