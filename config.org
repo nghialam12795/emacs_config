@@ -87,7 +87,7 @@
      (cd "~/")                                                      ; Move to the user directory
      (delete-selection-mode 1)                                      ; Replace region when inserting text
      (fset 'yes-or-no-p 'y-or-n-p)                                  ; Replace yes/no prompts with y/n
-     (global-hl-line-mode)                                          ; Hightlight current line
+     ;; (global-hl-line-mode)                                          ; Hightlight current line
      (display-time-mode 1)                                          ; Enable time in the mode-line
      (defalias 'list-buffers 'ibuffer)                              ; Make ibuffer default
    #+end_src
@@ -349,18 +349,6 @@
           "t t" 'neotree-toggle )
   #+end_src
 
-* Utililties Packages
-** Which Keys
-   =which-key= packages bring us the help on the key combinations.
-
-   #+begin_src emacs-lisp :tangle yes
-     (use-package which-key
-       :ensure t
-       :config
-       (setq which-key-idle-delay 0.8
-             which-key-idle-secondary-delay 0.8)
-             (which-key-mode))
-   #+end_src
 * User Experience
   This is a big collection of packages which aims with a fast, robust & friendly experience when using Emacs.
 ** AutoRevert
@@ -452,6 +440,7 @@
 * User Interface
 ** Base
    First of all, I'd like to disable all the mouse interface. I'd rather to use keyboard all the time with Emacs.
+   Then, maximize Emacs when startup.
 
    #+begin_src emacs-lisp :tangle yes
      (custom-set-variables '(menu-bar-mode nil)                      ; Disable the menu bar
@@ -459,6 +448,8 @@
                            '(tool-bar-mode nil)                      ; Disable the tool bar
                            '(tool-tip-mode nil)                      ; Disable the tool tips
                            '(blink-cursor-mode nil))                 ; Make the cursor not blinking
+
+     (add-hook 'after-init-hook 'toggle-frame-maximized)
    #+end_src
 
 ** Font
@@ -541,6 +532,17 @@
    #+end_src
 
 ** Theme
+   First, Add custom theme folder where I store external themes.
+
+   #+begin_src emacs-lisp :tangle yes
+     ;; Load external path
+     (defun update-theme-path (&rest _)
+       "Update `load-path'."
+       (push (expand-file-name "theme" user-emacs-directory) load-path))
+
+     (update-theme-path)
+   #+end_src
+   
    These are all my custom color theme for a minimal yet confor look for the editor.
 
    #+begin_src emacs-lisp :tangle yes
@@ -665,4 +667,27 @@
        (set-face-attribute 'font-lock-string-face nil :foreground "#0dbd94")
        (set-face-attribute 'font-lock-type-face nil :foreground "#d1b897")
        (set-face-attribute 'font-lock-variable-name-face nil :foreground "#d1b897"))
+
+     ;; Nice looking minimal themes
+     (use-package tao-theme
+       :ensure t)
+
+     (use-package darkburn-theme
+       :ensure t)
+
+     ;; Loading the theme
+     (require 'bumbread-theme)
+     (load-theme 'bumbread)
+   #+end_src
+* Utililties Packages
+** Which Keys
+   =which-key= packages bring us the help on the key combinations.
+
+   #+begin_src emacs-lisp :tangle yes
+     (use-package which-key
+       :ensure t
+       :config
+       (setq which-key-idle-delay 0.8
+             which-key-idle-secondary-delay 0.8)
+             (which-key-mode))
    #+end_src
