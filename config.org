@@ -1,11 +1,13 @@
-#+TITLE: Nghia Lam's ENMACS Configuration
+#+TITLE: Nghia Lam's EMACS Configuration
 #+AUTHOR: Nghia Lam
 
 * About
   This is my long configuration for the GNUs Emacs.
   This configuration is based on my habit, which may not be suitable for some people.
   This config helps me in professional works and daily life notes.
-  
+
+  In editor war, the winner is not Emacs or Vim, it’s your configuration with these two. Now let’s turn this Emacs into a real monster.
+
 ** TODO Better support for keybinding and evil-mode.
 
 * Emacs Startup
@@ -13,14 +15,14 @@
    I included some info to the file header.
 
    #+begin_src emacs-lisp :tangle yes
-     ;;; config.el --- My ENMACS init file.            -*- lexical-binding: t; -*-
+     ;;; config.el --- My EMACS init file.            -*- lexical-binding: t; -*-
      ;; Copyright (C) 2020 Nghia Lam
 
      ;; Author: Nghia Lam <nghialam12795@gmail.com>
 
      ;;; Commentary:
 
-     ;; ENMACS config file.  For cross-platform Emacs 26, Emacs 27.
+     ;; EMACS config file.  For cross-platform Emacs 26, Emacs 27.
      (setq-default lexical-binding t)
    #+end_src
 
@@ -51,7 +53,7 @@
        "Are we using the Emacs macport?")
      (defconst emacs/>=26p
        (>= emacs-major-version 26)
-       "Emacs is 26 or above.")  
+       "Emacs is 26 or above.")
    #+end_src
 
 ** Package Manager
@@ -72,7 +74,7 @@
        (package-install 'use-package))
    #+end_src
 
-** Default settings
+** Default Settings
    For a better experiences with Emacs, I will change the default settings of it.
 
    #+begin_src emacs-lisp :tangle yes
@@ -89,9 +91,9 @@
      (display-time-mode 1)                                          ; Enable time in the mode-line
      (defalias 'list-buffers 'ibuffer)                              ; Make ibuffer default
    #+end_src
-   
+
    Some specific OS tweak:
-   
+
    #+begin_src emacs-lisp :tangle yes
      (when sys/macos
        (setq mac-redisplay-dont-reset-vscroll t
@@ -111,10 +113,34 @@
        (setq ns-function-modifier 'hyper))                                  ; make Fn key do Hyper
    #+end_src
 
+   Other personal settings will be written to custom.el
+
+   #+begin_src emacs-lisp :tangle yes
+     (setq-default custom-file
+                   (expand-file-name (format "~/.emacs.d/.local/custom.el" user-emacs-directory)))
+     (when (file-exists-p custom-file)
+       (load custom-file t))
+   #+end_src
+
+** Helper Commands
+   These helpers serve as a nice shortcut for me to quickly navigate around Emacs.
+
+   #+begin_src emacs-lisp :tangle yes
+     (defun Config ()
+       "Quickly open my Emacs config file."
+       (interactive)
+       (find-file "~/.emacs.d/config.org"))
+
+     (defun Reload ()
+       "Quickly reload my Emacs init file."
+       (interactive)
+       (load-file "~/.emacs.d/init.el"))
+   #+end_src
+
 * Evil-Mode
   As the default keys chord of Emacs is not really good for your fingers, I will use the =evil-mode= to get the =vi= keychord from Vim.
   Everyone goes evil nowadays ...
-  
+
   #+begin_src emacs-lisp :tangle yes
     (use-package evil
       :ensure t
@@ -227,13 +253,62 @@
   #+end_src
 
 * Org-Mode
-  One of my favorite modes in GNU Emacs. I mainly use it to organize my life, take notes and make my presentations, but you can do lots of things with it. 
+  One of my favorite modes in GNU Emacs. I mainly use it to organize my life, take notes and make my presentations, but you can do lots of things with it.
   *org-mode* it’s like the sky, without limits.
-  
+
   #+begin_src emacs-lisp :tangle yes
-    (use-package org 
+    (use-package org
       :ensure t
       :pin org)
+  #+end_src
+
+  I’m using a large *.org* file to maintain my GNU Emacs configuration. However, at launch, it will load the =config.el= source file for a faster loading.
+  The code below, executes =org-babel-tangle= asynchronously when =config.org= is saved.
+
+  #+begin_src emacs-lisp :tangle yes
+    (use-package async
+      :ensure t)
+
+    (defvar *config-file* (expand-file-name "config.org" user-emacs-directory)
+      "The configuration file.")
+
+    (defvar *config-last-change* (nth 5 (file-attributes *config-file*))
+      "Last modification time of the configuration file.")
+
+    (defvar *show-async-tangle-results* nil
+      "Keeps *emacs* async buffers around for later inspection.")
+
+    (defun my/config-updated ()
+      "Checks if the configuration file has been updated since the last time."
+      (time-less-p *config-last-change*
+                   (nth 5 (file-attributes *config-file*))))
+
+    (defun my/config-tangle ()
+      "Tangles the org file asynchronously."
+      (when (my/config-updated)
+        (setq *config-last-change*
+              (nth 5 (file-attributes *config-file*)))
+        (my/async-babel-tangle *config-file*)))
+
+    (defun my/async-babel-tangle (org-file)
+      "Tangles the org file asynchronously."
+      (let ((init-tangle-start-time (current-time))
+            (file (buffer-file-name))
+            (async-quiet-switch "-q"))
+        (async-start
+         `(lambda ()
+            (require 'org)
+            (org-babel-tangle-file ,org-file))
+         (unless *show-async-tangle-results*
+           `(lambda (result)
+              (if result
+                  (message "SUCCESS: %s successfully tangled (%.2fs)."
+                           ,org-file
+                           (float-time (time-subtract (current-time)
+                                                      ',init-tangle-start-time)))
+                (message "ERROR: %s as tangle failed." ,org-file)))))))
+
+    (add-hook 'after-save-hook 'my/config-tangle)
   #+end_src
 
 ** Bullets
@@ -245,6 +320,34 @@
        :config
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
    #+end_src
+
+* Key Binding
+  This is for my personal hot key when working with Emacs.
+  #+begin_src emacs-lisp :tangle yes
+    (evil-leader/set-key
+          ;; Buffer Commands
+          "b s" 'save-buffer
+          "b k" 'kill-buffer
+
+          ;; File Commands
+          "f f" 'find-file
+          "f o" 'find-file-other-window
+
+          ;; Org Commands
+          "o i" 'org-insert-structure-template
+
+          ;; Window Commands
+          "w h" 'windmove-left
+          "w l" 'windmove-right
+          "w j" 'windmove-down
+          "w k" 'windmove-up
+          "w v" 'split-window-right
+          "w s" 'split-window-below
+          "w o" 'other-window
+
+          ;; Toggle Commands
+          "t t" 'neotree-toggle )
+  #+end_src
 
 * Utililties Packages
 ** Which Keys
@@ -260,6 +363,16 @@
    #+end_src
 * User Experience
   This is a big collection of packages which aims with a fast, robust & friendly experience when using Emacs.
+** AutoRevert
+   Automatically reload files was modified by external program.
+
+   #+begin_src emacs-lisp :tangle yes
+     (use-package autorevert
+       :ensure nil
+       :diminish
+       :hook (after-init . global-auto-revert-mode))
+   #+end_src
+
 ** Avy
    Navigate by searching for a letter on the screen and jumping to it.
    #+begin_src emacs-lisp :tangle yes
@@ -269,25 +382,34 @@
    #+end_src
 
 ** Company (Autocomplete)
-   Company is a text completion framework for Emacs. The name stands for “complete anything”. 
+   Company is a text completion framework for Emacs. The name stands for “complete anything”.
    It uses pluggable back-ends and front-ends to retrieve and display completion candidates.
-   
+
    #+begin_src emacs-lisp :tangle yes
      (use-package company
        :ensure t
+       :hook (after-init . global-company-mode)
        :custom
+       (company-tooltip-align-annotations t)
        (company-begin-commands '(self-insert-command))
        (company-idle-delay 0)
        (company-minimum-prefix-length 2)
        (company-show-numbers t)
-       (company-tooltip-align-annotations 't)
-       (global-company-mode t))
+       (company-tooltip-align-annotations 't))
+   #+end_src
+
+   I use =company= with =company-box= that allows a front-end with icons.
+   #+begin_src emacs-lisp :tangle yes
+     (use-package company-box
+       :after company
+       :ensure t
+       :hook (company-mode . company-box-mode))
    #+end_src
 
 ** Counsel/Ivy
    I also need to enhance the experience with M-x itself, helm is good for that but I find counsel and ivy better in performance.
    Since this is an enhanced combo, I will place them in a long source code here.
-   
+
    #+begin_src emacs-lisp :tangle yes
      ;; Counsel Configuration. Init after Ivy package
      (use-package counsel
@@ -345,7 +467,7 @@
    #+begin_src emacs-lisp :tangle yes
      (set-face-attribute 'default nil
                          :font "JetBrains Mono"
-                         :height (cond (sys/macos 120)
+                         :height (cond (sys/macos 140)
                                        (sys/win32 90)
                                        (sys/linux 90)
                                        (t 100)))
@@ -407,6 +529,17 @@
 
    #+end_src
 
+** Neotree
+   For a project side bar, I'd like to use neotree as its speed and elegant look.
+
+   #+begin_src emacs-lisp :tangle yes
+     (use-package neotree
+       :ensure t
+       :config
+       (setq neo-theme 'arrow)
+       (setq neo-window-width 30))
+   #+end_src
+
 ** Theme
    These are all my custom color theme for a minimal yet confor look for the editor.
 
@@ -414,6 +547,7 @@
      (defun theme-casey-setup ()
        "My custom color scheme based on casey"
        (interactive)
+       (load-theme 'modus-vivendi t)
        (setq evil-normal-state-cursor '(box "#40FF40")
              evil-insert-state-cursor '(box "#40FF40")
              evil-visual-state-cursor '(hollow "#40FF40"))
@@ -433,6 +567,7 @@
      (defun theme-bumbread-setup ()
        "My custom color scheme based on bumbread"
        (interactive)
+       (load-theme 'modus-vivendi t)
        (setq evil-normal-state-cursor '(box "white")
              evil-insert-state-cursor '(box "white")
              evil-visual-state-cursor '(hollow "white"))
@@ -452,6 +587,7 @@
      (defun theme-4coder-setup ()
        "My custom color scheme based on 4coder"
        (interactive)
+       (load-theme 'modus-vivendi t)
        (setq evil-normal-state-cursor '(box "green")
              evil-insert-state-cursor '(box "green")
              evil-visual-state-cursor '(hollow "green"))
@@ -471,6 +607,7 @@
      (defun theme-light-setup ()
        "My custom light color scheme"
        (interactive)
+       (load-theme 'modus-operandi t)
        (setq evil-normal-state-cursor '(box "black")
              evil-insert-state-cursor '(box "black")
              evil-visual-state-cursor '(hollow "black"))
@@ -490,6 +627,7 @@
      (defun theme-fluery-setup ()
        "My custom color scheme based on ryan fleury"
        (interactive)
+       (load-theme 'modus-vivendi t)
        (setq evil-normal-state-cursor '(box "#00EE00")
              evil-insert-state-cursor '(box "#00EE00")
              evil-visual-state-cursor '(hollow "#00EE00"))
@@ -510,6 +648,7 @@
      (defun theme-naysayer-setup ()
        "My custom color scheme based on johnathan blow"
        (interactive)
+       (load-theme 'modus-vivendi t)
        (setq evil-normal-state-cursor '(box "lightgreen")
              evil-insert-state-cursor '(box "lightgreen")
              evil-visual-state-cursor '(hollow "lightgreen"))
