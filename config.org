@@ -1,0 +1,529 @@
+#+TITLE: Nghia Lam's ENMACS Configuration
+#+AUTHOR: Nghia Lam
+
+* About
+  This is my long configuration for the GNUs Emacs.
+  This configuration is based on my habit, which may not be suitable for some people.
+  This config helps me in professional works and daily life notes.
+  
+** TODO Better support for keybinding and evil-mode.
+
+* Emacs Startup
+** File Header
+   I included some info to the file header.
+
+   #+begin_src emacs-lisp :tangle yes
+     ;;; config.el --- My ENMACS init file.            -*- lexical-binding: t; -*-
+     ;; Copyright (C) 2020 Nghia Lam
+
+     ;; Author: Nghia Lam <nghialam12795@gmail.com>
+
+     ;;; Commentary:
+
+     ;; ENMACS config file.  For cross-platform Emacs 26, Emacs 27.
+     (setq-default lexical-binding t)
+   #+end_src
+
+** System Information
+   Here I setup some info for my Emacs. As my job requires me to work on all OS, you will see a lot of times I need to config for each of them differently.
+
+   #+begin_src emacs-lisp :tangle yes
+     (defvar myemacs/version
+       "1.0.0"
+       "Nghia Lam's Emacs version.")
+     (defconst sys/win32
+       (eq system-type 'windows-nt)
+       "Are we using a Window OS?")
+     (defconst sys/linux
+       (eq system-type 'gnu/linux)
+       "Are we using a GNU/Linux OS?")
+     (defconst sys/macos
+       (eq system-type 'darwin)
+       "Are we using a Mac OS?")
+     (defconst sys/mac-x-p
+       (and (display-graphic-p) sys/macos)
+       "Are we running under X on a Mac system?")
+     (defconst sys/mac-cocoa-p
+       (featurep 'cocoa)
+       "Are we running with Cocoa on a Mac system?")
+     (defconst sys/macport
+       (eq system-type 'mac)
+       "Are we using the Emacs macport?")
+     (defconst emacs/>=26p
+       (>= emacs-major-version 26)
+       "Emacs is 26 or above.")  
+   #+end_src
+
+** Package Manager
+   For easy managing packages, we can use the =use-package= to do the hard work for us.
+   First, we need to configure the pacakge resources, then install the =use-package=, if we don't have it already.
+
+   #+begin_src emacs-lisp :tangle yes
+     (setq package-user-dir "~/.emacs.d/.local/packages")
+
+     (package-initialize)
+     (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                               ("melpa" . "http://melpa.org/packages/")
+                               ("org" . "http://orgmode.org/elpa/")))
+
+     ;; Bootstrap `use-package'
+     (unless (package-installed-p 'use-package)
+       (package-refresh-contents)
+       (package-install 'use-package))
+   #+end_src
+
+** Default settings
+   For a better experiences with Emacs, I will change the default settings of it.
+
+   #+begin_src emacs-lisp :tangle yes
+     (setq-default fill-column 80                                   ; Set width for automatic line breaks
+                   help-window-select t                             ; Focus new help windows when opened
+                   visible-bell t                                   ; Turn off annoying sound
+                   indent-tabs-mode nil                             ; Prefers spaces over tabs
+                   inhibit-startup-screen t                         ; Disable start-up screen
+                   initial-scratch-message "")                      ; Empty the initial *scratch* buffer
+     (cd "~/")                                                      ; Move to the user directory
+     (delete-selection-mode 1)                                      ; Replace region when inserting text
+     (fset 'yes-or-no-p 'y-or-n-p)                                  ; Replace yes/no prompts with y/n
+     (global-hl-line-mode)                                          ; Hightlight current line
+     (display-time-mode 1)                                          ; Enable time in the mode-line
+     (defalias 'list-buffers 'ibuffer)                              ; Make ibuffer default
+   #+end_src
+   
+   Some specific OS tweak:
+   
+   #+begin_src emacs-lisp :tangle yes
+     (when sys/macos
+       (setq mac-redisplay-dont-reset-vscroll t
+             mac-mouse-wheel-smooth-scroll nil
+             ns-pop-up-frames nil
+             initial-frame-alist (append '((ns-transparent-titlebar . t)
+                                           (ns-appearance . dark))))
+       (and (or (daemonp)
+                (display-graphic-p))
+            (require 'ns-auto-titlebar nil t)
+            (ns-auto-titlebar-mode +1))
+       (setq frame-title-format nil)
+       (setq ns-use-proxy-icon nil)
+       (setq mac-command-modifier 'meta)                                    ; make cmd key do Meta
+       (setq mac-option-modifier 'super)                                    ; make opt key do Super
+       (setq mac-control-modifier 'control)                                 ; make Control key do Control
+       (setq ns-function-modifier 'hyper))                                  ; make Fn key do Hyper
+   #+end_src
+
+* Evil-Mode
+  As the default keys chord of Emacs is not really good for your fingers, I will use the =evil-mode= to get the =vi= keychord from Vim.
+  Everyone goes evil nowadays ...
+  
+  #+begin_src emacs-lisp :tangle yes
+    (use-package evil
+      :ensure t
+      :defer .1 ;; don't block emacs when starting, load evil immediately after startup
+      :init
+      (setq evil-want-integration nil) ;; required by evil-collection
+      (setq evil-want-keybinding nil) ;; required by evil-collection
+      (setq evil-search-module 'evil-search)
+      (setq evil-ex-complete-emacs-commands nil)
+      (setq evil-vsplit-window-right t) ;; like vim's 'splitright'
+      (setq evil-split-window-below t) ;; like vim's 'splitbelow'
+      (setq evil-shift-round nil)
+      (setq evil-want-C-u-scroll t)
+      :config
+
+      ;; vim-like leader key support
+      (use-package evil-leader
+        :ensure t
+        :config
+        (evil-leader/set-leader "<SPC>")
+        (evil-leader/set-key
+         "s s" 'swiper
+         "d x w" 'delete-trailing-whitespace))
+
+      ;; vim-like escape sequence support
+      (use-package evil-escape
+        :after evil
+        :diminish evil-escape-mode
+        :ensure t
+        :init
+        (setq-default evil-escape-key-sequence "jk"))
+
+      (global-evil-leader-mode)
+      (evil-escape-mode)
+      (evil-mode)
+
+      ;; vim-like keybindings everywhere in emacs
+      (use-package evil-collection
+        :after evil
+        :ensure t
+        :config
+        (evil-collection-init))
+
+      ;; gl and gL operators, like vim-lion
+      (use-package evil-lion
+        :ensure t
+        :bind (:map evil-normal-state-map
+                    ("g l " . evil-lion-left)
+                    ("g L " . evil-lion-right)
+                    :map evil-visual-state-map
+                    ("g l " . evil-lion-left)
+                    ("g L " . evil-lion-right)))
+
+      ;; gc operator, like vim-commentary
+      (use-package evil-commentary
+        :ensure t
+        :bind (:map evil-normal-state-map
+                    ("gc" . evil-commentary)))
+
+      ;; gx operator, like vim-exchange
+      ;; NOTE using cx like vim-exchange is possible but not as straightforward
+      (use-package evil-exchange
+        :ensure t
+        :bind (:map evil-normal-state-map
+                    ("gx" . evil-exchange)
+                    ("gX" . evil-exchange-cancel)))
+
+      ;; gr operator, like vim's ReplaceWithRegister
+      (use-package evil-replace-with-register
+        :ensure t
+        :bind (:map evil-normal-state-map
+                    ("gr" . evil-replace-with-register)
+                    :map evil-visual-state-map
+                    ("gr" . evil-replace-with-register)))
+
+      ;; * operator in vusual mode
+      (use-package evil-visualstar
+        :ensure t
+        :bind (:map evil-visual-state-map
+                    ("*" . evil-visualstar/begin-search-forward)
+                    ("#" . evil-visualstar/begin-search-backward)))
+
+      ;; ex commands, which a vim user is likely to be familiar with
+      (use-package evil-expat
+        :ensure t
+        :defer t)
+
+      ;; visual hints while editing
+      (use-package evil-goggles
+        :ensure t
+        :config
+        (evil-goggles-use-diff-faces)
+        (evil-goggles-mode))
+
+      ;; like vim-surround
+      (use-package evil-surround
+        :ensure t
+        :commands
+        (evil-surround-edit
+         evil-Surround-edit
+         evil-surround-region
+         evil-Surround-region)
+        :init
+        (evil-define-key 'operator global-map "s" 'evil-surround-edit)
+        (evil-define-key 'operator global-map "S" 'evil-Surround-edit)
+        (evil-define-key 'visual global-map "S" 'evil-surround-region)
+        (evil-define-key 'visual global-map "gS" 'evil-Surround-region))
+
+      (message "Loading evil-mode...done"))
+  #+end_src
+
+* Org-Mode
+  One of my favorite modes in GNU Emacs. I mainly use it to organize my life, take notes and make my presentations, but you can do lots of things with it. 
+  *org-mode* it’s like the sky, without limits.
+  
+  #+begin_src emacs-lisp :tangle yes
+    (use-package org 
+      :ensure t
+      :pin org)
+  #+end_src
+
+** Bullets
+   Nice looking bullets when we are using *org-mode*.
+
+   #+begin_src emacs-lisp :tangle yes
+     (use-package org-bullets
+       :ensure t
+       :config
+       (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+   #+end_src
+
+* Utililties Packages
+** Which Keys
+   =which-key= packages bring us the help on the key combinations.
+
+   #+begin_src emacs-lisp :tangle yes
+     (use-package which-key
+       :ensure t
+       :config
+       (setq which-key-idle-delay 0.8
+             which-key-idle-secondary-delay 0.8)
+             (which-key-mode))
+   #+end_src
+* User Experience
+  This is a big collection of packages which aims with a fast, robust & friendly experience when using Emacs.
+** Avy
+   Navigate by searching for a letter on the screen and jumping to it.
+   #+begin_src emacs-lisp :tangle yes
+     (use-package avy
+       :ensure t
+       :bind ("M-s" . avy-goto-word-1)) ;; changed from char as per jcs
+   #+end_src
+
+** Company (Autocomplete)
+   Company is a text completion framework for Emacs. The name stands for “complete anything”. 
+   It uses pluggable back-ends and front-ends to retrieve and display completion candidates.
+   
+   #+begin_src emacs-lisp :tangle yes
+     (use-package company
+       :ensure t
+       :custom
+       (company-begin-commands '(self-insert-command))
+       (company-idle-delay 0)
+       (company-minimum-prefix-length 2)
+       (company-show-numbers t)
+       (company-tooltip-align-annotations 't)
+       (global-company-mode t))
+   #+end_src
+
+** Counsel/Ivy
+   I also need to enhance the experience with M-x itself, helm is good for that but I find counsel and ivy better in performance.
+   Since this is an enhanced combo, I will place them in a long source code here.
+   
+   #+begin_src emacs-lisp :tangle yes
+     ;; Counsel Configuration. Init after Ivy package
+     (use-package counsel
+       :diminish
+       :ensure t
+       :hook (ivy-mode . counsel-mode)
+       :bind (("C-x C-d" . counsel-dired-jump)
+              ("C-x C-h" . counsel-minibuffer-history)
+              ("C-x C-l" . counsel-find-library)
+              ("C-x C-r" . counsel-recentf)
+              ("C-x C-u" . counsel-unicode-char)
+              ("C-x C-v" . counsel-set-variable)))
+
+     ;; Ivy Configuration
+     (use-package ivy
+       :diminish
+       :hook (after-init . ivy-mode)
+       :ensure t
+       :bind (("C-x b" . ivy-switch-buffer))
+       :config
+       (setq ivy-use-virtual-buffers t)
+       (setq ivy-count-format "%d/%d ")
+       (setq ivy-display-style 'fancy))
+   #+end_src
+
+** Search/Swiper
+   A better search for Emacs.
+   #+begin_src emacs-lisp :tangle yes
+     ;; Swiper Configuration. Init after Ivy packages
+     (use-package swiper
+       :ensure t
+       :after ivy
+       :bind (("C-s" . swiper-isearch)
+              ("C-r" . swiper-isearch)
+              ("C-c C-r" . ivy-resume)
+              ("M-x" . counsel-M-x)
+              ("C-x C-f" . counsel-find-file)))
+   #+end_src
+
+* User Interface
+** Base
+   First of all, I'd like to disable all the mouse interface. I'd rather to use keyboard all the time with Emacs.
+
+   #+begin_src emacs-lisp :tangle yes
+     (custom-set-variables '(menu-bar-mode nil)                      ; Disable the menu bar
+                           '(scroll-bar-mode nil)                    ; Disable the scroll bar
+                           '(tool-bar-mode nil)                      ; Disable the tool bar
+                           '(tool-tip-mode nil)                      ; Disable the tool tips
+                           '(blink-cursor-mode nil))                 ; Make the cursor not blinking
+   #+end_src
+
+** Font
+   I really like Jetbrain font. To me, its a perfect font for an editor.
+
+   #+begin_src emacs-lisp :tangle yes
+     (set-face-attribute 'default nil
+                         :font "JetBrains Mono"
+                         :height (cond (sys/macos 120)
+                                       (sys/win32 90)
+                                       (sys/linux 90)
+                                       (t 100)))
+   #+end_src
+
+** Modeline
+   The custom mode-line format for a clean and simple look.
+   #+begin_src emacs-lisp :tangle yes
+     ;; Time format
+     (customize-set-variable 'display-time-string-forms
+                             '((propertize (format-time-string " %H:%M " now) 'face 'bold)))
+
+     ;; Update display-time-string
+     (display-time-update)
+     ;; Remove display-time-string from global-mode-string
+     (setq global-mode-string (delq 'display-time-string global-mode-string))
+
+     (display-battery-mode t)
+     ;; Remove battery-mode-line-string from global-mode-string
+     (setq global-mode-string (delq 'battery-mode-line-string global-mode-string))
+
+     (defun *-mode-line-fill (reserve)
+       "Return empty space using FACE and leaving RESERVE space on the right."
+       (unless reserve
+         (setq reserve 20))
+       (when (and window-system
+                  (eq 'right (get-scroll-bar-mode)))
+         (setq reserve (- reserve 3)))
+       (propertize " "
+                   'display `((space :align-to (- (+ right right-fringe right-margin) ,reserve)))))
+
+     (customize-set-variable 'mode-line-format
+                             '("%e"
+                               mode-line-front-space
+                               mode-line-client
+                               mode-line-remote
+                               mode-line-mule-info
+                               mode-line-modified
+
+                               "  "
+                               ;; Buffer name
+                               mode-line-buffer-identification
+
+                               " "
+                               ;; Version control
+                               (:eval (when vc-mode
+                                        (concat " "
+                                                vc-mode)))
+                               ;; Miscellaneous information
+                               "  "
+                               mode-line-misc-info
+
+                               (:eval (*-mode-line-fill (+ (length battery-mode-line-string)
+                                                           1
+                                                           (length display-time-string))))
+                               battery-mode-line-string
+                               " "
+                               display-time-string))
+
+   #+end_src
+
+** Theme
+   These are all my custom color theme for a minimal yet confor look for the editor.
+
+   #+begin_src emacs-lisp :tangle yes
+     (defun theme-casey-setup ()
+       "My custom color scheme based on casey"
+       (interactive)
+       (setq evil-normal-state-cursor '(box "#40FF40")
+             evil-insert-state-cursor '(box "#40FF40")
+             evil-visual-state-cursor '(hollow "#40FF40"))
+       (set-foreground-color "burlywood3")
+       (set-background-color "#161616")
+       (set-cursor-color "#40FF40")
+       (set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")
+       (set-face-attribute 'font-lock-comment-face nil :foreground "gray50")
+       (set-face-attribute 'font-lock-constant-face nil :foreground "olive drab")
+       (set-face-attribute 'font-lock-doc-face nil :foreground "gray50")
+       (set-face-attribute 'font-lock-function-name-face nil :foreground "burlywood3")
+       (set-face-attribute 'font-lock-keyword-face nil :foreground "DarkGoldenrod3")
+       (set-face-attribute 'font-lock-string-face nil :foreground "olive drab")
+       (set-face-attribute 'font-lock-type-face nil :foreground "burlywood3")
+       (set-face-attribute 'font-lock-variable-name-face nil :foreground "burlywood3"))
+
+     (defun theme-bumbread-setup ()
+       "My custom color scheme based on bumbread"
+       (interactive)
+       (setq evil-normal-state-cursor '(box "white")
+             evil-insert-state-cursor '(box "white")
+             evil-visual-state-cursor '(hollow "white"))
+       (set-foreground-color "#BCBCBC")
+       (set-background-color "#090D12")
+       (set-cursor-color "white")
+       (set-face-attribute 'font-lock-builtin-face nil :foreground "#EE00E8")
+       (set-face-attribute 'font-lock-comment-face nil :foreground "#555555")
+       (set-face-attribute 'font-lock-constant-face nil :foreground "white")
+       (set-face-attribute 'font-lock-doc-face nil :foreground "#555555")
+       (set-face-attribute 'font-lock-function-name-face nil :foreground "white")
+       (set-face-attribute 'font-lock-keyword-face nil :foreground "#FFFFFF")
+       (set-face-attribute 'font-lock-string-face nil :foreground "#A8A59E")
+       (set-face-attribute 'font-lock-type-face nil :foreground "#BCBCBC")
+       (set-face-attribute 'font-lock-variable-name-face nil :foreground "#BCBCBC"))
+
+     (defun theme-4coder-setup ()
+       "My custom color scheme based on 4coder"
+       (interactive)
+       (setq evil-normal-state-cursor '(box "green")
+             evil-insert-state-cursor '(box "green")
+             evil-visual-state-cursor '(hollow "green"))
+       (set-foreground-color "#90B080")
+       (set-background-color "#0C0C0C")
+       (set-cursor-color "green")
+       (set-face-attribute 'font-lock-builtin-face nil :foreground "#D08F20")
+       (set-face-attribute 'font-lock-comment-face nil :foreground "#2090F0")
+       (set-face-attribute 'font-lock-constant-face nil :foreground "#50FF30")
+       (set-face-attribute 'font-lock-doc-face nil :foreground "#2090F0")
+       (set-face-attribute 'font-lock-function-name-face nil :foreground "#90B080")
+       (set-face-attribute 'font-lock-keyword-face nil :foreground "#D08F20")
+       (set-face-attribute 'font-lock-string-face nil :foreground "#50FF30")
+       (set-face-attribute 'font-lock-type-face nil :foreground "#90B080")
+       (set-face-attribute 'font-lock-variable-name-face nil :foreground "#90B080"))
+
+     (defun theme-light-setup ()
+       "My custom light color scheme"
+       (interactive)
+       (setq evil-normal-state-cursor '(box "black")
+             evil-insert-state-cursor '(box "black")
+             evil-visual-state-cursor '(hollow "black"))
+       (set-foreground-color "#333333")
+       (set-background-color "#f0f0f0")
+       (set-cursor-color "black")
+       (set-face-attribute 'font-lock-builtin-face nil :foreground "#9A0000")
+       (set-face-attribute 'font-lock-comment-face nil :foreground "#007E00")
+       (set-face-attribute 'font-lock-constant-face nil :foreground "#7c0000")
+       (set-face-attribute 'font-lock-doc-face nil :foreground "#007E00")
+       (set-face-attribute 'font-lock-function-name-face nil :foreground "#333333")
+       (set-face-attribute 'font-lock-keyword-face nil :foreground "#8B4303")
+       (set-face-attribute 'font-lock-string-face nil :foreground "#7C0000")
+       (set-face-attribute 'font-lock-type-face nil :foreground "#333333")
+       (set-face-attribute 'font-lock-variable-name-face nil :foreground "#333333"))
+
+     (defun theme-fluery-setup ()
+       "My custom color scheme based on ryan fleury"
+       (interactive)
+       (setq evil-normal-state-cursor '(box "#00EE00")
+             evil-insert-state-cursor '(box "#00EE00")
+             evil-visual-state-cursor '(hollow "#00EE00"))
+       (set-foreground-color "#b99468")
+       (set-background-color "#222425")
+       (set-cursor-color "#00EE00")
+       ;; (set-face-attribute 'mode-line-inactive nil :background "#275252")
+       (set-face-attribute 'font-lock-builtin-face nil :foreground "#dc7575")
+       (set-face-attribute 'font-lock-comment-face nil :foreground "#9ba290")
+       (set-face-attribute 'font-lock-constant-face nil :foreground "#ffa900")
+       (set-face-attribute 'font-lock-doc-face nil :foreground "gray50")
+       (set-face-attribute 'font-lock-function-name-face nil :foreground "#b99468")
+       (set-face-attribute 'font-lock-keyword-face nil :foreground "#f0c674")
+       (set-face-attribute 'font-lock-string-face nil :foreground "#ffa900")
+       (set-face-attribute 'font-lock-type-face nil :foreground "#b99468")
+       (set-face-attribute 'font-lock-variable-name-face nil :foreground "#b99468"))
+
+     (defun theme-naysayer-setup ()
+       "My custom color scheme based on johnathan blow"
+       (interactive)
+       (setq evil-normal-state-cursor '(box "lightgreen")
+             evil-insert-state-cursor '(box "lightgreen")
+             evil-visual-state-cursor '(hollow "lightgreen"))
+       (set-foreground-color "#d1b897")
+       (set-background-color "#072626")
+       (set-cursor-color "lightgreen")
+       ;; (set-face-attribute 'mode-line-inactive nil :background "#275252")
+       (set-face-attribute 'font-lock-builtin-face nil :foreground "#40db7e")
+       (set-face-attribute 'font-lock-comment-face nil :foreground "#3a8c5a")
+       (set-face-attribute 'font-lock-constant-face nil :foreground "#d1b897")
+       (set-face-attribute 'font-lock-doc-face nil :foreground "gray50")
+       (set-face-attribute 'font-lock-function-name-face nil :foreground "#dbdbdb")
+       (set-face-attribute 'font-lock-keyword-face nil :foreground "#dbdbdb")
+       (set-face-attribute 'font-lock-string-face nil :foreground "#0dbd94")
+       (set-face-attribute 'font-lock-type-face nil :foreground "#d1b897")
+       (set-face-attribute 'font-lock-variable-name-face nil :foreground "#d1b897"))
+   #+end_src
