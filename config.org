@@ -2,19 +2,19 @@
 #+AUTHOR: Nghia Lam
 
 * About
-  This is my long configuration for the GNUs Emacs.
-  This configuration is based on my habit, which may not be suitable for some people.
-  This config helps me in professional works and daily life notes.
+This is my long configuration for the GNUs Emacs.
+This configuration is based on my habit, which may not be suitable for some people.
+This config helps me in professional works and daily life notes.
 
-  In editor war, the winner is not Emacs or Vim, it’s your configuration with these two. Now let’s turn this Emacs into a real monster.
+In editor war, the winner is not Emacs or Vim, it’s your configuration with these two. Now let’s turn this Emacs into a real monster.
 
 ** TODO Better support for keybinding and evil-mode.
 
 * Emacs Startup
 ** File Header
-   I included some info to the file header.
+I included some info to the file header.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      ;;; config.el --- My EMACS init file.            -*- lexical-binding: t; -*-
      ;; Copyright (C) 2020 Nghia Lam
 
@@ -24,12 +24,26 @@
 
      ;; EMACS config file.  For cross-platform Emacs 26, Emacs 27.
      (setq-default lexical-binding t)
-   #+end_src
+#+end_src
+
+** Startup Performance
+Use a hook to measure Emacs startup time.
+   
+#+begin_src emacs-lisp :tangle yes
+     ;; Profile emacs startup
+     (add-hook 'emacs-startup-hook
+               (lambda ()
+                 (message "*** Emacs loaded in %s with %d garbage collections. ***"
+                          (format "%.2f seconds"
+                                  (float-time
+                                   (time-subtract after-init-time before-init-time)))
+                          gcs-done)))
+#+end_src
 
 ** System Information
-   Here I setup some info for my Emacs. As my job requires me to work on all OS, you will see a lot of times I need to config for each of them differently.
+Here I setup some info for my Emacs. As my job requires me to work on all OS, you will see a lot of times I need to config for each of them differently.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (defvar myemacs/version
        "1.0.0"
        "Nghia Lam's Emacs version.")
@@ -54,13 +68,13 @@
      (defconst emacs/>=26p
        (>= emacs-major-version 26)
        "Emacs is 26 or above.")
-   #+end_src
+#+end_src
 
 ** Package Manager
-   For easy managing packages, we can use the =use-package= to do the hard work for us.
-   First, we need to configure the pacakge resources, then install the =use-package=, if we don't have it already.
+For easy managing packages, we can use the =use-package= to do the hard work for us.
+First, we need to configure the pacakge resources, then install the =use-package=, if we don't have it already.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (setq package-user-dir "~/.emacs.d/.local/packages")
 
      (package-initialize)
@@ -72,12 +86,12 @@
      (unless (package-installed-p 'use-package)
        (package-refresh-contents)
        (package-install 'use-package))
-   #+end_src
+#+end_src
 
 ** Default Settings
-   For a better experiences with Emacs, I will change the default settings of it.
+For a better experiences with Emacs, I will change the default settings of it.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (setq-default fill-column 80                                   ; Set width for automatic line breaks
                    help-window-select t                             ; Focus new help windows when opened
                    visible-bell t                                   ; Turn off annoying sound
@@ -90,11 +104,11 @@
      ;; (global-hl-line-mode)                                          ; Hightlight current line
      (display-time-mode 1)                                          ; Enable time in the mode-line
      (defalias 'list-buffers 'ibuffer)                              ; Make ibuffer default
-   #+end_src
+#+end_src
 
-   Some specific OS tweak:
+Some specific OS tweak:
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (when sys/macos
        (setq mac-redisplay-dont-reset-vscroll t
              mac-mouse-wheel-smooth-scroll nil
@@ -111,21 +125,21 @@
        (setq mac-option-modifier 'super)                                    ; make opt key do Super
        (setq mac-control-modifier 'control)                                 ; make Control key do Control
        (setq ns-function-modifier 'hyper))                                  ; make Fn key do Hyper
-   #+end_src
+#+end_src
 
-   Other personal settings will be written to custom.el
+Other personal settings will be written to custom.el
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (setq-default custom-file
                    (expand-file-name (format "~/.emacs.d/.local/custom.el" user-emacs-directory)))
      (when (file-exists-p custom-file)
        (load custom-file t))
-   #+end_src
+#+end_src
 
 ** Helper Commands
-   These helpers serve as a nice shortcut for me to quickly navigate around Emacs.
+These helpers serve as a nice shortcut for me to quickly navigate around Emacs.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (defun Config ()
        "Quickly open my Emacs config file."
        (interactive)
@@ -135,13 +149,13 @@
        "Quickly reload my Emacs init file."
        (interactive)
        (load-file "~/.emacs.d/init.el"))
-   #+end_src
+#+end_src
 
 * Evil-Mode
-  As the default keys chord of Emacs is not really good for your fingers, I will use the =evil-mode= to get the =vi= keychord from Vim.
-  Everyone goes evil nowadays ...
+As the default keys chord of Emacs is not really good for your fingers, I will use the =evil-mode= to get the =vi= keychord from Vim.
+Everyone goes evil nowadays ...
 
-  #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
     (use-package evil
       :ensure t
       :defer .1 ;; don't block emacs when starting, load evil immediately after startup
@@ -250,22 +264,31 @@
         (evil-define-key 'visual global-map "gS" 'evil-Surround-region))
 
       (message "Loading evil-mode...done"))
-  #+end_src
+
+    (use-package evil-nerd-commenter
+      :ensure t
+      :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+#+end_src
 
 * Org-Mode
-  One of my favorite modes in GNU Emacs. I mainly use it to organize my life, take notes and make my presentations, but you can do lots of things with it.
-  *org-mode* it’s like the sky, without limits.
+One of my favorite modes in GNU Emacs. I mainly use it to organize my life, take notes and make my presentations, but you can do lots of things with it.
+*org-mode* it’s like the sky, without limits.
 
-  #+begin_src emacs-lisp :tangle yes
-    (use-package org
-      :ensure t
-      :pin org)
-  #+end_src
+#+begin_src emacs-lisp :tangle yes
+  (defun my/org-mode-setup ()
+    (org-indent-mode))
 
-  I’m using a large *.org* file to maintain my GNU Emacs configuration. However, at launch, it will load the =config.el= source file for a faster loading.
-  The code below, executes =org-babel-tangle= asynchronously when =config.org= is saved.
+  (use-package org
+    :defer t
+    :hook (org-mode . my/org-mode-setup)
+    :config
+    (setq org-hide-emphasis-markers t))
+#+end_src
 
-  #+begin_src emacs-lisp :tangle yes
+I’m using a large *.org* file to maintain my GNU Emacs configuration. However, at launch, it will load the =config.el= source file for a faster loading.
+The code below, executes =org-babel-tangle= asynchronously when =config.org= is saved.
+
+#+begin_src emacs-lisp :tangle yes
     (use-package async
       :ensure t)
 
@@ -309,71 +332,104 @@
                 (message "ERROR: %s as tangle failed." ,org-file)))))))
 
     (add-hook 'after-save-hook 'my/config-tangle)
-  #+end_src
+#+end_src
 
 ** Bullets
-   Nice looking bullets when we are using *org-mode*.
+Nice looking bullets when we are using *org-mode*.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (use-package org-bullets
        :ensure t
        :config
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-   #+end_src
+#+end_src
 
 * Key Binding
-  This is for my personal hot key when working with Emacs.
-  #+begin_src emacs-lisp :tangle yes
-    (evil-leader/set-key
-          ;; Buffer Commands
-          "b s" 'save-buffer
-          "b k" 'kill-buffer
+First, =<Escape>= cancels all.
 
-          ;; File Commands
-          "f f" 'find-file
-          "f o" 'find-file-other-window
+#+begin_src emacs-lisp :tangle yes
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
 
-          ;; Org Commands
-          "o i" 'org-insert-structure-template
+Then, this is for my personal hot key when working with Emacs.
 
-          ;; Window Commands
-          "w h" 'windmove-left
-          "w l" 'windmove-right
-          "w j" 'windmove-down
-          "w k" 'windmove-up
-          "w v" 'split-window-right
-          "w s" 'split-window-below
-          "w o" 'other-window
+#+begin_src emacs-lisp :tangle yes
+  (evil-leader/set-key
+    ;; Buffer Commands
+    "b s" 'save-buffer
+    "b k" 'kill-buffer
 
-          ;; Toggle Commands
-          "t t" 'neotree-toggle )
-  #+end_src
+    ;; File Commands
+    "f f" 'find-file
+    "f o" 'find-file-other-window
+
+    ;; Org Commands
+    "o i" 'org-insert-structure-template
+
+    ;; Jump Commands
+    "j j" 'avy-goto-char
+    "j w" 'avy-goto-word-0
+    "j l" 'avy-goto-line
+
+    ;; Git Commands
+    "g s" 'magit-status
+    "g d" 'magit-diff-unstaged
+    "g c" 'magit-branch-or-checkout
+    "glc" 'magit-log-current
+    "glf" 'magit-log-buffer-file
+    "g b" 'magit-branch
+    "g P" 'magit-push-current
+    "g p" 'magit-pull-branch
+    "g f" 'magit-fetch
+    "g F" 'magit-fetch-all
+    "g r" 'magit-rebase
+
+    ;; Projectile Commands
+    "p f" 'counsel-projectile-find-file
+    "p s" 'counsel-projectile-switch-project
+    "p F" 'counsel-projectile-rg
+    "p p" 'counsel-projectile
+    "p c" 'projectile-compile-project
+    "p d" 'projectile-dired
+
+    ;; Window Commands
+    "w h" 'windmove-left
+    "w l" 'windmove-right
+    "w j" 'windmove-down
+    "w k" 'windmove-up
+    "w v" 'split-window-right
+    "w s" 'split-window-below
+    "w o" 'other-window
+
+    ;; Toggle Commands
+    "t t" 'neotree-toggle )
+#+end_src
 
 * User Experience
-  This is a big collection of packages which aims with a fast, robust & friendly experience when using Emacs.
+This is a big collection of packages which aims with a fast, robust & friendly
+experience when using Emacs.
 ** AutoRevert
-   Automatically reload files was modified by external program.
+Automatically reload files was modified by external program.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (use-package autorevert
        :ensure nil
        :diminish
        :hook (after-init . global-auto-revert-mode))
-   #+end_src
+#+end_src
 
 ** Avy
-   Navigate by searching for a letter on the screen and jumping to it.
-   #+begin_src emacs-lisp :tangle yes
+Navigate by searching for a letter on the screen and jumping to it.
+#+begin_src emacs-lisp :tangle yes
      (use-package avy
-       :ensure t
-       :bind ("M-s" . avy-goto-word-1)) ;; changed from char as per jcs
-   #+end_src
+       :ensure t)
+#+end_src
 
 ** Company (Autocomplete)
-   Company is a text completion framework for Emacs. The name stands for “complete anything”.
-   It uses pluggable back-ends and front-ends to retrieve and display completion candidates.
+Company is a text completion framework for Emacs. The name stands for “complete anything”.
+It uses pluggable back-ends and front-ends to retrieve and display completion candidates.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (use-package company
        :ensure t
        :hook (after-init . global-company-mode)
@@ -384,21 +440,21 @@
        (company-minimum-prefix-length 2)
        (company-show-numbers t)
        (company-tooltip-align-annotations 't))
-   #+end_src
+#+end_src
 
-   I use =company= with =company-box= that allows a front-end with icons.
-   #+begin_src emacs-lisp :tangle yes
+I use =company= with =company-box= that allows a front-end with icons.
+#+begin_src emacs-lisp :tangle yes
      (use-package company-box
        :after company
        :ensure t
        :hook (company-mode . company-box-mode))
-   #+end_src
+#+end_src
 
 ** Counsel/Ivy
-   I also need to enhance the experience with M-x itself, helm is good for that but I find counsel and ivy better in performance.
-   Since this is an enhanced combo, I will place them in a long source code here.
+I also need to enhance the experience with M-x itself, helm is good for that but I find counsel and ivy better in performance.
+Since this is an enhanced combo, I will place them in a long source code here.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      ;; Counsel Configuration. Init after Ivy package
      (use-package counsel
        :diminish
@@ -421,11 +477,51 @@
        (setq ivy-use-virtual-buffers t)
        (setq ivy-count-format "%d/%d ")
        (setq ivy-display-style 'fancy))
-   #+end_src
+
+     ;; Improves sorting for fuzzy-matched results
+     (use-package flx
+       :defer t
+       :init
+       (setq ivy-flx-limit 1000))
+
+     ;; Adds M-x recent command sorting for counsel-M-x
+     (use-package smex
+       :defer 1
+       :after counsel)
+#+end_src
+
+** Magit
+One of the best git extension for an editor. *Magit* can mostly replace any GUI
+Git application out there.
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package magit
+    :ensure t
+    :commands (magit-status magit-get-current-branch)
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+  (use-package evil-magit
+    :ensure t
+    :after magit)
+#+end_src
+
+** Projectile
+A really nice package for project management within Emacs
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package projectile
+    :ensure t
+    :config (projectile-mode))
+
+  (use-package counsel-projectile
+    :ensure t
+    :after projectile)
+#+end_src
 
 ** Search/Swiper
-   A better search for Emacs.
-   #+begin_src emacs-lisp :tangle yes
+A better search for Emacs.
+#+begin_src emacs-lisp :tangle yes
      ;; Swiper Configuration. Init after Ivy packages
      (use-package swiper
        :ensure t
@@ -435,14 +531,14 @@
               ("C-c C-r" . ivy-resume)
               ("M-x" . counsel-M-x)
               ("C-x C-f" . counsel-find-file)))
-   #+end_src
+#+end_src
 
 * User Interface
 ** Base
-   First of all, I'd like to disable all the mouse interface. I'd rather to use keyboard all the time with Emacs.
-   Then, maximize Emacs when startup.
+First of all, I'd like to disable all the mouse interface. I'd rather to use keyboard all the time with Emacs.
+Then, maximize Emacs when startup.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (custom-set-variables '(menu-bar-mode nil)                      ; Disable the menu bar
                            '(scroll-bar-mode nil)                    ; Disable the scroll bar
                            '(tool-bar-mode nil)                      ; Disable the tool bar
@@ -450,23 +546,23 @@
                            '(blink-cursor-mode nil))                 ; Make the cursor not blinking
 
      (add-hook 'after-init-hook 'toggle-frame-maximized)
-   #+end_src
+#+end_src
 
 ** Font
-   I really like Jetbrain font. To me, its a perfect font for an editor.
+I really like Jetbrain font. To me, its a perfect font for an editor.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (set-face-attribute 'default nil
                          :font "JetBrains Mono"
                          :height (cond (sys/macos 140)
                                        (sys/win32 90)
                                        (sys/linux 90)
                                        (t 100)))
-   #+end_src
+#+end_src
 
 ** Modeline
-   The custom mode-line format for a clean and simple look.
-   #+begin_src emacs-lisp :tangle yes
+The custom mode-line format for a clean and simple look.
+#+begin_src emacs-lisp :tangle yes
      ;; Time format
      (customize-set-variable 'display-time-string-forms
                              '((propertize (format-time-string " %H:%M " now) 'face 'bold)))
@@ -518,34 +614,44 @@
                                " "
                                display-time-string))
 
-   #+end_src
+#+end_src
 
 ** Neotree
-   For a project side bar, I'd like to use neotree as its speed and elegant look.
+For a project side bar, I'd like to use neotree as its speed and elegant look.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (use-package neotree
        :ensure t
        :config
        (setq neo-theme 'arrow)
        (setq neo-window-width 30))
-   #+end_src
+#+end_src
+
+** Paren
+Highlight matching braces
+
+#+begin_src emacs-lisp :tangle yes
+     (use-package paren
+       :ensure t
+       :config
+       (show-paren-mode 1))
+#+end_src
 
 ** Theme
-   First, Add custom theme folder where I store external themes.
+First, Add custom theme folder where I store external themes.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      ;; Load external path
      (defun update-theme-path (&rest _)
        "Update `load-path'."
        (push (expand-file-name "theme" user-emacs-directory) load-path))
 
      (update-theme-path)
-   #+end_src
+#+end_src
    
-   These are all my custom color theme for a minimal yet confor look for the editor.
+These are all my custom color theme for a minimal yet confor look for the editor.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (defun theme-casey-setup ()
        "My custom color scheme based on casey"
        (interactive)
@@ -678,16 +784,17 @@
      ;; Loading the theme
      (require 'bumbread-theme)
      (load-theme 'bumbread)
-   #+end_src
+#+end_src
 * Utililties Packages
 ** Which Keys
-   =which-key= packages bring us the help on the key combinations.
+=which-key= packages bring us the help on the key combinations.
 
-   #+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle yes
      (use-package which-key
        :ensure t
        :config
        (setq which-key-idle-delay 0.8
              which-key-idle-secondary-delay 0.8)
              (which-key-mode))
-   #+end_src
+#+end_src
+   
