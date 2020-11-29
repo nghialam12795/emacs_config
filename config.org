@@ -92,39 +92,48 @@ First, we need to configure the pacakge resources, then install the =use-package
 For a better experiences with Emacs, I will change the default settings of it.
 
 #+begin_src emacs-lisp :tangle yes
-     (setq-default fill-column 80                                   ; Set width for automatic line breaks
-                   help-window-select t                             ; Focus new help windows when opened
-                   visible-bell t                                   ; Turn off annoying sound
-                   indent-tabs-mode nil                             ; Prefers spaces over tabs
-                   inhibit-startup-screen t                         ; Disable start-up screen
-                   initial-scratch-message "")                      ; Empty the initial *scratch* buffer
-     (cd "~/")                                                      ; Move to the user directory
-     (delete-selection-mode 1)                                      ; Replace region when inserting text
-     (fset 'yes-or-no-p 'y-or-n-p)                                  ; Replace yes/no prompts with y/n
-     ;; (global-hl-line-mode)                                          ; Hightlight current line
-     (display-time-mode 1)                                          ; Enable time in the mode-line
-     (defalias 'list-buffers 'ibuffer)                              ; Make ibuffer default
+  (setq-default fill-column 80                                   ; Set width for automatic line breaks
+                auto-save-default nil                            ; Turn off auto save
+                auto-save-interval 0                             ; Turn off auto save interval
+                auto-save-list-file-prefix nil                   ; Turn off auto save list
+                auto-save-timeout 0                              ; Turn off auto save timeout
+                make-backup-files nil                            ; Turn off backup files
+                make-backup-file-name-function (quote ignore)    ; Ignore backup file function name
+                help-window-select t                             ; Focus new help windows when opened
+                visible-bell t                                   ; Turn off annoying sound
+                scroll-step 3                                    ; Smooth scrolling
+                indent-tabs-mode nil                             ; Prefers spaces over tabs
+                inhibit-startup-screen t                         ; Disable start-up screen
+                initial-scratch-message "")                      ; Empty the initial *scratch* buffer
+  (cd "~/")                                                      ; Move to the user directory
+  (delete-selection-mode 1)                                      ; Replace region when inserting text
+  (fset 'yes-or-no-p 'y-or-n-p)                                  ; Replace yes/no prompts with y/n
+  ;; (global-hl-line-mode)                                          ; Hightlight current line
+  (display-time-mode 1)                                          ; Enable time in the mode-line
+  (defalias 'list-buffers 'ibuffer)                              ; Make ibuffer default
 #+end_src
 
 Some specific OS tweak:
 
 #+begin_src emacs-lisp :tangle yes
-     (when sys/macos
-       (setq mac-redisplay-dont-reset-vscroll t
-             mac-mouse-wheel-smooth-scroll nil
-             ns-pop-up-frames nil
-             initial-frame-alist (append '((ns-transparent-titlebar . t)
-                                           (ns-appearance . dark))))
-       (and (or (daemonp)
-                (display-graphic-p))
-            (require 'ns-auto-titlebar nil t)
-            (ns-auto-titlebar-mode +1))
-       (setq frame-title-format nil)
-       (setq ns-use-proxy-icon nil)
-       (setq mac-command-modifier 'meta)                                    ; make cmd key do Meta
-       (setq mac-option-modifier 'super)                                    ; make opt key do Super
-       (setq mac-control-modifier 'control)                                 ; make Control key do Control
-       (setq ns-function-modifier 'hyper))                                  ; make Fn key do Hyper
+  (when sys/macos
+    (setq mac-redisplay-dont-reset-vscroll t
+          mac-mouse-wheel-smooth-scroll nil
+          ns-pop-up-frames nil
+          initial-frame-alist (append '((ns-transparent-titlebar . t)
+                                        (ns-appearance . dark))))
+    (and (or (daemonp)
+             (display-graphic-p))
+         (require 'ns-auto-titlebar nil t)
+         (ns-auto-titlebar-mode +1))
+    (defun nil-bell ())
+    (setq ring-bell-function 'nil-bell)                                  ; turn off the bell on osx
+    (setq frame-title-format nil)
+    (setq ns-use-proxy-icon nil)
+    (setq mac-command-modifier 'meta)                                    ; make cmd key do Meta
+    (setq mac-option-modifier 'super)                                    ; make opt key do Super
+    (setq mac-control-modifier 'control)                                 ; make Control key do Control
+    (setq ns-function-modifier 'hyper))                                  ; make Fn key do Hyper
 #+end_src
 
 Other personal settings will be written to custom.el
@@ -555,7 +564,7 @@ I really like Jetbrain font. To me, its a perfect font for an editor.
      (set-face-attribute 'default nil
                          :font "JetBrains Mono"
                          :height (cond (sys/macos 140)
-                                       (sys/win32 90)
+                                       (sys/win32 100)
                                        (sys/linux 90)
                                        (t 100)))
 #+end_src
